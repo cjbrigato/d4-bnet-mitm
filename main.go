@@ -26,7 +26,7 @@ import (
 	"embed"
 )
 
-//go:embed bnetserver.*
+//go:embed ssl/bnetserver.*
 //go:embed build/pb/*_bundle.binpb
 var f embed.FS
 
@@ -108,13 +108,13 @@ func PrintMessage(m proto.Message) {
 			switch v := last.Value.Interface().(type) {
 			case protoreflect.Message:
 				fmt.Printf("{\n")
-				indent = append(indent, '\t')
+				indent = append(indent, ' ', ' ')
 			case protoreflect.List:
 				fmt.Printf("[\n")
-				indent = append(indent, '\t')
+				indent = append(indent, ' ', ' ')
 			case protoreflect.Map:
 				fmt.Printf("{\n")
-				indent = append(indent, '\t')
+				indent = append(indent, ' ', ' ')
 			case protoreflect.EnumNumber:
 				var ev protoreflect.EnumValueDescriptor
 				if fd != nil {
@@ -137,13 +137,13 @@ func PrintMessage(m proto.Message) {
 			last := p.Index(-1)
 			switch last.Value.Interface().(type) {
 			case protoreflect.Message:
-				indent = indent[:len(indent)-1]
+				indent = indent[:len(indent)-2]
 				fmt.Printf("%s}\n", indent)
 			case protoreflect.List:
-				indent = indent[:len(indent)-1]
+				indent = indent[:len(indent)-2]
 				fmt.Printf("%s]\n", indent)
 			case protoreflect.Map:
-				indent = indent[:len(indent)-1]
+				indent = indent[:len(indent)-2]
 				fmt.Printf("%s}\n", indent)
 			}
 			return nil
