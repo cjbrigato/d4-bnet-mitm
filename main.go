@@ -41,11 +41,11 @@ var (
 )
 
 func LoadEmbededX509KeyPair() (tls.Certificate, error) {
-	certPEMBlock, err := f.ReadFile("bnetserver.crt")
+	certPEMBlock, err := f.ReadFile("ssl/bnetserver.crt")
 	if err != nil {
 		return tls.Certificate{}, err
 	}
-	keyPEMBlock, err := f.ReadFile("bnetserver.key")
+	keyPEMBlock, err := f.ReadFile("ssl/bnetserver.key")
 	if err != nil {
 		return tls.Certificate{}, err
 	}
