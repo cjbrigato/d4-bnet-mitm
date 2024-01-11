@@ -1,0 +1,13 @@
+#!/bin/bash
+
+
+mkdir -p ${REPO_ROOT}/build/pb/bundle/bgs
+for I in $(find ${REPO_ROOT}/build/protos/bgs/|grep '\.proto$');
+do
+	fn=$(sed 's,/,_,g' <<< $I)
+	protoc -I${REPO_ROOT}/build/protos $I -o ${REPO_ROOT}/build/pb/bundle/bgs/$fn --include_imports --include_source_info
+done
+
+cd ${REPO_ROOT}/build/pb/bundle/bgs
+cat * > ../../bgs_bundle.binpb
+

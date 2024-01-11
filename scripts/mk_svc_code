@@ -1,0 +1,63 @@
+#!/bin/bash
+
+list_service_files () {
+  find $1 |egrep "[^/]service.proto$|[^/]listener.proto$"
+}
+
+mk_def () {
+  cat $1|egrep 'package|^service|[^/_]rpc' | tr -d '\015'
+}
+
+echo "// #  Generated from mk_svc_code DO NOT EDIT"
+echo "package services"
+for I in $(list_service_files $1);
+do
+echo "// looping over : $I"
+echo -ne "   _ \"${MODNAME}/bnet/\""
+	echo -n "$(cat $I|grep 'package' | tr -d '\015' | cut -d' ' -f2|sed 's,\.,/,g'|sed 's/;//g')"
+	echo '"'
+done
+echo ")"
+
+echo 'var svc_pool = map[string][]svc_method{'
+
+for I in $(list_service_files $1);
+do
+	package=""
+	def="$(mk_def $I)"
+
+
+{
+_package=""
+_import_package=""
+_curserv=""
+_currpc=0
+while read -r line; do
+if grep -q '^package' <<< "$line";
+then
+   _package="$(echo "$line" | cut -d' ' -f2|sed 's/;//g')"
+   _import_package="$(echo "$line" | cut -d' ' -f2|sed 's,\.,/,g'|sed 's/;//g')"
+
+elif grep -q '^service' <<< "$line";
+then
+		if [[ $_curserv != "" ]];then echo "},";_currpc=0;fi
+		_curserv="$(echo "$line" | cut -d' ' -f2)"
+		echo -e "\"${_package}.$_curserv\": []svc_method{"
+elif grep -q '^rpc' <<< "$line"
+then
+		let "_currpc=_currpc+1"
+		method_id=$_currpc
+		method_name="$(echo "$line" | cut -d' ' -f2)"
+		request_msg="$(echo "$line" | cut -d' ' -f3|sed 's/(\.//g'|sed 's/)//g')"
+		response_msg="$(echo "$line" | cut -d' ' -f5|sed 's/(\.//g'|sed 's/)//g'|sed 's/;//g')"
+		echo -e "    svc_method{method_id: $method_id, method_name: \"$method_name\", request_msg: \"$request_msg\", response_msg: \"$response_msg\" },"
+fi
+
+done <<< "$def"
+echo '},'
+_currpc=0
+_curserv=""
+}
+
+done
+echo "}"

@@ -1,0 +1,26 @@
+#!/bin/bash
+export REPO_ROOT="$(git rev-parse --show-toplevel)"
+export REPO_NAME="$(basename $REPO_ROOT)"
+PROTOC_VER="25.2"
+PROTOC_ARCH="$(uname -m)"
+PROTOC_OS="$(uname -s | tr 'A-Z' 'a-z')"
+PROTOC_FILE="protoc-${PROTOC_VER}-${PROTOC_OS}-${PROTOC_ARCH}"
+
+export MODNAME=$(cat ${REPO_ROOT}/go.mod|grep module|cut -d' ' -f2)
+D4PROTO_COMMIT="b04c5a59d255458331e81762bc13b3350cccf270"
+D4PROTO_URL="https://github.com/cjbrigato/diablo4-proto/archive/${D4PROTO_COMMIT}.tar.gz"
+
+mkdir -p $REPO_ROOT/{bin,build}
+
+if ! which protoc >/dev/null ; then
+	wget "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VER}/${PROTOC_FILE}.zip"
+	unzip -d build/ ${PROTOC_FILE}.zip
+	rm ${PROTOC_FILE}.zip
+	export PATH=$PATH:$(realpath build/bin)
+fi
+
+curl "$D4PROTO_URL" | tar -C build/ --strip-components=1 -xzvf - diablo4-proto-${D4PROTO_COMMIT}/protos
+fix_bnet 
+bgs_pb_bundle  
+fenris_pb_bundle
+./mk_svc_code build/protos/ > services/generated.go

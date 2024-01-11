@@ -1,0 +1,9 @@
+#!/bin/bash
+ 
+if grep -q "go_package" "$1"; then
+	echo "file $1 skipped"
+	exit 1
+fi
+
+
+cat "$1" | grep ^package | sed 's,\.,/,g'| sed "s,package ,option go_package = \"${MODNAME}/bnet/,g" | sed 's/;/";/g' >> $1

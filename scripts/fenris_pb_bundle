@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cd $REPO_ROOT/build/protos/fenris
+echo "package Fenris;" > ../fenris.proto
+ls -1 | sed 's,^,import ",g' |sed 's,$,";,' >> ../fenris.proto
+mv ../fenris.proto .
+protoc -I. ./fenris.proto -o ../../pb/fenris_bundle.binpb --include_imports --include_source_info
