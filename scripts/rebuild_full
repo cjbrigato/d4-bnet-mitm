@@ -31,10 +31,10 @@ cd ${REPO_ROOT}/scripts
 cd ${REPO_ROOT}
 scripts/mk_svc_code build/protos/ > services/generated.go
 scripts/fix_generated
-rm bnet/bgs/protocol/channel/v2/channel_types.pb.go
 #mv build/pb/$MODNAME/bnet .
 mkdir -p bnet
 cp -r build/pb/${MODNAME}/bnet/* bnet/
+rm -f bnet/bgs/protocol/channel/v2/channel_types.pb.go 
 cp build/pb/*.binpb bin/
 cp scripts/proxy.sh scripts/proxy.ps1 bnetserver.key bnetserver.crt bin/
 go build -o bin/
