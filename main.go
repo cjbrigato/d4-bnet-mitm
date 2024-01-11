@@ -22,17 +22,35 @@ import (
 	"google.golang.org/protobuf/reflect/protopath"
 	"google.golang.org/protobuf/reflect/protorange"
 	"google.golang.org/protobuf/reflect/protoreflect"
+
+	"embed"
 )
+
+//go:embed bnetserver.*
+//go:embed build/pb/*_bundle.binpb
+var f embed.FS
 
 var raddr string
 var ids = 0
 var log_mutex sync.RWMutex
 
 var (
-	useTLS   = flag.Bool("tls", false, "use TLS/SSL for both connections")
+	noTLS    = flag.Bool("no-tls", false, "don't use TLS/SSL for both connections")
 	certFile = flag.String("cert", "", "X.509 certificate file")
 	keyFile  = flag.String("keyfile", "", "X.509 key file")
 )
+
+func LoadEmbededX509KeyPair() (tls.Certificate, error) {
+	certPEMBlock, err := f.ReadFile("bnetserver.crt")
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+	keyPEMBlock, err := f.ReadFile("bnetserver.key")
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+	return tls.X509KeyPair(certPEMBlock, keyPEMBlock)
+}
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "usage: %s [options] <listen-addr> <remote-addr>\n", os.Args[0])
@@ -323,7 +341,7 @@ func logproxy(client net.Conn) {
 	conf := &tls.Config{
 		InsecureSkipVerify: true,
 	}
-	if *useTLS {
+	if !*noTLS {
 		remote, err = tls.Dial("tcp", raddr, conf)
 	} else {
 		remote, err = net.Dial("tcp", raddr)
@@ -374,16 +392,13 @@ func handle(done chan<- net.Conn) chan net.Conn {
 func main() {
 
 	init_pending_responses()
-	dynamic.Register("./fenris_bundle.binpb")
-	dynamic.Register("./bgs_bundle.binpb")
+	dynamic.Register("build/pb/bgs_bundle.binpb", &f)
+	dynamic.Register("build/pb/fenris_bundle.binpb", &f)
 	services.Test_protos()
+
 	flag.Parse()
 	if flag.NArg() != 2 {
 		usage()
-	}
-
-	if *useTLS && !(exists(*certFile) && exists(*keyFile)) {
-		fatal("cert and key file required with tls\n")
 	}
 
 	var err error
@@ -402,10 +417,17 @@ func main() {
 		fatal("listen:", err, "\n")
 	}
 
-	if *useTLS {
+	if !*noTLS {
 		config := tls.Config{}
 		config.Certificates = make([]tls.Certificate, 1)
-		config.Certificates[0], err = tls.LoadX509KeyPair(*certFile, *keyFile)
+		if !*noTLS && !(exists(*certFile) && exists(*keyFile)) {
+			fmt.Printf("No key/cert files specified : using embedded X509 pair\n")
+			config.Certificates[0], err = LoadEmbededX509KeyPair()
+		} else {
+			fmt.Printf("Using CLI specified key/cert files\n")
+			config.Certificates[0], err = tls.LoadX509KeyPair(*certFile, *keyFile)
+		}
+
 		if err != nil {
 			fatal("loading cert:", err)
 		}

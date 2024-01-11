@@ -1,6 +1,7 @@
 package dynamic
 
 import (
+	"embed"
 	"fmt"
 	"log"
 	"os"
@@ -59,12 +60,18 @@ func recoverableRegistration(f protoreflect.FileDescriptor) (err error) {
 	return
 }
 
-func Register(pbfile string) {
+func Register(pbfile string, efs *embed.FS) {
 	fileDescriptorSet := pbfile
 
+	var data []byte
+	var err error
 	// Read descriptors from file
 	var files descriptorpb.FileDescriptorSet
-	data, err := os.ReadFile(fileDescriptorSet)
+	if efs != nil {
+		data, err = efs.ReadFile(fileDescriptorSet)
+	} else {
+		data, err = os.ReadFile(fileDescriptorSet)
+	}
 	if err != nil {
 		log.Fatalln(err)
 	}
