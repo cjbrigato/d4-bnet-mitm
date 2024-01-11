@@ -1,0 +1,31 @@
+package bgs.protocol.block_list.v1.client;
+import "bgs/low/pb/client/api/client/v1/block_list_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message SubscribeRequest {
+}
+message SubscribeResponse {
+	optional .bgs.protocol.block_list.v1.client.BlockListState state = 1;
+}
+message UnsubscribeRequest {
+}
+message GetStateRequest {
+}
+message GetStateResponse {
+	optional .bgs.protocol.block_list.v1.client.BlockListState state = 1;
+}
+message BlockPlayerRequest {
+	optional .bgs.protocol.block_list.v1.client.BlockPlayerOptions options = 2;
+}
+message UnblockPlayerRequest {
+	optional .bgs.protocol.block_list.v1.client.UnblockPlayerOptions options = 2;
+}
+service BlockListService {
+	rpc Subscribe (.bgs.protocol.block_list.v1.client.SubscribeRequest) returns (.bgs.protocol.block_list.v1.client.SubscribeResponse);
+	rpc Unsubscribe (.bgs.protocol.block_list.v1.client.UnsubscribeRequest) returns (.bgs.protocol.NoData);
+	rpc GetState (.bgs.protocol.block_list.v1.client.GetStateRequest) returns (.bgs.protocol.block_list.v1.client.GetStateResponse);
+	rpc BlockPlayer (.bgs.protocol.block_list.v1.client.BlockPlayerRequest) returns (.bgs.protocol.NoData);
+	rpc UnblockPlayer (.bgs.protocol.block_list.v1.client.UnblockPlayerRequest) returns (.bgs.protocol.NoData);
+	rpc BlockPlayerForSession (.bgs.protocol.block_list.v1.client.BlockPlayerRequest) returns (.bgs.protocol.NoData);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/block_list/v1/client";

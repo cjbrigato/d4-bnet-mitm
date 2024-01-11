@@ -1,0 +1,44 @@
+package Blizzard.Telemetry.D4.Common.Game.v1;
+
+message HeroClassInfo {
+	message Power {
+		optional sint32 power_sno = 1;
+		optional uint32 power_ranks = 2;
+		optional .Blizzard.Telemetry.D4.Common.Game.v1.HeroClassInfo.PowerType type = 3;
+		optional string power_mod = 4;
+	}
+	message Stats {
+		optional float dexterity = 1;
+		optional float intelligence = 2;
+		optional float stength = 3;
+		optional float willpower = 4;
+	}
+	message Glyph {
+		optional sint32 glyph_sno = 1;
+		optional sint32 glyph_level = 2;
+		optional bool glyph_threshold_reached = 3;
+	}
+	message Paragon {
+		repeated sint32 equipped_board_sno = 1;
+		repeated .Blizzard.Telemetry.D4.Common.Game.v1.HeroClassInfo.Glyph equipped_glyph = 2;
+		repeated sint32 legendary_node_sno = 3;
+		optional sint32 points_earned = 4;
+		optional sint32 points_available = 5;
+	}
+	enum PowerType {
+		POWER_TYPE_SKILL = 0;
+		POWER_TYPE_TALENT = 1;
+		POWER_TYPE_SKILL_MOD = 2;
+		POWER_TYPE_ENCHANT = 3;
+		POWER_TYPE_CLASS_PASSIVE_SKILL = 4;
+		POWER_TYPE_ROGUE_SPECIALIZATION = 5;
+		POWER_TYPE_WEAPON_EXPERTISE = 6;
+		POWER_TYPE_NECROMANCER_SPECIALIZATION = 7;
+	}
+	repeated .Blizzard.Telemetry.D4.Common.Game.v1.HeroClassInfo.Power equipped_skill = 1;
+	repeated .Blizzard.Telemetry.D4.Common.Game.v1.HeroClassInfo.Power skill_tree_talent = 2;
+	repeated .Blizzard.Telemetry.D4.Common.Game.v1.HeroClassInfo.Power skill_tree_skill_mod = 3;
+	repeated .Blizzard.Telemetry.D4.Common.Game.v1.HeroClassInfo.Power class_passive = 4;
+	optional .Blizzard.Telemetry.D4.Common.Game.v1.HeroClassInfo.Stats stats = 5;
+	optional .Blizzard.Telemetry.D4.Common.Game.v1.HeroClassInfo.Paragon paragon = 6;
+}

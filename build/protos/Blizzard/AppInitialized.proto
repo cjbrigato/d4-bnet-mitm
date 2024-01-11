@@ -1,0 +1,6 @@
+package Blizzard.Telemetry.Fenris.Client.v1;
+import "telemetry_extensions.proto";
+
+message AppInitialized {
+	optional float initilization_time = 1;
+}

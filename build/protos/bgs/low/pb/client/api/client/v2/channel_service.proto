@@ -1,0 +1,240 @@
+package bgs.protocol.channel.v2;
+import "bgs/low/pb/client/api/client/v2/channel_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+import "bgs/low/pb/client/message_types.proto";
+import "bgs/low/pb/client/invitation_types.proto";
+import "bgs/low/pb/client/voice_types.proto";
+
+message CreateChannelRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.CreateChannelOptions options = 2;
+}
+message DissolveChannelRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+}
+message GetChannelRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+	optional bool fetch_attributes = 5;
+	optional bool fetch_members = 6;
+	optional bool fetch_invitations = 7;
+	optional bool fetch_roles = 8;
+}
+message GetChannelResponse {
+	optional .bgs.protocol.channel.v2.Channel channel = 1;
+}
+message GetPublicChannelTypesRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.GetPublicChannelTypesOptions options = 2;
+	optional uint64 continuation = 3;
+}
+message GetPublicChannelTypesResponse {
+	repeated .bgs.protocol.channel.v2.PublicChannelType channel = 1;
+	optional uint64 continuation = 2;
+}
+message FindChannelRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.FindChannelOptions options = 2;
+}
+message SubscribeRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+}
+message SubscribeResponse {
+	optional .bgs.protocol.channel.v2.Channel channel = 1;
+}
+message UnsubscribeRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+}
+message SetAttributeRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+	repeated .bgs.protocol.v2.Attribute attribute = 3;
+}
+message SetPrivacyLevelRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+	optional .bgs.protocol.channel.v2.PrivacyLevel privacy_level = 3;
+}
+message SendMessageRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+	optional .bgs.protocol.channel.v2.SendMessageOptions options = 3;
+}
+message SetTypingIndicatorRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+	optional .bgs.protocol.TypingIndicator action = 3;
+}
+message JoinRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+	optional .bgs.protocol.channel.v2.CreateMemberOptions member = 3;
+}
+message LeaveRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+}
+message KickRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+	optional .bgs.protocol.account.v1.GameAccountHandle target_id = 3;
+}
+message SetMemberAttributeRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+	optional .bgs.protocol.channel.v2.AttributeAssignment assignment = 3;
+}
+message AssignRoleRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+	optional .bgs.protocol.channel.v2.RoleAssignment assignment = 3;
+}
+message UnassignRoleRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+	optional .bgs.protocol.channel.v2.RoleAssignment assignment = 3;
+}
+message SendInvitationRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.SendInvitationOptions options = 2;
+}
+message AcceptInvitationRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+	optional fixed64 invitation_id = 3;
+}
+message DeclineInvitationRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+	optional fixed64 invitation_id = 3;
+}
+message RevokeInvitationRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+	optional fixed64 invitation_id = 3;
+}
+message SendSuggestionRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.SendSuggestionOptions options = 2;
+}
+message GetJoinVoiceTokenRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 2;
+	optional uint32 version = 3;
+}
+message GetJoinVoiceTokenResponse {
+	optional string channel_uri = 1;
+	optional .bgs.protocol.VoiceCredentials credentials = 2;
+}
+message MemberAddedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	optional .bgs.protocol.channel.v2.Member member = 4;
+}
+message MemberRemovedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	optional .bgs.protocol.account.v1.GameAccountHandle member_id = 4;
+	optional uint32 reason = 5;
+	optional uint64 member_account_id = 6;
+}
+message MemberAttributeChangedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	optional .bgs.protocol.channel.v2.AttributeAssignment assignment = 4;
+}
+message MemberRoleChangedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	repeated .bgs.protocol.channel.v2.RoleAssignment assignment = 4;
+}
+message AttributeChangedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	repeated .bgs.protocol.v2.Attribute attribute = 4;
+}
+message PrivacyLevelChangedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	optional .bgs.protocol.channel.v2.PrivacyLevel privacy_level = 4;
+}
+message SendMessageNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	optional .bgs.protocol.channel.v2.ChannelMessage message = 4;
+}
+message TypingIndicatorNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	optional .bgs.protocol.account.v1.GameAccountHandle author_id = 4;
+	optional uint64 epoch = 5;
+	optional .bgs.protocol.TypingIndicator action = 6;
+}
+message InvitationAddedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	optional .bgs.protocol.channel.v2.ChannelInvitation invitation = 4;
+}
+message InvitationRemovedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	optional fixed64 invitation_id = 4;
+	optional .bgs.protocol.InvitationRemovedReason reason = 5;
+}
+message SuggestionAddedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional .bgs.protocol.channel.v2.Suggestion suggestion = 3;
+}
+service ChannelService {
+	rpc CreateChannel (.bgs.protocol.channel.v2.CreateChannelRequest) returns (.bgs.protocol.NoData);
+	rpc DissolveChannel (.bgs.protocol.channel.v2.DissolveChannelRequest) returns (.bgs.protocol.NoData);
+	rpc GetChannel (.bgs.protocol.channel.v2.GetChannelRequest) returns (.bgs.protocol.channel.v2.GetChannelResponse);
+	rpc GetPublicChannelTypes (.bgs.protocol.channel.v2.GetPublicChannelTypesRequest) returns (.bgs.protocol.channel.v2.GetPublicChannelTypesResponse);
+	rpc FindChannel (.bgs.protocol.channel.v2.FindChannelRequest) returns (.bgs.protocol.NoData);
+	rpc Subscribe (.bgs.protocol.channel.v2.SubscribeRequest) returns (.bgs.protocol.channel.v2.SubscribeResponse);
+	rpc Unsubscribe (.bgs.protocol.channel.v2.UnsubscribeRequest) returns (.bgs.protocol.NoData);
+	rpc SetAttribute (.bgs.protocol.channel.v2.SetAttributeRequest) returns (.bgs.protocol.NoData);
+	rpc SetPrivacyLevel (.bgs.protocol.channel.v2.SetPrivacyLevelRequest) returns (.bgs.protocol.NoData);
+	rpc SendMessage (.bgs.protocol.channel.v2.SendMessageRequest) returns (.bgs.protocol.NoData);
+	rpc SetTypingIndicator (.bgs.protocol.channel.v2.SetTypingIndicatorRequest) returns (.bgs.protocol.NoData);
+	rpc Join (.bgs.protocol.channel.v2.JoinRequest) returns (.bgs.protocol.NoData);
+	rpc Leave (.bgs.protocol.channel.v2.LeaveRequest) returns (.bgs.protocol.NoData);
+	rpc Kick (.bgs.protocol.channel.v2.KickRequest) returns (.bgs.protocol.NoData);
+	rpc SetMemberAttribute (.bgs.protocol.channel.v2.SetMemberAttributeRequest) returns (.bgs.protocol.NoData);
+	rpc AssignRole (.bgs.protocol.channel.v2.AssignRoleRequest) returns (.bgs.protocol.NoData);
+	rpc UnassignRole (.bgs.protocol.channel.v2.UnassignRoleRequest) returns (.bgs.protocol.NoData);
+	rpc SendInvitation (.bgs.protocol.channel.v2.SendInvitationRequest) returns (.bgs.protocol.NoData);
+	rpc AcceptInvitation (.bgs.protocol.channel.v2.AcceptInvitationRequest) returns (.bgs.protocol.NoData);
+	rpc DeclineInvitation (.bgs.protocol.channel.v2.DeclineInvitationRequest) returns (.bgs.protocol.NoData);
+	rpc RevokeInvitation (.bgs.protocol.channel.v2.RevokeInvitationRequest) returns (.bgs.protocol.NoData);
+	rpc SendSuggestion (.bgs.protocol.channel.v2.SendSuggestionRequest) returns (.bgs.protocol.NoData);
+	rpc GetJoinVoiceToken (.bgs.protocol.channel.v2.GetJoinVoiceTokenRequest) returns (.bgs.protocol.channel.v2.GetJoinVoiceTokenResponse);
+}
+service ChannelListener {
+	rpc OnMemberAdded (.bgs.protocol.channel.v2.MemberAddedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnMemberRemoved (.bgs.protocol.channel.v2.MemberRemovedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnMemberAttributeChanged (.bgs.protocol.channel.v2.MemberAttributeChangedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnMemberRoleChanged (.bgs.protocol.channel.v2.MemberRoleChangedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnSendMessage (.bgs.protocol.channel.v2.SendMessageNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnTypingIndicator (.bgs.protocol.channel.v2.TypingIndicatorNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnAttributeChanged (.bgs.protocol.channel.v2.AttributeChangedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnPrivacyLevelChanged (.bgs.protocol.channel.v2.PrivacyLevelChangedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnInvitationAdded (.bgs.protocol.channel.v2.InvitationAddedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnInvitationRemoved (.bgs.protocol.channel.v2.InvitationRemovedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnSuggestionAdded (.bgs.protocol.channel.v2.SuggestionAddedNotification) returns (.bgs.protocol.NO_RESPONSE);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/channel/v2";

@@ -1,0 +1,17 @@
+package bgs.protocol.challenge.v1;
+import "bgs/low/pb/client/rpc_types.proto";
+
+message ChallengeExternalRequest {
+	optional string request_token = 1;
+	optional string payload_type = 2;
+	optional bytes payload = 3;
+}
+message ChallengeExternalResult {
+	optional string request_token = 1;
+	optional bool passed = 2 [default = true];
+}
+service ChallengeListener {
+	rpc OnExternalChallenge (.bgs.protocol.challenge.v1.ChallengeExternalRequest) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnExternalChallengeResult (.bgs.protocol.challenge.v1.ChallengeExternalResult) returns (.bgs.protocol.NO_RESPONSE);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/challenge/v1";

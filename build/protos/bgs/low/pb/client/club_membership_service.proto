@@ -1,0 +1,51 @@
+package bgs.protocol.club.v1.membership;
+import "bgs/low/pb/client/club_types.proto";
+import "bgs/low/pb/client/club_stream.proto";
+
+message SubscribeRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+	optional .bgs.protocol.club.v1.ClubMembershipSubscribeOptions options = 2;
+}
+message SubscribeResponse {
+	optional .bgs.protocol.club.v1.ClubMembershipState state = 1;
+}
+message UnsubscribeRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+}
+message GetStateRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+	optional .bgs.protocol.club.v1.ClubMembershipGetStateOptions options = 2;
+}
+message GetStateResponse {
+	optional .bgs.protocol.club.v1.ClubMembershipState state = 1;
+}
+message UpdateClubSharedSettingsRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+	optional .bgs.protocol.club.v1.ClubSharedSettingsOptions options = 2;
+}
+message GetStreamMentionsRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+	optional .bgs.protocol.GetEventOptions options = 2;
+	optional bool fetch_messages = 3;
+}
+message GetStreamMentionsResponse {
+	repeated .bgs.protocol.club.v1.StreamMention mention = 1;
+	optional uint64 continuation = 2;
+}
+message RemoveStreamMentionsRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+	repeated .bgs.protocol.TimeSeriesId mention_id = 2;
+}
+message AdvanceStreamMentionViewTimeRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+}
+service ClubMembershipService {
+	rpc Subscribe (.bgs.protocol.club.v1.membership.SubscribeRequest) returns (.bgs.protocol.club.v1.membership.SubscribeResponse);
+	rpc Unsubscribe (.bgs.protocol.club.v1.membership.UnsubscribeRequest) returns (.bgs.protocol.NoData);
+	rpc GetState (.bgs.protocol.club.v1.membership.GetStateRequest) returns (.bgs.protocol.club.v1.membership.GetStateResponse);
+	rpc UpdateClubSharedSettings (.bgs.protocol.club.v1.membership.UpdateClubSharedSettingsRequest) returns (.bgs.protocol.NoData);
+	rpc GetStreamMentions (.bgs.protocol.club.v1.membership.GetStreamMentionsRequest) returns (.bgs.protocol.club.v1.membership.GetStreamMentionsResponse);
+	rpc RemoveStreamMentions (.bgs.protocol.club.v1.membership.RemoveStreamMentionsRequest) returns (.bgs.protocol.NoData);
+	rpc AdvanceStreamMentionViewTime (.bgs.protocol.club.v1.membership.AdvanceStreamMentionViewTimeRequest) returns (.bgs.protocol.NoData);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/club/v1/membership";

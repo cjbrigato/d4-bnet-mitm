@@ -1,0 +1,8 @@
+package bgs.protocol;
+import "google/protobuf/descriptor.proto";
+
+message BGSMessageOptions {
+	optional bool custom_select_shard = 1;
+	optional bool custom_validator = 2;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol";

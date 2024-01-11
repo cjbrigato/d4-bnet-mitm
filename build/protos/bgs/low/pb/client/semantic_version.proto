@@ -1,0 +1,9 @@
+package bgs.protocol;
+
+message SemanticVersion {
+	optional uint32 major_version = 1;
+	optional uint32 minor_version = 2;
+	optional uint32 patch_version = 3;
+	optional string version_string = 4;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol";

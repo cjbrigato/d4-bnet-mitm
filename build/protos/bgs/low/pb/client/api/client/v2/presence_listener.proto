@@ -1,0 +1,20 @@
+package bgs.protocol.presence.v2;
+import "bgs/low/pb/client/api/client/v2/presence_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message PresenceStateUpdatedNotification {
+	optional uint64 subscriber_id = 1;
+	repeated .bgs.protocol.presence.v2.PresenceFieldState states = 2;
+}
+message SubscribeFailureResult {
+	optional uint64 account_id = 1;
+	optional uint32 status = 2;
+}
+message SubscribeFailureNotification {
+	repeated .bgs.protocol.presence.v2.SubscribeFailureResult failures = 1;
+}
+service PresenceListener {
+	rpc OnPresenceStateUpdated (.bgs.protocol.presence.v2.PresenceStateUpdatedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnSubscribeFailure (.bgs.protocol.presence.v2.SubscribeFailureNotification) returns (.bgs.protocol.NO_RESPONSE);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/presence/v2";

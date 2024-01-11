@@ -1,0 +1,13 @@
+package bgs.protocol;
+import "bgs/low/pb/client/global_extensions/field_options.proto";
+import "bgs/low/pb/client/global_extensions/message_options.proto";
+
+message EntityId {
+	required fixed64 high = 1;
+	required fixed64 low = 2;
+}
+message Identity {
+	optional .bgs.protocol.EntityId account_id = 1;
+	optional .bgs.protocol.EntityId game_account_id = 2;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol";

@@ -1,0 +1,13 @@
+package bgs.protocol;
+
+message ContentHandle {
+	required fixed32 region = 1;
+	required fixed32 usage = 2;
+	required bytes hash = 3;
+	optional string proto_url = 4;
+}
+message TitleIconContentHandle {
+	optional uint32 title_id = 1;
+	optional .bgs.protocol.ContentHandle content_handle = 2;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol";

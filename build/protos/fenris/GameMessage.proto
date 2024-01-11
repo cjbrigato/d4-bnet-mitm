@@ -1,0 +1,560 @@
+package Fenris.GameMessage;
+import "Hero.proto";
+import "Items.proto";
+import "Achievements.proto";
+import "Online.proto";
+
+enum ProgressDiabloEndConditionType {
+	RUN_COUNT = 0;
+	REACH_LEVEL = 1;
+}
+message TutorialMessage {
+	optional uint32 tutorial_sno = 1 [default = 0];
+	optional string ui_anchor_name = 2;
+	optional sint32 actor_id = 3 [default = -1];
+}
+message InitialLoginDataRequest {
+	optional uint32 country_id_fourcc = 1 [default = 0];
+}
+message InitialLoginDataQueuedResponse {
+	optional uint32 service_id = 1 [default = 0];
+	optional uint32 timeout_tick_interval = 2 [default = 0];
+}
+message CancelLoginDataRequest {
+}
+message StartGameTransfer {
+	optional fixed32 game_id = 1;
+	optional string game_address = 2;
+	optional uint32 game_port = 3;
+	repeated .Fenris.Online.ConnectionInfo.Player player = 4;
+	optional sfixed32 game_subzone_sno = 5;
+	optional bool trigger_fade = 6;
+	optional .Fenris.Online.Trace trace = 7;
+}
+message MailContents {
+	optional bool append_messages = 1 [default = false];
+	optional .Fenris.Items.Mails mails = 2;
+}
+message PlayerCommand {
+	optional uint32 m_commandFrame = 1 [default = 0];
+	optional uint32 m_yaw = 2 [default = 0];
+	optional sint32 m_throttle_x = 3 [default = 0];
+	optional sint32 m_throttle_y = 4 [default = 0];
+	optional uint32 m_inputFlags = 5 [default = 0];
+	optional uint32 m_teleportIndex = 6 [default = 0];
+	optional sint32 m_destination_x = 7 [default = 0];
+	optional sint32 m_destination_y = 8 [default = 0];
+	optional sint32 m_destination_z = 9 [default = 0];
+}
+message PhysicsMovementStateMessage {
+	optional fixed32 m_ann = 1 [default = 0];
+	optional bool m_is_delta = 2 [default = false];
+	optional bool m_is_target_state = 3 [default = false];
+	optional uint32 m_flags = 4 [default = 0];
+	optional uint32 m_command_frame = 5 [default = 0];
+	optional uint32 m_teleport_index = 6 [default = 0];
+	optional sint32 m_world_location_x = 7;
+	optional sint32 m_world_location_y = 8;
+	optional sint32 m_world_location_z = 9;
+	optional sint32 m_velocity_x = 10;
+	optional sint32 m_velocity_y = 11;
+	optional sint32 m_velocity_z = 12;
+	optional sint32 m_vel_from_grav_x = 13;
+	optional sint32 m_vel_from_grav_y = 14;
+	optional sint32 m_vel_from_grav_z = 15;
+	optional sint32 m_anim_impulse_x = 16;
+	optional sint32 m_anim_impulse_y = 17;
+	optional sint32 m_anim_impulse_z = 18;
+	optional sint32 m_forces_x = 19;
+	optional sint32 m_forces_y = 20;
+	optional sint32 m_forces_z = 21;
+	optional sint32 m_yaw = 22 [default = 0];
+	optional sint32 m_desired_yaw = 23 [default = 0];
+	optional sint32 m_yaw_speed = 24 [default = 0];
+	optional sint32 m_speed = 25 [default = 0];
+	optional sint32 m_animation_scaling_time_scale = 26 [default = 0];
+	optional bool m_current_motion_is_animation_driven = 27 [default = false];
+	optional sfixed32 m_sno_power_anim_key_override = 29;
+	optional uint32 m_prev_command_frame = 30 [default = 0];
+}
+message PolygonRegionPoint {
+	optional float pos_x = 1 [default = 0];
+	optional float pos_y = 2 [default = 0];
+}
+message PolygonRegion {
+	optional float center_pos_x = 1 [default = 0];
+	optional float center_pos_y = 2 [default = 0];
+	repeated .Fenris.GameMessage.PolygonRegionPoint points = 3;
+}
+message MinimapMarkerInfoMessage {
+	optional uint32 game_account_id = 1;
+	optional uint32 id_ping = 2;
+	optional float pos_x = 4 [default = 0];
+	optional float pos_y = 5 [default = 0];
+	optional float pos_z = 6 [default = 0];
+	optional fixed32 id_sworld = 28;
+	optional sfixed32 sno_world = 7;
+	optional sfixed32 sno_level_area = 29;
+	optional uint32 image_handle = 8;
+	optional sfixed32 sno_string_list = 9;
+	optional uint32 string_label_handle = 10;
+	optional bool active = 11;
+	optional bool respects_fog_of_war = 12;
+	optional bool respects_explored_area = 13;
+	optional bool is_ping = 14;
+	optional bool uses_area_radius = 15;
+	optional bool from_baked_data = 16;
+	optional bool is_debug_ping = 17;
+	optional float max_display_range_sq = 18;
+	optional float discover_range_sq = 19;
+	optional float quest_area_radius = 20;
+	optional sfixed32 sno_quest_source = 22;
+	optional uint32 quest_phase_uid = 23;
+	optional uint32 quest_callback_uid = 24;
+	optional int32 server_marker_type = 25;
+	optional sfixed32 sno_dest_world = 26;
+	optional .Fenris.GameMessage.PolygonRegion polygon_region = 27;
+}
+message ZoneProgressRewardData {
+	optional int32 reward_type = 1;
+	optional sfixed32 sno_item_reward = 2;
+	optional sfixed32 sno_tracked_reward = 3;
+	optional int32 gold_tier = 4;
+	optional int32 static_gold_amount = 5;
+}
+message ZoneProgressRewardPerTierData {
+	repeated .Fenris.GameMessage.ZoneProgressRewardData rewards = 1;
+	optional int32 static_xp_reward = 2;
+	optional int32 xp_tier = 3;
+}
+message ZoneProgressPerZoneGlobalData {
+	repeated sfixed32 sno_camps = 1;
+	repeated sfixed32 sno_dungeons = 2;
+	repeated sfixed32 sno_fog_of_war = 3;
+	repeated sfixed32 sno_side_quests = 4;
+	repeated sfixed32 sno_waypoints = 5;
+	repeated sfixed32 gbid_hidden_caches = 6;
+	repeated .Fenris.GameMessage.ZoneProgressRewardPerTierData rewards_per_tier = 7;
+}
+message ZoneProgressWorldToDPOData {
+	optional sfixed32 sno_world = 1;
+	repeated sfixed32 sno_dungeon_quests = 2;
+}
+message ZoneProgressGlobalDataMessage {
+	repeated .Fenris.GameMessage.ZoneProgressPerZoneGlobalData per_zone_data = 1;
+	repeated int32 renown_per_progress_type = 2;
+	repeated int32 renown_per_reward_threshold = 3;
+	repeated uint32 reward_string_handles = 4;
+	repeated uint32 tracked_reward_string_handles = 5;
+	repeated .Fenris.GameMessage.ZoneProgressWorldToDPOData world_to_dpo_map = 6;
+}
+message DebugWorldPlace {
+	optional sfixed32 world_sno = 1 [default = -1];
+	optional float pos_x = 2 [default = 0];
+	optional float pos_y = 3 [default = 0];
+	optional float pos_z = 4 [default = 0];
+}
+message DebugTarget {
+	optional string acd_name = 1;
+	optional uint32 target_ann = 2;
+	optional .Fenris.GameMessage.DebugWorldPlace world_place = 3;
+	optional bool pathable = 4;
+	optional float time_since_pathable = 5;
+}
+message ProgressDiabloEventLoot {
+	optional .Fenris.Items.Generator item = 1;
+	optional bool equipped = 2;
+	optional sfixed32 treasure_class_sno = 3;
+}
+message ProgressDiabloEventCurrency {
+	optional int32 currency_type = 1;
+	optional uint64 currency_amount = 2;
+}
+message ProgressDiabloEvent {
+	optional sfixed32 actor_sno = 2;
+	optional sfixed32 level_area_sno = 3;
+	optional int32 monster_combat_item_power = 4;
+	optional int32 player_combat_item_power = 5;
+	repeated .Fenris.GameMessage.ProgressDiabloEventLoot loot = 6;
+	optional uint32 experience_gained = 7;
+	optional int32 monster_rarity = 8;
+	optional int32 player_level = 9;
+	optional int32 monster_level = 10;
+	optional float player_level_progress = 11;
+	repeated int32 item_quality_counts = 12;
+	optional int32 player_loot_item_power = 13;
+	optional int32 player_attack_rating_from_items = 14;
+	optional int32 player_defense_rating_from_items = 15;
+	optional int32 player_attack_defense_level_bonus = 16;
+	optional int32 player_attack_rating_total = 17;
+	optional int32 player_defense_rating_total = 18;
+	optional uint64 experience_total = 19;
+	optional uint64 gold_from_vendored_items_total = 20;
+	optional uint64 gold_from_loot_total = 21;
+	repeated .Fenris.GameMessage.ProgressDiabloEventCurrency currency = 22;
+}
+message ProgressDiabloUpdate {
+	repeated .Fenris.GameMessage.ProgressDiabloEvent events = 1;
+	optional int32 completed_run_count = 2;
+}
+message ProgressDiabloRequest {
+	optional .Fenris.GameMessage.ProgressDiabloEndConditionType end_condition_type = 1;
+	optional int32 run_goal = 2;
+	optional int32 level_goal = 3;
+}
+message CombatStressDebuggerRequest {
+	optional int32 duration_seconds = 1;
+	optional int32 frequency_ticks = 2;
+	optional int32 num_trials = 3;
+	optional int32 power_sno = 4;
+	optional float target_area_sphere_radius = 5;
+	optional float power_damage = 6;
+	optional bool power_deals_damage = 7;
+	optional bool ignore_damage_bonuses_and_reduction = 8;
+	optional bool always_crit = 9;
+	optional bool power_applies_buff = 10;
+}
+message AIDebugVariable {
+	optional string name = 1;
+	optional uint32 name_hash = 2;
+	optional float value = 3;
+	optional uint32 ticks_until_expiration = 4;
+	optional sfixed32 source_aibehavior_sno = 5;
+	optional string text_value = 6;
+	optional uint32 text_value_hash = 7;
+}
+message AIStateDebugSnapshotEntryCondition {
+	optional string name = 1;
+	optional bool evaluated = 2;
+	optional bool failed = 3;
+	optional int32 result = 4;
+	optional bool enabled = 5;
+}
+message AIStateDebugSnapshotEntry {
+	optional string name = 1;
+	optional sfixed32 power_sno = 2;
+	optional string power_target_name = 3;
+	optional uint32 aistate_switch_name_hash = 4;
+	optional sfixed32 aistate_switch_sno = 5;
+	repeated .Fenris.GameMessage.AIStateDebugSnapshotEntryCondition start_conditions = 6;
+	repeated .Fenris.GameMessage.AIStateDebugSnapshotEntryCondition interrupt_conditions = 7;
+	optional uint32 cooldown_ticks_remaining = 8;
+	optional bool is_current_primary = 9;
+	optional bool evaluated = 10;
+	optional bool failed = 11;
+	optional bool selected = 12;
+	optional string power_failure_reasons_string = 13;
+	optional uint64 cooldown_key = 14;
+	optional bool enabled = 15;
+	optional uint32 evaluation_order = 16;
+	optional uint32 weight = 17;
+	optional uint32 target_ann = 18;
+	optional .Fenris.GameMessage.DebugWorldPlace target_world_place = 19;
+	optional bool variant_mismatch = 20;
+}
+message AIStateDebugSnapshotCurrentPower {
+	optional sfixed32 power_sno = 1 [default = -1];
+	optional sfixed32 original_power_sno = 2;
+	optional .Fenris.GameMessage.DebugTarget target = 3;
+	optional uint32 ticks_executing = 4;
+}
+message AIStateDebugSnapshotRetreat {
+	optional float retreat_radius = 1;
+	optional string tether_type_name = 2;
+	optional bool retreating = 3;
+}
+message AIVariableDebugSnapshot {
+	repeated .Fenris.GameMessage.AIDebugVariable local_variables = 1;
+	repeated .Fenris.GameMessage.AIDebugVariable remote_variables = 2;
+	repeated .Fenris.GameMessage.AIDebugVariable shared_variables = 3;
+}
+message AIStateDebugSnapshot {
+	optional fixed32 ann = 1 [default = 0];
+	optional uint32 command_frame = 2 [default = 0];
+	optional .Fenris.GameMessage.DebugWorldPlace world_place = 3;
+	optional float yaw = 4;
+	optional .Fenris.GameMessage.AIStateDebugSnapshotCurrentPower current_power = 5;
+	optional sfixed32 primary_aistate_sno = 6;
+	optional uint32 ticks_in_primary_aistate = 7;
+	optional string queued_aistate_switch_name = 8;
+	repeated .Fenris.GameMessage.AIStateDebugSnapshotEntry entries = 9;
+	repeated string merged_aistate_names = 10;
+	repeated uint32 merged_aistate_snos = 11;
+	repeated .Fenris.GameMessage.DebugTarget hostile_targets = 12;
+	repeated .Fenris.GameMessage.DebugTarget friendly_targets = 13;
+	repeated .Fenris.GameMessage.DebugTarget aiprop_targets = 14;
+	optional sfixed32 current_aibehavior_sno = 15;
+	optional .Fenris.GameMessage.AIVariableDebugSnapshot variable_snapshot = 16;
+	optional uint32 queued_aistate_switch_ticks_remaining = 17;
+	optional uint32 queued_aistate_switch_entry_index = 18;
+	repeated .Fenris.GameMessage.DebugTarget cached_targets = 19;
+	optional uint64 forced_cooldown_key = 20;
+	optional float forced_cooldown = 21;
+	optional uint32 chosen_weight = 22;
+}
+message AIStateDebugRealTimeSnapshot {
+	optional fixed32 ann = 1 [default = 0];
+	optional uint32 command_frame = 2 [default = 0];
+	optional .Fenris.GameMessage.AIVariableDebugSnapshot variable_snapshot = 3;
+}
+message AchievementsGetSnapshot {
+	optional uint32 game_account_id = 1;
+	optional bool debug_complete_snapshot = 2;
+	optional int64 server_time_stamp = 3;
+}
+message AchievementsResetAchievements {
+	optional uint32 game_account_id = 1;
+}
+message AchievementsUnlockedConsoleAchievements {
+	repeated sfixed32 sno_achievements = 1;
+}
+message AchievementsSnapshot {
+	optional uint32 game_account_id = 1;
+	optional .Fenris.Achievements.Snapshot snapshot = 2;
+}
+message DebugCombatActorInfo {
+	optional uint32 game_account_id = 1;
+	optional string acd_name = 2;
+	optional sfixed32 actor_sno = 3;
+	optional bool player_or_pet = 4;
+	optional int32 level = 5;
+	optional int32 weapon_damage = 6;
+	optional int32 player_armor = 7;
+	optional int32 item_power = 8;
+	optional float max_hp = 9;
+	optional int32 monster_rarity = 10;
+}
+message DebugCombatStatChangeReason {
+	optional int32 type = 1;
+	optional int64 attrib_key = 2;
+	optional string description = 3;
+	optional sfixed32 script_power = 4;
+	optional string script_callback = 5;
+	optional int32 combat_stat = 6;
+}
+message DebugCombatStatDetail {
+	optional float value = 1;
+	optional bool force_effect = 2;
+	optional int32 new_representation = 3;
+	optional int32 operation = 4;
+	optional .Fenris.GameMessage.DebugCombatStatChangeReason reason = 5;
+	optional string tooltip = 6;
+	optional float value_result = 7;
+}
+message DebugCombatStat {
+	optional int32 stat = 1;
+	optional bool chance_roll_result = 2;
+	repeated .Fenris.GameMessage.DebugCombatStatDetail details = 3;
+	optional bool applies_to_another_stat = 4;
+}
+message DebugHitEffectFactorInfo {
+	optional float factor = 1;
+	optional string description = 2;
+}
+message DebugHitEffectChanceInfo {
+	optional string name = 1;
+	optional sfixed32 power_sno = 2;
+	repeated .Fenris.GameMessage.DebugHitEffectFactorInfo chance_factors = 3;
+	optional float final_proc_chance = 4;
+	optional bool roll_successful = 5;
+	optional int32 force_effect = 6;
+}
+message DebugDamageDetails {
+	optional float shield_damage_absorbed = 1;
+	optional float remaining_shield_total = 2;
+	optional float shield_damage_multiplier = 3;
+	repeated string error_messages = 4;
+	repeated .Fenris.GameMessage.DebugHitEffectChanceInfo hit_effect_chances = 5;
+}
+message DebugCombatLogDamageEvent {
+	optional float damage_amount_scaled = 1;
+	optional float damage_amount_flat = 2;
+	optional sint32 damage_type = 3;
+	optional uint32 hp_specifier_type = 4;
+	optional bool dot_total_prediction = 5 [default = false];
+	optional .Fenris.GameMessage.DebugDamageDetails damage_details = 6;
+}
+message DebugCombatLogStackData {
+	optional int32 callback_type = 1;
+	optional sfixed32 power_sno = 2;
+	optional int32 stack_count = 3;
+	optional sfixed32 power_sno_from = 4;
+	optional uint32 time = 5;
+	optional bool at_max_stack = 6;
+}
+message DebugCombatLogStackEvent {
+	optional bool power_start_power = 1;
+	repeated .Fenris.GameMessage.DebugCombatLogStackData stack_data = 2;
+}
+message DebugCombatLogVulnerableEvent {
+	optional bool vulnerable_applied = 1;
+	optional bool vulnerable_is_refresh = 2;
+}
+message DebugCombatLogFortifiedEvent {
+	optional float fortified_health_applied = 1;
+	optional float fortified_health_post_apply = 2;
+}
+message DebugCombatLogHealEvent {
+	optional float heal_amount = 1;
+	optional float health_post_heal = 2;
+}
+message DebugCombatLogStaggerEvent {
+	optional float new_stagger_amount = 1;
+	optional float total_stagger_amount = 2;
+	optional float stagger_threshold = 3;
+}
+message DebugCombatLogMessage {
+	optional .Fenris.GameMessage.DebugCombatActorInfo source = 1;
+	optional .Fenris.GameMessage.DebugCombatActorInfo target = 2;
+	optional sfixed32 power_sno = 3;
+	optional uint32 command_frame = 4;
+	optional sint32 power_id = 5;
+	optional float client_view_scalar = 6;
+	optional float overpower_chance = 7;
+	optional .Fenris.GameMessage.DebugCombatLogDamageEvent damage_event = 8;
+	optional .Fenris.GameMessage.DebugCombatLogVulnerableEvent vulnerable_event = 9;
+	optional .Fenris.GameMessage.DebugCombatLogFortifiedEvent fortified_event = 10;
+	optional .Fenris.GameMessage.DebugCombatLogHealEvent heal_event = 11;
+	optional .Fenris.GameMessage.DebugCombatLogStackEvent stack_event = 12;
+	optional .Fenris.GameMessage.DebugCombatLogStaggerEvent stagger_event = 13;
+	repeated .Fenris.GameMessage.DebugCombatStat stats = 14;
+}
+message DebugTrackedCheckpointData {
+	optional string name = 1;
+	optional float pos_x = 2 [default = 0];
+	optional float pos_y = 3 [default = 0];
+	optional float pos_z = 4 [default = 0];
+	optional bool is_active = 5;
+	optional uint32 player_count = 6 [default = 0];
+	optional uint32 monster_count = 7 [default = 0];
+	optional fixed32 ann = 8 [default = 0];
+	optional int32 acdid = 9;
+	repeated int32 monster_spawn_acds = 10;
+	repeated int32 monster_visiting_acds = 11;
+}
+message DebugTrackedCheckpointMessage {
+	optional int32 current_world_sno = 1;
+	repeated .Fenris.GameMessage.DebugTrackedCheckpointData tracked_checkpoints = 2;
+}
+message DebugPlayerTrackedCheckpointUpdateMessage {
+	optional float pos_x = 1 [default = 0];
+	optional float pos_y = 2 [default = 0];
+	optional float pos_z = 3 [default = 0];
+	optional fixed32 checkpoint_ann = 4 [default = 0];
+	optional bool checkpoint_has_position_override = 5;
+	optional int32 tracked_checkpoint_count = 6;
+	repeated int32 player_most_recent_checkpoint_indices = 7;
+}
+message DebugDumpHeroMessage {
+	optional string name = 1;
+	optional .Fenris.Hero.SavedDefinition hero_data = 2;
+}
+message DebugLootActorInfo {
+	optional uint32 game_account_id = 1;
+	optional string acd_name = 2;
+	optional sfixed32 actor_sno = 3;
+	optional int32 level = 4;
+	optional int32 world_tier = 5;
+}
+message DebugLootValueRecord {
+	optional float data_float = 1;
+	optional int32 data_int = 2;
+	optional int32 operation = 3;
+	optional string reason = 4;
+}
+message DebugLootEntryResult {
+	optional uint32 output_id = 1;
+	optional int32 flags = 2;
+	optional float roll = 3;
+	optional float final_chance = 4;
+	repeated .Fenris.GameMessage.DebugLootValueRecord chance_history = 5;
+	optional uint32 next_node_id = 6;
+	optional sfixed32 item_sno = 7;
+	optional int32 currency_amount = 8;
+	optional sfixed32 failed_condition_sno = 9;
+}
+message DebugLootEntryInfo {
+	optional int32 flags = 1;
+	optional int32 quantity = 2;
+	optional float roll = 3;
+	optional float final_chance = 4;
+	repeated .Fenris.GameMessage.DebugLootValueRecord chance_history = 5;
+	repeated .Fenris.GameMessage.DebugLootEntryResult results = 6;
+	optional sfixed32 failed_condition_sno = 7;
+}
+message DebugLootNodeMessage {
+	optional uint32 node_id = 1;
+	optional uint32 node_id_parent = 2;
+	optional sfixed32 treasure_class_sno = 3;
+	optional int32 choose_type = 4;
+	repeated .Fenris.GameMessage.DebugLootEntryInfo entry_info = 5;
+	optional int32 flags = 6;
+}
+message DebugLootRandomRollInfo {
+	optional float chance = 1;
+	optional float roll = 2;
+	repeated .Fenris.GameMessage.DebugLootValueRecord chance_history = 3;
+}
+message DebugLootOutputUpdateMessage {
+	optional uint32 output_id = 1;
+	optional fixed32 item_ann = 2 [default = 0];
+	optional int32 level_req = 3;
+	repeated .Fenris.GameMessage.DebugLootValueRecord level_req_history = 4;
+}
+message DebugLootOutputMessage {
+	optional uint32 output_id = 1;
+	optional sfixed32 item_sno = 2;
+	optional int32 quality = 3;
+	optional int32 level_req = 4;
+	repeated .Fenris.GameMessage.DebugLootValueRecord level_req_history = 5;
+	optional int32 quality_modifier = 6;
+	optional .Fenris.GameMessage.DebugLootRandomRollInfo sacred_roll = 7;
+	optional .Fenris.GameMessage.DebugLootRandomRollInfo ancestral_roll = 8;
+	optional int32 value = 9;
+	repeated .Fenris.GameMessage.DebugLootValueRecord value_history = 10;
+	optional int32 currency_type = 11;
+	optional int32 sockets = 12;
+	repeated .Fenris.GameMessage.DebugLootValueRecord sockets_history = 13;
+}
+message DebugLootInstanceMessage {
+	optional uint32 instance_id = 1;
+	optional bool end = 2;
+	optional .Fenris.GameMessage.DebugLootActorInfo looter = 3;
+	optional .Fenris.GameMessage.DebugLootActorInfo lootee = 4;
+}
+message DebugItemPickingRequestMessage {
+	optional int32 playerclass = 1;
+	optional int32 level = 2;
+	optional int32 world_tier = 3;
+	optional int32 quality_level = 4;
+	optional int32 item_label_1 = 5;
+	optional int32 item_label_2 = 6;
+	optional bool hardcore = 7;
+	optional bool vendor = 8;
+}
+message DebugItemPickingResultMessage {
+	optional sfixed32 item_sno = 1;
+	optional int32 flag = 2;
+	optional int32 weight = 3;
+}
+message DebugItemPickingResultsMessage {
+	repeated .Fenris.GameMessage.DebugItemPickingResultMessage evaluated_items = 1;
+	optional int32 total_weight = 2;
+}
+message GameSyncDataMessage {
+	optional uint32 game_synced_flags = 1;
+	optional uint32 platform = 6;
+	optional sfixed32 subzone_sno = 2;
+	optional sint32 random_weather_seed = 3;
+	optional sint32 world_tier = 4;
+	repeated .Fenris.Hero.DesignerVariable designer_vars = 5;
+}
+message FinishedGameSetupMessage {
+	optional uint32 start_command_frame = 1;
+	repeated .Fenris.GameMessage.PlayerCommand input_command = 2;
+	optional .Fenris.Online.Trace trace = 3;
+}
+message MonsterTagsMessage {
+	optional fixed32 ann = 1;
+	repeated sfixed32 gbid_tags = 2;
+}

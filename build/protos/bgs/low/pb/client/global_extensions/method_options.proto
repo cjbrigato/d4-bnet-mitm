@@ -1,0 +1,20 @@
+package bgs.protocol;
+import "google/protobuf/descriptor.proto";
+import "bgs/low/pb/client/global_extensions/routing.proto";
+import "bgs/low/pb/client/global_extensions/register_method_types.proto";
+
+message BGSMethodOptions {
+	optional uint32 id = 1;
+	optional .bgs.protocol.ClientIdentityRoutingType client_identity_routing = 2;
+	optional bool enable_fanout = 3;
+	optional string legacy_fanout_replacement = 4;
+	optional string forward_key = 5;
+	optional bool idempotent = 6;
+	optional bool handle_destination_unreachable = 7;
+	optional string custom_region_resolver = 8;
+	optional bool explicit_region_routing = 9;
+	optional bool obsolete = 10;
+	optional .bgs.protocol.ClientRegisterMethodType client_register_type = 11;
+	optional string forward_key_proto_file = 12;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol";

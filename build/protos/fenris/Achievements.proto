@@ -1,0 +1,39 @@
+package Fenris.Achievements;
+
+message Achievement {
+	required sfixed32 achievement_sno = 1 [default = -1];
+	required uint64 completion = 2;
+	optional uint64 collection = 3;
+}
+message Criteria {
+	required uint32 criteria_id = 1;
+	optional uint64 start_time = 2;
+	optional uint64 update_time = 4;
+	optional uint64 quantity = 3;
+	optional uint32 flags = 5;
+}
+message Snapshot {
+	repeated .Fenris.Achievements.Achievement achievement = 1;
+	repeated .Fenris.Achievements.Criteria criteria = 2;
+	optional int64 time_stamp = 3;
+}
+message PartitionSnapshot {
+	optional uint32 partition = 1;
+	optional .Fenris.Achievements.Snapshot snapshot = 2;
+}
+message AchievementsResetDate {
+	optional int64 date = 1;
+}
+message AchievementAwardedNotification {
+	required uint32 game_account_id = 1;
+	repeated sfixed32 achievement_sno = 2;
+	optional uint32 account_id = 3;
+}
+message DBAchievement {
+	required sfixed32 achievement_sno = 1 [default = -1];
+	required uint64 completion = 2;
+	optional uint64 collection = 3;
+}
+message DBAchievements {
+	repeated .Fenris.Achievements.DBAchievement achievements = 1;
+}

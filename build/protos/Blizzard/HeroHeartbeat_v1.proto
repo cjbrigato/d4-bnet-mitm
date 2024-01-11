@@ -1,0 +1,17 @@
+package Blizzard.Telemetry.D4.Client.Game.v1;
+import "telemetry_extensions.proto";
+import "HeroInfo_v1.proto";
+import "Location_v1.proto";
+
+message HeroHeartbeat {
+	message LocalHeroEntry {
+		optional .Blizzard.Telemetry.D4.Common.Game.v1.HeroInfo hero = 1;
+		optional .Blizzard.Telemetry.D4.Common.Game.v1.Location hero_location = 2;
+		optional bool hero_is_mounted = 3;
+	}
+	repeated .Blizzard.Telemetry.D4.Client.Game.v1.HeroHeartbeat.LocalHeroEntry hero_list = 1;
+	optional string game_handle = 2;
+	optional bool using_controller = 3;
+	optional uint32 avg_latency = 4;
+	optional float lag_compensation_ticks = 5;
+}

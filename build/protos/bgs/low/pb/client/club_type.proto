@@ -1,0 +1,7 @@
+package bgs.protocol.club.v1;
+
+message UniqueClubType {
+	optional fixed32 program = 1;
+	optional string name = 2;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/club/v1";

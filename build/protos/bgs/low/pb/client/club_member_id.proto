@@ -1,0 +1,10 @@
+package bgs.protocol.club.v1;
+import "bgs/low/pb/client/global_extensions/message_options.proto";
+import "bgs/low/pb/client/account_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message MemberId {
+	optional .bgs.protocol.account.v1.AccountId account_id = 1;
+	optional uint64 unique_id = 2;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/club/v1";

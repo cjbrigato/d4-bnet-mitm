@@ -1,0 +1,11 @@
+package Blizzard.Telemetry.Fenris.Client.v1;
+import "telemetry_extensions.proto";
+
+message STTReportBuffer {
+	message STTBuffer {
+		optional string member_uri = 1;
+		optional uint32 incoming_audio_duration_ms = 2;
+	}
+	optional string channel_handle = 1;
+	repeated .Blizzard.Telemetry.Fenris.Client.v1.STTReportBuffer.STTBuffer buffer = 2;
+}

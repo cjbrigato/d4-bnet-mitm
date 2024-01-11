@@ -1,0 +1,12 @@
+package Blizzard.Telemetry.D4.Client.Store.v1;
+
+message StoreTestingInfo {
+	optional string experiment_name = 1;
+	optional string variant = 2;
+}
+message StoreSessionInfo {
+	optional string store_session_guid = 1;
+	optional string game_session_id = 2;
+	optional uint32 session_duration = 3;
+	repeated .Blizzard.Telemetry.D4.Client.Store.v1.StoreTestingInfo experiments = 4;
+}

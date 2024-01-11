@@ -1,0 +1,19 @@
+package bgs.protocol.publication.v2.client;
+import "bgs/low/pb/client/rpc_types.proto";
+import "bgs/low/pb/client/api/client/v2/publication_types.proto";
+
+message SubscribeRequest {
+	repeated .bgs.protocol.publication.v2.client.Target target = 1;
+	optional .bgs.protocol.publication.v2.client.SubscribeOptions options = 2;
+}
+message SubscribeResponse {
+	repeated .bgs.protocol.publication.v2.client.SubscribeResult failures = 1;
+}
+message UnsubscribeRequest {
+	repeated .bgs.protocol.publication.v2.client.Target target = 1;
+}
+service PublicationService {
+	rpc Subscribe (.bgs.protocol.publication.v2.client.SubscribeRequest) returns (.bgs.protocol.publication.v2.client.SubscribeResponse);
+	rpc Unsubscribe (.bgs.protocol.publication.v2.client.UnsubscribeRequest) returns (.bgs.protocol.NoData);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/publication/v2/client";

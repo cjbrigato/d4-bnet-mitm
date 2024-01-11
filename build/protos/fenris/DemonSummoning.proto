@@ -1,0 +1,21 @@
+package Fenris.DemonSummoning;
+import "Items.proto";
+
+message ScrollRitual {
+	optional int32 sno_start_quest = 1;
+	repeated int32 sno_activity_quests = 2;
+	repeated int32 sno_completion_quests = 3;
+	optional int32 sno_ritual_item = 4;
+	optional sfixed32 gbid_ritual_info = 5;
+}
+message Scroll {
+	optional int32 sno_scroll = 1;
+	optional bool is_nightmare = 2;
+	optional int32 sno_boss = 3;
+	repeated .Fenris.DemonSummoning.ScrollRitual rituals = 4;
+	repeated .Fenris.Items.Generator rewards = 5;
+	optional int32 sno_boss_quest = 6;
+}
+message EquippedScroll {
+	optional .Fenris.DemonSummoning.Scroll scroll = 1;
+}

@@ -1,0 +1,139 @@
+package Fenris.Quests;
+import "Items.proto";
+import "HeroCommon.proto";
+
+message SavedReputation {
+	message SavedReputationValue {
+		optional int32 sno_reputation = 1;
+		optional uint32 value = 2;
+		repeated uint32 reward_claimed_flags = 3;
+	}
+	repeated .Fenris.Quests.SavedReputation.SavedReputationValue values = 1;
+}
+message QuestSavedState {
+	message CallbackCount {
+		required uint32 uid = 1;
+		required int32 current = 2;
+		optional bool completed = 3;
+		optional bool failure = 4;
+	}
+	message CallbackLootInjectionCount {
+		required uint32 uid = 1;
+		required uint32 count = 2;
+	}
+	message QuestGizmoCompletedCallbacks {
+		required uint32 value = 1;
+	}
+	message ObjectiveSetRewardChoices {
+		optional uint32 objective_set_uid = 1;
+		optional uint32 callback_uid = 2;
+		repeated .Fenris.Items.Generator reward_choices = 3;
+	}
+	message FollowerClone {
+		required sfixed32 follower_actor_sno = 1;
+		required sfixed32 npc_cloned_from_actor_sno = 2;
+		optional sfixed32 animset_override = 3;
+		optional .Fenris.Hero.VisualEquipment visual_equipment = 4;
+	}
+	required int32 sno_quest = 1;
+	required uint32 phase_uid = 2;
+	repeated .Fenris.Quests.QuestSavedState.CallbackCount callback_counts = 3;
+	repeated .Fenris.Quests.QuestSavedState.CallbackLootInjectionCount callback_lootinjection_counts = 4;
+	required uint64 assigned_time = 5;
+	optional uint32 timed_quest_start = 6 [default = 0];
+	optional uint32 timed_quest_end = 7 [default = 0];
+	optional .Fenris.Quests.QuestSavedState.ObjectiveSetRewardChoices objective_reward_choices = 8;
+	optional int32 sno_follower_npc_deprecated = 9 [default = -1];
+	repeated int32 follower_npc_snos = 10;
+	repeated .Fenris.Quests.QuestSavedState.QuestGizmoCompletedCallbacks quest_gizmo_completed_callbacks = 11;
+	repeated .Fenris.Quests.QuestSavedState.FollowerClone follower_clone = 12;
+}
+message QuestCallbackUpdateMessage {
+	required int32 quest_id = 1;
+	required int32 callback_id = 2;
+	required int32 current = 3;
+	required bool completed = 4;
+	required bool failure = 5;
+	optional bool is_quest_gizmo_completion = 6;
+}
+message QuestStateUpdateMessage {
+	message CustomParamMessageData {
+		optional int32 param_value = 1;
+		optional int32 sno_actor = 2 [default = -1];
+		repeated sfixed32 gbid_rare_name = 3;
+		optional int32 monster_rarity = 4;
+		optional bool use_alt_name = 5;
+		optional int32 gizmo_type = 6;
+	}
+	enum UpdateType {
+		UT_CREATE = 1;
+		UT_UPDATE = 2;
+		UT_COMPLETED = 3;
+		UT_DELETE = 4;
+		UT_WORLD_EVENT_NOTIFY = 5;
+		UT_PARTICIPATING = 6;
+		UT_EXIT_RANGE = 7;
+		UT_PARTICIPANT_REMOVED = 8;
+	}
+	enum EventState {
+		ES_NONE = 1;
+		ES_WARMUP = 2;
+		ES_ACTIVE = 3;
+	}
+	required .Fenris.Quests.QuestStateUpdateMessage.UpdateType update_type = 1;
+	required .Fenris.Quests.QuestSavedState quest_state = 2;
+	required int32 quest_id = 3;
+	required uint32 owner_game_account_id = 4;
+	optional .Fenris.Quests.QuestStateUpdateMessage.EventState event_state = 5;
+	optional uint64 event_activate_time = 6;
+	optional int32 sno_event_level_area = 7;
+	optional bool objective_is_known = 8;
+	optional bool from_restore = 9;
+	optional bool had_lua_runtime_error = 10;
+	optional string lua_runtime_error = 11;
+	optional bool phase_is_hidden = 12;
+	repeated .Fenris.Quests.QuestStateUpdateMessage.CustomParamMessageData param_data = 13;
+	optional uint32 num_participants = 14;
+}
+message QuestBonusPhaseUpdateMessage {
+	required int32 quest_id = 1;
+	required int32 bonus_phase_id = 2;
+	required int32 bonus_phase_state = 3;
+}
+message ReputationReward {
+	optional int32 sno_reputation = 1;
+	optional int32 rep_current = 2;
+	optional int32 rep_max = 3;
+}
+message QuestLuaRuntimeErrorMessage {
+	required int32 quest_id = 1;
+	optional string lua_runtime_error = 2;
+}
+message QuestGrantedItems {
+	optional uint32 owner_game_account_id = 1;
+	optional sfixed32 sno_quest = 2 [default = -1];
+	repeated .Fenris.Items.Generator items = 5;
+	optional bool was_flippy_created = 6;
+}
+message QuestReward {
+	message CurrencyReward {
+		optional int32 type = 1;
+		optional int32 amount = 2;
+	}
+	optional uint32 owner_game_account_id = 1;
+	optional sfixed32 sno_quest = 2 [default = -1];
+	optional uint64 xp_granted = 3 [default = 0];
+	optional int32 gold_granted = 4 [default = 0];
+	repeated .Fenris.Items.Generator items = 5;
+	optional uint64 bonus_xp_granted = 6 [default = 0];
+	repeated .Fenris.Quests.QuestReward.CurrencyReward currency_granted = 7;
+	repeated .Fenris.Quests.ReputationReward rep_granted = 8;
+	optional sfixed32 sno_tracked_reward_granted = 9 [default = -1];
+}
+message QuestComplete {
+	required int32 sno_quest = 1;
+	repeated .Fenris.Quests.QuestReward rewards = 2;
+	required bool is_failure = 3;
+	required bool is_synced = 4;
+	optional sfixed32 sno_subzone = 5;
+}

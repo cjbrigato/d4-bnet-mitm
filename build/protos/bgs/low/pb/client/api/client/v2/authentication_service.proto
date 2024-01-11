@@ -1,0 +1,26 @@
+package bgs.protocol.authentication.v2.client;
+import "bgs/low/pb/client/api/client/v2/authentication_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message LogonRequest {
+	optional uint32 title_id = 1;
+	optional string platform = 2;
+	optional string locale = 3;
+	optional uint32 application_version = 4;
+	optional .bgs.protocol.authentication.v2.client.LogonOptions logon_options = 10;
+}
+message VerifyAuthTokenRequest {
+	optional bytes auth_token = 1;
+}
+message GenerateAuthTokenRequest {
+	optional uint32 title_id = 1;
+}
+message GenerateAuthTokenResponse {
+	optional bytes auth_token = 1;
+}
+service AuthenticationService {
+	rpc Logon (.bgs.protocol.authentication.v2.client.LogonRequest) returns (.bgs.protocol.NoData);
+	rpc VerifyAuthToken (.bgs.protocol.authentication.v2.client.VerifyAuthTokenRequest) returns (.bgs.protocol.NoData);
+	rpc GenerateAuthToken (.bgs.protocol.authentication.v2.client.GenerateAuthTokenRequest) returns (.bgs.protocol.authentication.v2.client.GenerateAuthTokenResponse);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/authentication/v2/client";

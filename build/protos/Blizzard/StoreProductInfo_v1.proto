@@ -1,0 +1,8 @@
+package Blizzard.Telemetry.D4.Client.Store.v1;
+
+message StoreProductInfo {
+	optional int64 product_id = 1;
+	optional string product_name = 2;
+	optional uint32 number_of_owned_subitems = 3;
+	optional float current_discount = 4;
+}

@@ -1,0 +1,7 @@
+package Blizzard.Telemetry.Fenris.Client.v1;
+import "telemetry_extensions.proto";
+
+message ClientError {
+	optional int32 error_code = 1;
+	optional string error_context = 2;
+}

@@ -1,0 +1,23 @@
+package bgs.protocol.club.v1;
+import "bgs/low/pb/client/club_membership_types.proto";
+import "bgs/low/pb/client/club_enum.proto";
+import "bgs/low/pb/client/club_role.proto";
+import "bgs/low/pb/client/club_range_set.proto";
+import "bgs/low/pb/client/club_core.proto";
+import "bgs/low/pb/client/club_member.proto";
+import "bgs/low/pb/client/club_invitation.proto";
+import "bgs/low/pb/client/club_ban.proto";
+import "bgs/low/pb/client/club_stream.proto";
+import "bgs/low/pb/client/club_type.proto";
+import "bgs/low/pb/client/club_tag.proto";
+import "bgs/low/pb/client/club_name_generator.proto";
+import "bgs/low/pb/client/api/client/v2/attribute_types.proto";
+import "bgs/low/pb/client/account_types.proto";
+import "bgs/low/pb/client/event_view_types.proto";
+import "bgs/low/pb/client/invitation_types.proto";
+import "bgs/low/pb/client/message_types.proto";
+import "bgs/low/pb/client/ets_types.proto";
+import "bgs/low/pb/client/voice_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/club/v1";

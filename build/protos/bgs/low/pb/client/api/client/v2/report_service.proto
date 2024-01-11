@@ -1,0 +1,16 @@
+package bgs.protocol.report.v2;
+import "bgs/low/pb/client/account_types.proto";
+import "bgs/low/pb/client/api/client/v2/report_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message SubmitReportRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+	optional string user_description = 2;
+	optional .bgs.protocol.report.v2.UserOptions user_options = 10;
+	optional .bgs.protocol.report.v2.ClubOptions club_options = 11;
+	optional .bgs.protocol.report.v2.EntityOptions entity_options = 20;
+}
+service ReportService {
+	rpc SubmitReport (.bgs.protocol.report.v2.SubmitReportRequest) returns (.bgs.protocol.NoData);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/report/v2";

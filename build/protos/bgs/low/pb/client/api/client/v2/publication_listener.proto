@@ -1,0 +1,11 @@
+package bgs.protocol.publication.v2.client;
+import "bgs/low/pb/client/rpc_types.proto";
+import "bgs/low/pb/client/api/client/v2/publication_types.proto";
+
+message PublicationReceivedNotification {
+	repeated .bgs.protocol.publication.v2.client.Article articles = 1;
+}
+service PublicationListener {
+	rpc OnPublicationReceived (.bgs.protocol.publication.v2.client.PublicationReceivedNotification) returns (.bgs.protocol.NO_RESPONSE);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/publication/v2/client";

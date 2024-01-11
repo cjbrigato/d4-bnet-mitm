@@ -1,0 +1,33 @@
+package Blizzard.Telemetry.Fenris.Game.v1;
+
+message HeroCombatInfo {
+	message Power {
+		optional sint32 power_sno = 1;
+		optional uint32 power_ranks = 3;
+		optional .Blizzard.Telemetry.Fenris.Game.v1.HeroCombatInfo.PowerType type = 4;
+	}
+	enum PowerType {
+		POWER_TYPE_SKILL = 0;
+		POWER_TYPE_TALENT = 1;
+		POWER_TYPE_ENCHANT = 2;
+		POWER_TYPE_CLASS_PASSIVE_SKILL_MINOR = 3;
+		POWER_TYPE_CLASS_PASSIVE_SKILL_MAJOR = 4;
+		POWER_TYPE_CLASS_PASSIVE_SKILL = 5;
+		POWER_TYPE_ROGUE_SPECIALIZATION = 6;
+		POWER_TYPE_WEAPON_EXPERTISE = 7;
+		POWER_TYPE_NECROMANCER_SPECIALIZATION = 8;
+	}
+	optional sint32 attack_rating = 1;
+	optional sint32 defense_rating = 2;
+	optional sint32 effective_item_power = 3;
+	optional sint32 total_item_power = 4;
+	repeated .Blizzard.Telemetry.Fenris.Game.v1.HeroCombatInfo.Power talent = 5;
+	repeated .Blizzard.Telemetry.Fenris.Game.v1.HeroCombatInfo.Power skill = 6;
+	optional bool potion_is_on_cooldown = 7;
+	repeated .Blizzard.Telemetry.Fenris.Game.v1.HeroCombatInfo.Power enchant = 8;
+	repeated .Blizzard.Telemetry.Fenris.Game.v1.HeroCombatInfo.Power class_passive_skill = 9;
+	optional sint32 potion_count = 10;
+	optional sint32 max_potion_count = 11;
+	optional sint32 potion_tier = 12;
+	optional sint32 druid_spirit_bond = 13;
+}

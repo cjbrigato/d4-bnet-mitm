@@ -1,0 +1,22 @@
+package Fenris.ItemCrafting;
+
+message CrafterData {
+	repeated sfixed32 recipes = 1;
+	repeated sfixed32 deprecated_available_enchants = 2;
+	required sfixed64 cooldown_end = 4;
+	optional bytes recipes_bitfield = 5;
+	optional int32 bitfield_leading_null_bytes = 6;
+	repeated uint32 talents = 7;
+}
+message UnlockedTransmogs {
+	repeated sfixed32 unlocked_transmogs = 1;
+	optional bytes unlocked_transmogs_bitfield = 2;
+	optional int32 bitfield_leading_null_bytes = 3;
+}
+message CrafterTransmogData {
+	optional .Fenris.ItemCrafting.UnlockedTransmogs unlocked_transmogs = 4;
+	optional .Fenris.ItemCrafting.UnlockedTransmogs achievement_transmogs = 5;
+}
+message CrafterSavedData {
+	repeated .Fenris.ItemCrafting.CrafterData crafter_data = 1;
+}

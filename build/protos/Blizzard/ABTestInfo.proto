@@ -1,0 +1,8 @@
+package Blizzard.Telemetry.Fenris.Client.v1;
+
+message ABTestingInfo {
+	optional sint32 test_sno = 1;
+	optional uint32 variant_index = 2;
+	optional string test_name = 3;
+	optional string variant_name = 4;
+}

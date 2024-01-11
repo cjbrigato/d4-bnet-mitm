@@ -1,0 +1,129 @@
+package bgs.protocol.club.v1;
+import "bgs/low/pb/client/club_type.proto";
+import "bgs/low/pb/client/club_enum.proto";
+import "bgs/low/pb/client/club_role.proto";
+import "bgs/low/pb/client/club_member.proto";
+import "bgs/low/pb/client/club_stream.proto";
+import "bgs/low/pb/client/club_tag.proto";
+import "bgs/low/pb/client/api/client/v2/attribute_types.proto";
+import "bgs/low/pb/client/event_view_types.proto";
+
+message AvatarId {
+	optional uint32 id = 1;
+}
+message SetBroadcastOptions {
+	optional string content = 1;
+}
+message Broadcast {
+	optional string content = 1;
+	optional .bgs.protocol.club.v1.MemberDescription creator = 2;
+	optional uint64 creation_time = 3;
+}
+message ClubCreateOptions {
+	optional .bgs.protocol.club.v1.UniqueClubType type = 1;
+	repeated .bgs.protocol.v2.Attribute attribute = 2;
+	optional string name = 3;
+	optional string description = 4;
+	optional .bgs.protocol.club.v1.AvatarId avatar = 5;
+	optional .bgs.protocol.club.v1.PrivacyLevel privacy_level = 6;
+	optional string short_name = 7;
+	optional .bgs.protocol.club.v1.VisibilityLevel visibility_level = 8;
+	optional .bgs.protocol.club.v1.CreateMemberOptions member = 10;
+	optional .bgs.protocol.club.v1.CreateStreamOptions stream = 11;
+	optional .bgs.protocol.club.v1.TagOptions tag = 12;
+	repeated .bgs.protocol.v2.Attribute search_attribute = 13;
+	optional string locale = 14;
+	optional string timezone = 15;
+}
+message Club {
+	optional uint64 id = 1;
+	optional .bgs.protocol.club.v1.UniqueClubType type = 2;
+	repeated .bgs.protocol.v2.Attribute attribute = 3;
+	optional string name = 4;
+	optional string description = 5;
+	optional .bgs.protocol.club.v1.Broadcast broadcast = 6;
+	optional .bgs.protocol.club.v1.AvatarId avatar = 7;
+	optional .bgs.protocol.club.v1.PrivacyLevel privacy_level = 8;
+	optional .bgs.protocol.club.v1.VisibilityLevel visibility_level = 9;
+	optional uint32 member_count = 10;
+	optional uint64 creation_time = 11;
+	optional .bgs.protocol.club.v1.StreamPosition stream_position = 12;
+	optional .bgs.protocol.club.v1.ClubRoleSet role_set = 13;
+	repeated .bgs.protocol.club.v1.MemberDescription leader = 14;
+	optional string short_name = 15;
+	repeated .bgs.protocol.v2.Attribute search_attribute = 16;
+	repeated .bgs.protocol.club.v1.TagIdentifier tag = 17;
+	optional string locale = 18;
+	optional string timezone = 19;
+}
+message ClubDescription {
+	optional uint64 id = 1;
+	optional .bgs.protocol.club.v1.UniqueClubType type = 2;
+	optional string name = 3;
+	optional string description = 4;
+	optional .bgs.protocol.club.v1.AvatarId avatar = 5;
+	optional .bgs.protocol.club.v1.PrivacyLevel privacy_level = 6;
+	optional .bgs.protocol.club.v1.VisibilityLevel visibility_level = 7;
+	optional uint32 member_count = 8;
+	repeated .bgs.protocol.club.v1.MemberDescription leader = 9;
+	optional uint64 creation_time = 10;
+	optional string timezone = 11;
+	optional string locale = 12;
+	repeated .bgs.protocol.club.v1.TagIdentifier tag = 13;
+}
+message ClubView {
+	optional uint64 club_id = 1;
+	optional .bgs.protocol.ViewMarker marker = 2;
+}
+message ClubStateOptions {
+	repeated .bgs.protocol.v2.Attribute attribute = 1;
+	optional string name = 2;
+	optional string description = 3;
+	optional .bgs.protocol.club.v1.SetBroadcastOptions broadcast = 4;
+	optional .bgs.protocol.club.v1.AvatarId avatar = 5;
+	optional .bgs.protocol.club.v1.PrivacyLevel privacy_level = 6;
+	optional .bgs.protocol.club.v1.StreamPosition stream_position = 7;
+	optional string short_name = 8;
+	optional .bgs.protocol.club.v1.VisibilityLevel visibility_level = 9;
+	optional string locale = 10;
+	optional string timezone = 11;
+	optional .bgs.protocol.club.v1.TagOptions tag_options = 12;
+	repeated .bgs.protocol.v2.Attribute search_attribute = 13;
+}
+message ClubStateAssignment {
+	optional uint64 club_id = 1;
+	repeated .bgs.protocol.v2.Attribute attribute = 2;
+	optional string name = 3;
+	optional string description = 4;
+	optional .bgs.protocol.club.v1.Broadcast broadcast = 5;
+	optional .bgs.protocol.club.v1.AvatarId avatar = 6;
+	optional .bgs.protocol.club.v1.PrivacyLevel privacy_level = 7;
+	optional .bgs.protocol.club.v1.StreamPosition stream_position = 8;
+	optional string short_name = 9;
+	optional .bgs.protocol.club.v1.VisibilityLevel visibility_level = 10;
+	optional string locale = 11;
+	optional string timezone = 12;
+	repeated .bgs.protocol.club.v1.TagIdentifier tag = 13;
+	repeated .bgs.protocol.v2.Attribute search_attribute = 14;
+	optional bool tag_cleared = 15;
+}
+message StreamSettings {
+	optional uint64 stream_id = 1;
+	optional .bgs.protocol.club.v1.StreamNotificationFilter filter = 2;
+}
+message ClubSettings {
+	repeated .bgs.protocol.club.v1.StreamSettings stream = 1;
+	optional bool stream_notification_filter_all = 2;
+	repeated .bgs.protocol.v2.Attribute attribute = 3;
+	optional bool push_notification_filter_all = 4;
+}
+message ClubSettingsOptions {
+	repeated .bgs.protocol.club.v1.StreamSettings stream = 1;
+	optional .bgs.protocol.club.v1.ClubSettings settings = 2;
+	optional uint32 version = 3;
+}
+message ClubSettingsAssignment {
+	repeated .bgs.protocol.club.v1.StreamSettings stream = 1;
+	optional .bgs.protocol.club.v1.ClubSettings settings = 2;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/club/v1";

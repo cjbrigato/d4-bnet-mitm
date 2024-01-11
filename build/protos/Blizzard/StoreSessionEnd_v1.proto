@@ -1,0 +1,7 @@
+package Blizzard.Telemetry.D4.Client.Store.v1;
+import "telemetry_extensions.proto";
+import "StoreSessionInfo_v1.proto";
+
+message StoreSessionEnd {
+	optional .Blizzard.Telemetry.D4.Client.Store.v1.StoreSessionInfo session_info = 1;
+}

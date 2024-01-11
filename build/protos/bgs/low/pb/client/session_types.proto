@@ -1,0 +1,70 @@
+package bgs.protocol.session.v1;
+import "bgs/low/pb/client/account_types.proto";
+
+enum SessionRestrictionType {
+	UNSPECIFIED = 0;
+	PARENTAL_CONTROL = 1;
+	GOVERNMENT_CONTROL = 2;
+	CAIS = 3;
+}
+enum SessionDestructionReasonDetails {
+	ACCOUNT_MUTED = 1;
+	BATTLE_TAG_CHANGED = 2;
+	BNET_ACCOUNT_BANNED = 3;
+	BNET_ACCOUNT_FLAG_CHANGED = 4;
+	COUNTRY_CHANGED = 5;
+	CURRENCY_CHANGED = 6;
+	GAME_ACCOUNT_UNLINKED = 7;
+	LEGAL_REGION_CHANGED = 8;
+	LEGAL_LOCALE_CHANGED = 9;
+	LICENSE_CHANGED = 10;
+	NAME_CHANGED = 11;
+	OPT_IN_CHANGED = 12;
+	REGION_CHANGED = 13;
+}
+message SessionOptions {
+	optional bool billing = 1 [default = true];
+	optional bool presence = 2 [default = true];
+}
+message SessionState {
+	optional .bgs.protocol.account.v1.GameAccountHandle handle = 1;
+	optional string client_address = 2;
+	optional uint64 last_tick_time = 3;
+	optional uint64 create_time = 4;
+	optional bool parental_controls_active = 5;
+	optional .bgs.protocol.account.v1.GameSessionLocation location = 6;
+	optional bool using_igr_address = 7;
+	optional bool has_benefactor = 8;
+	optional .bgs.protocol.account.v1.IgrId igr_id = 9;
+	optional bool deductible = 10;
+	optional uint64 expire_time_ms = 11;
+	optional string mac_address = 12;
+	optional bool igr_paid = 13;
+}
+message SessionIdentifier {
+	optional .bgs.protocol.account.v1.GameAccountHandle game_account = 1;
+	optional string session_id = 2;
+	optional uint64 account_id = 3;
+}
+message GameSessionInfo {
+	optional uint32 start_time = 3;
+	optional .bgs.protocol.session.v1.GameSessionLocation location = 4;
+	optional bool has_benefactor = 5;
+	optional bool is_using_igr = 6;
+	optional bool parental_controls_active = 7;
+	optional uint64 start_time_sec = 8;
+	optional .bgs.protocol.session.v1.IgrId igr_id = 9;
+	optional fixed32 platform_id = 10;
+	optional bool igr_paid = 11;
+}
+message GameSessionLocation {
+	optional string ip_address = 1;
+	optional uint32 country = 2;
+	optional string city = 3;
+}
+message IgrId {
+	optional .bgs.protocol.account.v1.GameAccountHandle game_account = 1;
+	optional fixed32 external_id = 2;
+	optional string uuid = 3;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/session/v1";

@@ -1,0 +1,76 @@
+package bgs.protocol.authentication.v1;
+import "bgs/low/pb/client/entity_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message LogonRequest {
+	optional string program = 1;
+	optional string platform = 2;
+	optional string locale = 3;
+	optional string email = 4;
+	optional string version = 5;
+	optional int32 application_version = 6;
+	optional bool public_computer = 7;
+	optional bool allow_logon_queue_notifications = 10 [default = false];
+	optional bytes cached_web_credentials = 12;
+	optional string user_agent = 14;
+	optional string device_id = 15;
+	optional string phone_number = 16;
+	optional string auth_platform = 17;
+}
+message LogonResult {
+	required uint32 error_code = 1;
+	optional .bgs.protocol.EntityId account_id = 2;
+	repeated .bgs.protocol.EntityId game_account_id = 3;
+	optional string email = 4;
+	repeated uint32 available_region = 5;
+	optional uint32 connected_region = 6;
+	optional string battle_tag = 7;
+	optional string geoip_country = 8;
+	optional bytes session_key = 9;
+	optional bool restricted_mode = 10;
+	optional string client_id = 11;
+}
+message LogonUpdateRequest {
+	required uint32 error_code = 1;
+}
+message LogonQueueUpdateRequest {
+	required uint32 position = 1;
+	required uint64 estimated_time = 2;
+	required uint64 eta_deviation_in_sec = 3;
+}
+message ServerStateChangeRequest {
+	required uint32 state = 1;
+	required uint64 event_time = 2;
+}
+message VersionInfo {
+	optional uint32 number = 1;
+	optional string patch = 2;
+	optional bool is_optional = 3;
+	optional uint64 kick_time = 4;
+}
+message VersionInfoNotification {
+	optional .bgs.protocol.authentication.v1.VersionInfo version_info = 1;
+}
+message GenerateWebCredentialsRequest {
+	optional fixed32 program = 1;
+}
+message GenerateWebCredentialsResponse {
+	optional bytes web_credentials = 1;
+}
+message VerifyWebCredentialsRequest {
+	optional bytes web_credentials = 1;
+}
+service AuthenticationListener {
+	rpc OnServerStateChange (.bgs.protocol.authentication.v1.ServerStateChangeRequest) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnLogonComplete (.bgs.protocol.authentication.v1.LogonResult) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnLogonUpdate (.bgs.protocol.authentication.v1.LogonUpdateRequest) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnVersionInfoUpdated (.bgs.protocol.authentication.v1.VersionInfoNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnLogonQueueUpdate (.bgs.protocol.authentication.v1.LogonQueueUpdateRequest) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnLogonQueueEnd (.bgs.protocol.NoData) returns (.bgs.protocol.NO_RESPONSE);
+}
+service AuthenticationService {
+	rpc Logon (.bgs.protocol.authentication.v1.LogonRequest) returns (.bgs.protocol.NoData);
+	rpc VerifyWebCredentials (.bgs.protocol.authentication.v1.VerifyWebCredentialsRequest) returns (.bgs.protocol.NoData);
+	rpc GenerateWebCredentials (.bgs.protocol.authentication.v1.GenerateWebCredentialsRequest) returns (.bgs.protocol.authentication.v1.GenerateWebCredentialsResponse);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/authentication/v1";

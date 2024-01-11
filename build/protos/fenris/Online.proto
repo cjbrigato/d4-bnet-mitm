@@ -1,0 +1,158 @@
+package Fenris.Online;
+import "HeroCommon.proto";
+import "OnlineCommon.proto";
+import "AccountMigration.proto";
+import "Clan.proto";
+
+message GameCreateParams {
+	required sint32 game_type = 1;
+	required uint32 creation_flags = 2 [default = 0];
+	optional uint32 platform = 11;
+	optional sint32 sno_subzone = 3 [default = -1];
+	optional sint32 sno_world = 4 [default = -1];
+	optional uint32 itempower_bracket = 5;
+	optional string name = 6;
+	optional uint32 partition_type = 7;
+	optional string server_pool = 8;
+	optional .Fenris.Hero.CampaignState campaign_state = 9;
+	optional uint32 pvp_bucket = 10;
+}
+message PlayerTransferParams {
+	optional string transfer_from_server_message_queue = 1;
+	optional sfixed32 transfer_from_game = 2 [default = -1];
+	optional bool is_delayed_transfer = 3 [default = false];
+}
+message PresharedKey {
+	optional bytes modulus = 1;
+	optional bytes exponent = 2;
+}
+message ConnectionEncryptionInfo {
+	optional .Fenris.Online.PresharedKey preshared_key = 1;
+	optional uint64 token = 2;
+	optional string deprecated_common_name = 6;
+}
+message ConnectionInfo {
+	message Player {
+		optional uint32 bnet_account_id = 1;
+		optional uint32 game_account_id = 2;
+		optional fixed64 auth_token = 3;
+		optional .Fenris.Online.ConnectionEncryptionInfo encryption_info = 4;
+		optional uint32 team_id = 5;
+	}
+	optional .Fenris.Online.GameHandle game_handle = 1;
+	optional fixed32 game_id = 2;
+	optional .Fenris.Online.GameCreateParams game_params = 3;
+	optional string address = 4;
+	optional uint32 port = 5;
+	optional string service_message_queue = 8;
+	repeated .Fenris.Online.ConnectionInfo.Player player = 9;
+	optional .Fenris.Online.Trace trace = 10;
+}
+message PingConnectionInfo {
+	optional string address = 1;
+	optional uint32 port = 2;
+	optional .Fenris.Online.ConnectionEncryptionInfo encryption_info = 3;
+	optional string server_pool = 4;
+	optional uint32 max_sample_interval = 5;
+	optional uint32 capture_duration = 6;
+	optional uint32 min_samples = 7;
+	optional uint32 max_samples = 8;
+}
+message PingConnectionInfoList {
+	repeated .Fenris.Online.PingConnectionInfo connection_infos = 1;
+	optional .Fenris.Online.Trace trace = 2;
+}
+message PingResult {
+	optional string server_pool = 1;
+	optional uint32 latency = 2;
+}
+message ChannelId {
+	optional uint32 id = 1;
+	optional uint32 host_label = 3;
+	optional uint32 host_epoch = 4;
+	optional uint32 region = 5;
+}
+message HeroCreateParams {
+	required string name = 1;
+	required sfixed32 gbid_class = 2 [default = -1];
+	required bool is_hardcore = 3 [default = false];
+	required bool is_female = 4 [default = false];
+}
+message ConsolePresence {
+	optional uint32 account_id = 1;
+	optional uint64 game_account_id = 2;
+}
+message XVariant {
+	optional bool bool_value = 1;
+	optional uint64 uint_value = 2;
+	optional int64 int_value = 3;
+	optional double double_value = 4;
+	optional string string_value = 6;
+	optional bytes blob_value = 7;
+}
+message Attribute {
+	optional uint32 id = 1;
+	optional .Fenris.Online.XVariant value = 2;
+}
+message AttributeList {
+	repeated .Fenris.Online.Attribute attributes = 1;
+}
+message QueueId {
+	optional uint32 queue_type = 1;
+	optional string id = 2;
+	optional string serverpool = 3;
+}
+message QueueEntryKey {
+	optional .Fenris.Online.QueueId queue_id = 1;
+	optional string entry_id = 2;
+}
+message QueueEntry {
+	optional string entry_id = 1;
+	optional bytes payload = 2;
+	optional uint32 acquisition_token = 3;
+}
+message ClusteredServerInfo {
+	optional fixed64 guid = 1;
+	optional fixed64 epoch_time = 2;
+	optional string message_queue = 3;
+}
+message TransactionBlob {
+	optional .Fenris.AccountMigration.MigrationData account_migration = 1;
+}
+message ClanUGCReset {
+	optional .Fenris.Clan.ClanContentType content_type = 1;
+	optional string clan_name = 2;
+}
+message PlayerNotification {
+	enum Type {
+		INVALID = 0;
+		COMPLAINT_NEAR_PENALTY_WARNING = 1;
+		COMPLAINT_ACTION_TAKEN = 2;
+		CLAN_PROMOTION = 3;
+		CLAN_DEMOTION = 4;
+		CLAN_KICK = 5;
+		CLAN_BAN = 6;
+		CLAN_DISBAND = 7;
+		FALLEN_HERO_CREATED = 8;
+		HARDCORE_HERO_DELETED = 9;
+		CLAN_UGC_RESET = 10;
+		HERO_FORCE_RENAMED = 11;
+	}
+	optional string id = 1;
+	optional .Fenris.Online.PlayerNotification.Type type = 2 [default = INVALID];
+	optional string complaint_type = 4;
+	optional uint32 new_clan_rank = 5;
+	optional string clan_name = 6;
+	optional bool fallen_hero_replaced = 7;
+	optional .Fenris.Online.ClanUGCReset clan_ugc_reset = 8;
+}
+message Trace {
+	optional string id = 1;
+	optional string span_id = 2;
+	optional uint32 game_account_id = 3;
+	optional string name = 4;
+	optional bool is_tracked = 5 [default = false];
+}
+message TraceMessage {
+	optional .Fenris.Online.Trace trace = 1;
+}

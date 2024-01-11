@@ -1,0 +1,26 @@
+package bgs.protocol.notification.v2.client;
+import "bgs/low/pb/client/api/client/v2/attribute_types.proto";
+import "bgs/low/pb/client/account_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message UserDescription {
+	optional uint64 account_id = 1;
+}
+message Filter {
+	optional uint32 title_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle handle = 2;
+}
+message SendNotificationOptions {
+	optional string type = 1;
+	optional uint64 target_account_id = 2;
+	optional .bgs.protocol.notification.v2.client.Filter filter = 3;
+	repeated .bgs.protocol.v2.Attribute attribute = 4;
+}
+message Notification {
+	optional string type = 1;
+	optional .bgs.protocol.notification.v2.client.UserDescription sender = 2;
+	optional .bgs.protocol.notification.v2.client.UserDescription target = 3;
+	repeated .bgs.protocol.v2.Attribute attribute = 4;
+	optional uint64 creation_time_ms = 5;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/notification/v2/client";

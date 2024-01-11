@@ -1,0 +1,22 @@
+package bgs.protocol.resources.v1;
+import "bgs/low/pb/client/content_handle_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message ContentHandleRequest {
+	required fixed32 program = 1;
+	required fixed32 stream = 2;
+	optional fixed32 version = 3 [default = 1701729619];
+}
+message GetTitleIconsRequest {
+	repeated uint32 title_ids = 1;
+	optional uint32 usage = 2;
+	optional uint32 version = 3;
+}
+message GetTitleIconsResponse {
+	repeated .bgs.protocol.TitleIconContentHandle title_icon_content_handles = 1;
+}
+service ResourcesService {
+	rpc GetContentHandle (.bgs.protocol.resources.v1.ContentHandleRequest) returns (.bgs.protocol.ContentHandle);
+	rpc GetTitleIcons (.bgs.protocol.resources.v1.GetTitleIconsRequest) returns (.bgs.protocol.resources.v1.GetTitleIconsResponse);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/resources/v1";

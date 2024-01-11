@@ -1,0 +1,55 @@
+package bgs.protocol.whisper.v1;
+import "bgs/low/pb/client/whisper_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+import "bgs/low/pb/client/account_types.proto";
+import "bgs/low/pb/client/event_view_types.proto";
+import "bgs/low/pb/client/message_types.proto";
+
+message SubscribeRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+}
+message SubscribeResponse {
+	repeated .bgs.protocol.whisper.v1.WhisperView view = 1;
+}
+message UnsubscribeRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+}
+message SendWhisperRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+	optional .bgs.protocol.whisper.v1.SendOptions whisper = 2;
+}
+message SendWhisperResponse {
+	optional .bgs.protocol.whisper.v1.Whisper whisper = 1;
+}
+message SetTypingIndicatorRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+	optional .bgs.protocol.account.v1.AccountId target_id = 2;
+	optional .bgs.protocol.TypingIndicator action = 3;
+}
+message AdvanceViewTimeRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+	optional .bgs.protocol.account.v1.AccountId target_id = 2;
+}
+message AdvanceClearTimeRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+	optional .bgs.protocol.account.v1.AccountId target_id = 2;
+}
+message GetWhisperMessagesRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_id = 1;
+	optional .bgs.protocol.account.v1.AccountId target_id = 2;
+	optional .bgs.protocol.GetEventOptions options = 3;
+}
+message GetWhisperMessagesResponse {
+	repeated .bgs.protocol.whisper.v1.Whisper whisper = 1;
+	optional uint64 continuation = 2;
+}
+service WhisperService {
+	rpc Subscribe (.bgs.protocol.whisper.v1.SubscribeRequest) returns (.bgs.protocol.whisper.v1.SubscribeResponse);
+	rpc Unsubscribe (.bgs.protocol.whisper.v1.UnsubscribeRequest) returns (.bgs.protocol.NoData);
+	rpc SendWhisper (.bgs.protocol.whisper.v1.SendWhisperRequest) returns (.bgs.protocol.whisper.v1.SendWhisperResponse);
+	rpc SetTypingIndicator (.bgs.protocol.whisper.v1.SetTypingIndicatorRequest) returns (.bgs.protocol.NoData);
+	rpc AdvanceViewTime (.bgs.protocol.whisper.v1.AdvanceViewTimeRequest) returns (.bgs.protocol.NoData);
+	rpc GetWhisperMessages (.bgs.protocol.whisper.v1.GetWhisperMessagesRequest) returns (.bgs.protocol.whisper.v1.GetWhisperMessagesResponse);
+	rpc AdvanceClearTime (.bgs.protocol.whisper.v1.AdvanceClearTimeRequest) returns (.bgs.protocol.NoData);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/whisper/v1";

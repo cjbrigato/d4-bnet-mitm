@@ -1,0 +1,10 @@
+package bgs.protocol.channel.v1;
+import "bgs/low/pb/client/rpc_types.proto";
+
+message ChannelId {
+	optional uint32 type = 1;
+	optional .bgs.protocol.ProcessId host = 2;
+	optional fixed32 id = 3;
+	optional uint32 region = 4;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/channel/v1";

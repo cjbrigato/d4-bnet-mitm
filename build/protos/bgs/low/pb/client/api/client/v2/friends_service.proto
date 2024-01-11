@@ -1,0 +1,84 @@
+package bgs.protocol.friends.v2.client;
+import "bgs/low/pb/client/api/client/v2/friends_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message SubscribeRequest {
+}
+message UnsubscribeRequest {
+}
+message GetSentInvitationsRequest {
+	optional uint64 continuation = 1;
+}
+message GetSentInvitationsResponse {
+	repeated .bgs.protocol.friends.v2.client.SentInvitation invitations = 1;
+	optional uint64 continuation = 2;
+}
+message GetReceivedInvitationsRequest {
+	optional uint64 continuation = 1;
+}
+message GetReceivedInvitationsResponse {
+	repeated .bgs.protocol.friends.v2.client.ReceivedInvitation invitations = 1;
+	optional uint64 continuation = 2;
+}
+message GetFriendsRequest {
+	optional .bgs.protocol.friends.v2.client.GetFriendsOptions options = 1;
+	optional uint64 continuation = 2;
+}
+message GetFriendsResponse {
+	repeated .bgs.protocol.friends.v2.client.Friend friends = 1;
+	optional uint64 continuation = 2;
+}
+message IsFriendRequest {
+	optional uint64 target_account_id = 1;
+}
+message IsFriendResponse {
+	optional bool result = 1;
+}
+message ViewFriendsRequest {
+	optional uint64 target_account_id = 1;
+	optional uint64 continuation = 2;
+}
+message ViewFriendsResponse {
+	repeated .bgs.protocol.friends.v2.client.FriendOfFriend friends = 1;
+	optional uint64 continuation = 2;
+}
+message SendInvitationRequest {
+	optional .bgs.protocol.friends.v2.client.SendInvitationTarget target = 1;
+	optional .bgs.protocol.friends.v2.client.SendInvitationOptions options = 2;
+}
+message RevokeInvitationRequest {
+	optional uint64 invitation_id = 1;
+}
+message RevokeAllInvitationsRequest {
+}
+message AcceptInvitationRequest {
+	optional uint64 invitation_id = 1;
+	optional .bgs.protocol.friends.v2.client.AcceptInvitationOptions options = 2;
+}
+message IgnoreInvitationRequest {
+	optional uint64 invitation_id = 1;
+}
+message RemoveFriendRequest {
+	optional uint64 target_account_id = 1;
+}
+message UpdateFriendStateRequest {
+	optional uint64 target_account_id = 1;
+	optional .bgs.protocol.friends.v2.client.UpdateFriendStateOptions options = 2;
+}
+service FriendsService {
+	rpc Subscribe (.bgs.protocol.friends.v2.client.SubscribeRequest) returns (.bgs.protocol.NoData);
+	rpc Unsubscribe (.bgs.protocol.friends.v2.client.UnsubscribeRequest) returns (.bgs.protocol.NoData);
+	rpc GetSentInvitations (.bgs.protocol.friends.v2.client.GetSentInvitationsRequest) returns (.bgs.protocol.friends.v2.client.GetSentInvitationsResponse);
+	rpc GetReceivedInvitations (.bgs.protocol.friends.v2.client.GetReceivedInvitationsRequest) returns (.bgs.protocol.friends.v2.client.GetReceivedInvitationsResponse);
+	rpc GetFriends (.bgs.protocol.friends.v2.client.GetFriendsRequest) returns (.bgs.protocol.friends.v2.client.GetFriendsResponse);
+	rpc IsFriend (.bgs.protocol.friends.v2.client.IsFriendRequest) returns (.bgs.protocol.friends.v2.client.IsFriendResponse);
+	rpc ViewFriends (.bgs.protocol.friends.v2.client.ViewFriendsRequest) returns (.bgs.protocol.friends.v2.client.ViewFriendsResponse);
+	rpc SendInvitation (.bgs.protocol.friends.v2.client.SendInvitationRequest) returns (.bgs.protocol.NoData);
+	rpc AcceptInvitation (.bgs.protocol.friends.v2.client.AcceptInvitationRequest) returns (.bgs.protocol.NoData);
+	rpc RevokeInvitation (.bgs.protocol.friends.v2.client.RevokeInvitationRequest) returns (.bgs.protocol.NoData);
+	rpc RevokeAllInvitations (.bgs.protocol.friends.v2.client.RevokeAllInvitationsRequest) returns (.bgs.protocol.NoData);
+	rpc IgnoreInvitation (.bgs.protocol.friends.v2.client.IgnoreInvitationRequest) returns (.bgs.protocol.NoData);
+	rpc RemoveFriend (.bgs.protocol.friends.v2.client.RemoveFriendRequest) returns (.bgs.protocol.NoData);
+	rpc UpdateFriendState (.bgs.protocol.friends.v2.client.UpdateFriendStateRequest) returns (.bgs.protocol.NoData);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/friends/v2/client";

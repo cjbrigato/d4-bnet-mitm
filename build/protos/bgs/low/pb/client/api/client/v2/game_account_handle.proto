@@ -1,0 +1,9 @@
+package bgs.protocol.account.v2;
+import "bgs/low/pb/client/rpc_types.proto";
+
+message GameAccountHandle {
+	optional uint64 id = 1;
+	optional uint32 title_id = 2;
+	optional uint32 region = 3;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/account/v2";

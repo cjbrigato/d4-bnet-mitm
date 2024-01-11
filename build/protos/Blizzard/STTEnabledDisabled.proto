@@ -1,0 +1,6 @@
+package Blizzard.Telemetry.Fenris.Client.v1;
+import "telemetry_extensions.proto";
+
+message STTEnabledDisabled {
+	optional bool enabled = 1;
+}

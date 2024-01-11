@@ -1,0 +1,17 @@
+package bgs.protocol.block_list.v1.client;
+import "bgs/low/pb/client/api/client/v1/block_list_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message BlockedPlayerAddedNotification {
+	optional uint64 agent_account_id = 1;
+	repeated .bgs.protocol.block_list.v1.client.BlockedPlayer player = 2;
+}
+message BlockedPlayerRemovedNotification {
+	optional uint64 agent_account_id = 1;
+	repeated .bgs.protocol.block_list.v1.client.UnblockPlayerAssignment player = 2;
+}
+service BlockListListener {
+	rpc OnBlockedPlayerAdded (.bgs.protocol.block_list.v1.client.BlockedPlayerAddedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnBlockedPlayerRemoved (.bgs.protocol.block_list.v1.client.BlockedPlayerRemovedNotification) returns (.bgs.protocol.NO_RESPONSE);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/block_list/v1/client";

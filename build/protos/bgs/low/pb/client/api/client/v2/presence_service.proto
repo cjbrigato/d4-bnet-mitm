@@ -1,0 +1,29 @@
+package bgs.protocol.presence.v2.client;
+import "bgs/low/pb/client/api/client/v2/presence_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message BatchSubscribeRequest {
+	repeated uint64 account_ids = 1;
+}
+message BatchUnsubscribeRequest {
+	repeated uint64 account_ids = 1;
+}
+message QueryRequest {
+	optional uint64 account_id = 1;
+	optional .bgs.protocol.presence.v2.PresenceQueryBehavior query_behavior = 2;
+	repeated .bgs.protocol.presence.v2.PresenceFieldKey keys = 3;
+	optional uint64 since_us = 4;
+}
+message QueryResponse {
+	repeated .bgs.protocol.presence.v2.PresenceFieldState states = 1;
+}
+message UpdateRequest {
+	repeated .bgs.protocol.presence.v2.PresenceFieldUpdate updates = 1;
+}
+service PresenceService {
+	rpc BatchSubscribe (.bgs.protocol.presence.v2.client.BatchSubscribeRequest) returns (.bgs.protocol.NoData);
+	rpc BatchUnsubscribe (.bgs.protocol.presence.v2.client.BatchUnsubscribeRequest) returns (.bgs.protocol.NoData);
+	rpc Query (.bgs.protocol.presence.v2.client.QueryRequest) returns (.bgs.protocol.presence.v2.client.QueryResponse);
+	rpc Update (.bgs.protocol.presence.v2.client.UpdateRequest) returns (.bgs.protocol.NoData);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/presence/v2/client";

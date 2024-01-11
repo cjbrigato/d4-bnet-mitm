@@ -1,0 +1,10 @@
+package Blizzard.Telemetry.Fenris.Game.v1;
+import "telemetry_extensions.proto";
+import "HeroInfo.proto";
+
+message IGCCompleted {
+	optional .Blizzard.Telemetry.Fenris.Game.v1.HeroInfo hero = 1;
+	optional sint32 sno_conversation = 2;
+	optional bool damage_taken = 3;
+	optional float low_avg_fps = 4;
+}

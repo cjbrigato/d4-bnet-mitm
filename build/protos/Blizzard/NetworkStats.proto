@@ -1,0 +1,9 @@
+package Blizzard.Telemetry.Fenris.Client.v1;
+import "telemetry_extensions.proto";
+
+message NetworkStats {
+	optional float avg_inbound_kb_per_second = 1;
+	optional float avg_outbound_kb_per_second = 2;
+	optional float avg_inbound_messages_per_second = 3;
+	optional float avg_outbound_messages_per_second = 4;
+}

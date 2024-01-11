@@ -1,0 +1,9 @@
+package Fenris.AttributeSerializer;
+
+message SavedAttribute {
+	required sint64 key = 1;
+	required sint32 value = 2;
+}
+message SavedAttributes {
+	repeated .Fenris.AttributeSerializer.SavedAttribute attributes = 1;
+}

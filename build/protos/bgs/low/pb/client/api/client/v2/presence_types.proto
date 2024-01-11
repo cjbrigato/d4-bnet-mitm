@@ -1,0 +1,55 @@
+package bgs.protocol.presence.v2;
+import "bgs/low/pb/client/api/client/v2/game_account_handle.proto";
+import "bgs/low/pb/client/api/client/v2/attribute_types.proto";
+
+enum PresenceQueryBehavior {
+	BATTLE_NET_ACCOUNT_ONLY = 0;
+	INCLUDE_SAME_GAME_ACCOUNT = 1;
+	INCLUDE_ALL_GAME_ACCOUNTS = 2;
+}
+enum PresenceAccountStatus {
+	OFFLINE = 0;
+	ONLINE = 1;
+	AWAY = 2;
+	DND = 3;
+}
+message RichPresenceKey {
+	optional uint32 title_id = 1;
+	optional fixed32 stream = 2;
+	optional uint32 localization_id = 3;
+}
+message PresenceFieldKey {
+	optional uint32 title_id = 1;
+	optional uint32 group = 2;
+	optional uint32 field = 3;
+	optional uint64 unique_id = 4;
+}
+message PresenceField {
+	optional .bgs.protocol.presence.v2.PresenceFieldKey key = 1;
+	optional .bgs.protocol.v2.Variant value = 2;
+	optional bool deleted = 3;
+	optional uint64 updated_time_us = 4;
+}
+message PresenceFieldState {
+	optional uint64 account_id = 1;
+	optional .bgs.protocol.account.v2.GameAccountHandle game_account = 2;
+	repeated .bgs.protocol.presence.v2.PresenceField fields = 3;
+	optional uint64 oldest_time_us = 4;
+}
+message PresenceFieldUpdate {
+	optional .bgs.protocol.presence.v2.PresenceFieldKey key = 1;
+	optional .bgs.protocol.v2.Variant value = 2;
+	optional bool delete = 3;
+}
+message PresenceOnlineGameAccount {
+	optional .bgs.protocol.account.v2.GameAccountHandle game_account = 1;
+	optional uint64 online_time_us = 2;
+}
+message PresenceOnlineGameAccountFieldValue {
+	repeated .bgs.protocol.presence.v2.PresenceOnlineGameAccount online_game_accounts = 1;
+}
+message PresenceExternalIdentityFieldValue {
+	optional string unique_id = 1;
+	optional string display_id = 2;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/presence/v2";

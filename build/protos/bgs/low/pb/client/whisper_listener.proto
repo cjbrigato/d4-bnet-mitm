@@ -1,0 +1,43 @@
+package bgs.protocol.whisper.v1;
+import "bgs/low/pb/client/whisper_types.proto";
+import "bgs/low/pb/client/account_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+import "bgs/low/pb/client/message_types.proto";
+
+message WhisperNotification {
+	optional .bgs.protocol.account.v1.AccountId subscriber_id = 1;
+	optional .bgs.protocol.whisper.v1.Whisper whisper = 2;
+	optional string sender_battle_tag = 3;
+}
+message WhisperEchoNotification {
+	optional .bgs.protocol.account.v1.AccountId subscriber_id = 1;
+	optional .bgs.protocol.whisper.v1.Whisper whisper = 2;
+}
+message TypingIndicatorNotification {
+	optional .bgs.protocol.account.v1.AccountId subscriber_id = 1;
+	optional .bgs.protocol.account.v1.AccountId sender_id = 2;
+	optional .bgs.protocol.TypingIndicator action = 3;
+}
+message AdvanceViewTimeNotification {
+	optional .bgs.protocol.account.v1.AccountId subscriber_id = 1;
+	optional .bgs.protocol.account.v1.AccountId sender_id = 2;
+	optional uint64 view_time = 3;
+}
+message WhisperUpdatedNotification {
+	optional .bgs.protocol.account.v1.AccountId subscriber_id = 1;
+	optional .bgs.protocol.whisper.v1.Whisper whisper = 2;
+}
+message AdvanceClearTimeNotification {
+	optional .bgs.protocol.account.v1.AccountId subscriber_id = 1;
+	optional .bgs.protocol.account.v1.AccountId sender_id = 2;
+	optional uint64 clear_time = 3;
+}
+service WhisperListener {
+	rpc OnWhisper (.bgs.protocol.whisper.v1.WhisperNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnWhisperEcho (.bgs.protocol.whisper.v1.WhisperEchoNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnTypingIndicatorUpdate (.bgs.protocol.whisper.v1.TypingIndicatorNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnAdvanceViewTime (.bgs.protocol.whisper.v1.AdvanceViewTimeNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnWhisperUpdated (.bgs.protocol.whisper.v1.WhisperUpdatedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnAdvanceClearTime (.bgs.protocol.whisper.v1.AdvanceClearTimeNotification) returns (.bgs.protocol.NO_RESPONSE);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/whisper/v1";

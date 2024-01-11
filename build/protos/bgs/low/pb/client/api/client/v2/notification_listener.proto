@@ -1,0 +1,11 @@
+package bgs.protocol.notification.v2.client;
+import "bgs/low/pb/client/rpc_types.proto";
+import "bgs/low/pb/client/api/client/v2/notification_types.proto";
+
+message NotificationReceivedNotification {
+	repeated .bgs.protocol.notification.v2.client.Notification notifications = 1;
+}
+service NotificationListener {
+	rpc OnNotificationReceived (.bgs.protocol.notification.v2.client.NotificationReceivedNotification) returns (.bgs.protocol.NO_RESPONSE);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/notification/v2/client";

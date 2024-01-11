@@ -1,0 +1,22 @@
+package bgs.protocol.game_utilities.v2.client;
+import "bgs/low/pb/client/api/client/v2/attribute_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message ProcessTaskRequest {
+	repeated .bgs.protocol.v2.Attribute attribute = 1;
+	repeated .bgs.protocol.v2.Attribute payload = 2;
+}
+message ProcessTaskResponse {
+	repeated .bgs.protocol.v2.Attribute result = 1;
+}
+message GetAllValuesForAttributeRequest {
+	optional string attribute_key = 1;
+}
+message GetAllValuesForAttributeResponse {
+	repeated .bgs.protocol.v2.Variant attribute_value = 1;
+}
+service GameUtilitiesService {
+	rpc ProcessTask (.bgs.protocol.game_utilities.v2.client.ProcessTaskRequest) returns (.bgs.protocol.game_utilities.v2.client.ProcessTaskResponse);
+	rpc GetAllValuesForAttribute (.bgs.protocol.game_utilities.v2.client.GetAllValuesForAttributeRequest) returns (.bgs.protocol.game_utilities.v2.client.GetAllValuesForAttributeResponse);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/game_utilities/v2/client";

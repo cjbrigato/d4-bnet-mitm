@@ -1,0 +1,152 @@
+package Fenris.Hero;
+import "OnlineCommon.proto";
+
+message VisualItem {
+	optional sfixed32 sno = 1 [default = -1];
+	optional sfixed32 sno_dye = 2 [default = -1];
+}
+message VisualEquipment {
+	repeated .Fenris.Hero.VisualItem visual_item = 1;
+}
+message SavedQuest {
+	required sfixed32 sno_quest = 1 [default = -1];
+	optional sint32 difficulty_deprecated = 2 [default = 0];
+	required sint32 current_step_uid = 3 [default = -1];
+	repeated sint32 objective_state = 4;
+	repeated sint32 failure_condition_state = 5;
+}
+message LearnedLore {
+	repeated sfixed32 sno_lore_learned = 1;
+	optional bytes sno_lore_learned_bitfield = 2;
+	optional int32 bitfield_leading_null_bytes = 3;
+}
+message ConversationCooldown {
+	required sfixed32 sno_conversation = 1;
+	required uint64 expiration_time = 2;
+}
+message SavedConversations {
+	repeated sfixed32 sno_saved_conversations = 2;
+	optional bytes sno_saved_conversations_bitfield = 3;
+	optional int32 bitfield_leading_null_bytes = 4;
+	repeated .Fenris.Hero.ConversationCooldown conversation_cooldowns = 5;
+}
+message SavePointData_Proto {
+	required sfixed32 sno_world = 1 [default = -1];
+	required sint32 savepoint_number = 2 [default = -1];
+	required uint32 creates_portal = 3 [default = 0];
+}
+message Skill {
+	required sfixed32 sno_skill = 1 [default = -1];
+}
+message SavedItemLink {
+	required sint32 x = 1 [default = -1];
+	required sint32 y = 2 [default = -1];
+}
+message Timestamps {
+	required sint64 create_time = 1;
+	optional sint64 delete_time = 2;
+}
+message NameText {
+	required string name = 1;
+}
+message HeroList {
+	repeated string hero_ids = 1;
+}
+message SavedQuestList {
+	repeated .Fenris.Hero.SavedQuest saved_quests = 1;
+}
+message WorldCreateDebugOverrides {
+	optional int32 world_seed = 1;
+	repeated sfixed32 forced_labels = 2;
+	repeated sfixed32 forced_dungeon_states = 3;
+	optional bool disable_default_labels = 4;
+	optional bool disable_default_dungeon_states = 5;
+	optional int32 forced_event_index = 6;
+}
+message KeyedDungeonData {
+	optional sfixed32 sno_world = 1 [default = -1];
+	optional sint32 keyed_dungeon_tier = 3 [default = -1];
+	optional sint32 revive_count = 4 [default = -1];
+	optional .Fenris.Online.GameHandle keyed_dungeon_game_id = 5;
+	repeated sfixed32 sno_dungeon_affixes = 6;
+	optional sfixed32 gbid_type = 7;
+}
+message CampaignState {
+	optional uint32 source_bnet_account_id = 1;
+	optional uint32 source_game_account_id = 2;
+	repeated fixed32 sno_quest = 3;
+	optional .Fenris.Hero.KeyedDungeonData keyed_dungeon_data = 4;
+	optional .Fenris.Hero.WorldCreateDebugOverrides world_create_debug_overrides = 5;
+	optional sint32 world_tier = 6;
+}
+message GameQuestState {
+	optional sfixed32 sno_subzone = 1 [default = -1];
+	optional sfixed32 sno_instance_quest = 2 [default = -1];
+	optional sint32 phase_uid = 3 [default = -1];
+	optional bool party_instance_content_complete = 4;
+}
+message MountData {
+	required sfixed32 sno_mount = 1 [default = -1];
+}
+message MountSavedData {
+	repeated .Fenris.Hero.MountData mounts = 1;
+	optional bool unlocked_riding = 2;
+}
+message SocialWheelOverride {
+	optional uint32 wheel_id = 1;
+	optional uint32 slot_id = 2;
+	optional uint32 quick_action_id = 3;
+	optional fixed32 sno_emote = 4;
+	optional fixed32 sno_consumable = 5;
+}
+message SocialWheelConfiguration {
+	repeated .Fenris.Hero.SocialWheelOverride wheel_overrides = 1;
+}
+message TransmogSlot {
+	optional int32 slot = 1;
+	optional sfixed32 item_sno = 2 [default = -1];
+	optional sfixed32 dye_sno = 3 [default = -1];
+	optional bool enabled = 4 [default = true];
+}
+message AssetListDataStore {
+	repeated sfixed32 asset_ids = 1;
+	optional bytes bitfield = 2;
+	optional int32 leading_null_bytes = 3;
+}
+message DesignerVariableDataStore {
+	optional int32 tracked_value = 1;
+	optional int32 reset_data = 2;
+}
+message AssetListExDesignerVariableDataStore {
+	optional .Fenris.Hero.AssetListDataStore asset_list = 1;
+	repeated .Fenris.Hero.DesignerVariableDataStore packed_datas = 2;
+	repeated .Fenris.Hero.DesignerVariableDataStore loose_datas = 3;
+}
+message ParagonBoardSavedData {
+	optional bytes purchased_nodes_bitfield = 1;
+	optional uint32 last_purchased_node_index = 2;
+	repeated sfixed32 socketed_glyph_snos = 3;
+	repeated sfixed32 equipped_board_snos = 4;
+	optional bytes equipped_board_rotation_bitfield = 5;
+	repeated uint32 equipped_board_gate_node_indexes = 6;
+	repeated uint32 board_equip_indexes = 7;
+}
+message ParagonGlyphData {
+	optional sfixed32 sno_glyph = 1 [default = -1];
+	optional uint32 glyph_experience = 2 [default = 0];
+}
+message ParagonGlyphSavedData {
+	repeated .Fenris.Hero.ParagonGlyphData glyph_data = 1;
+}
+message PlayerTitle {
+	optional sfixed32 sno_prefix = 1 [default = -1];
+	optional sfixed32 sno_suffix = 2 [default = -1];
+}
+message BloodSealData {
+	optional sfixed32 sno_bloodseal = 1 [default = -1];
+	optional uint32 bloodseal_experience = 2 [default = 0];
+}
+message BloodSealSavedData {
+	repeated .Fenris.Hero.BloodSealData owned_bloodseals = 1;
+	repeated sfixed32 sno_equipped_bloodseals = 2;
+}

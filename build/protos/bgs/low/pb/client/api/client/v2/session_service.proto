@@ -1,0 +1,47 @@
+package bgs.protocol.session.v2.client;
+import "bgs/low/pb/client/api/client/v2/account_types.proto";
+import "bgs/low/pb/client/api/client/v2/game_account_handle.proto";
+import "bgs/low/pb/client/api/client/v2/session_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message CreateSessionRequest {
+	optional .bgs.protocol.account.v2.GameAccountHandle game_account = 1;
+	optional .bgs.protocol.session.v2.client.CreateOptions options = 2;
+}
+message CreateSessionResponse {
+	optional .bgs.protocol.session.v2.client.SessionId session_id = 1;
+	optional .bgs.protocol.session.v2.client.SessionVariables variables = 2;
+}
+message RestoreSessionRequest {
+	optional .bgs.protocol.account.v2.Identity identity = 1;
+	optional bytes session_key = 2;
+	optional .bgs.protocol.session.v2.client.RestoreOptions options = 3;
+	optional .bgs.protocol.session.v2.client.StateOptions state_options = 4;
+}
+message RestoreSessionResponse {
+	optional .bgs.protocol.session.v2.client.SessionId session_id = 1;
+	optional .bgs.protocol.session.v2.client.SessionVariables variables = 2;
+}
+message DestroySessionRequest {
+}
+message GetSignedSessionStateRequest {
+}
+message GetSignedSessionStateResponse {
+	optional string signed_token = 1;
+}
+message GetSessionStateRequest {
+}
+message GetSessionStateResponse {
+	optional .bgs.protocol.session.v2.client.SessionState session = 1;
+}
+message MarkSessionAliveRequest {
+}
+service SessionService {
+	rpc CreateSession (.bgs.protocol.session.v2.client.CreateSessionRequest) returns (.bgs.protocol.session.v2.client.CreateSessionResponse);
+	rpc RestoreSession (.bgs.protocol.session.v2.client.RestoreSessionRequest) returns (.bgs.protocol.session.v2.client.RestoreSessionResponse);
+	rpc DestroySession (.bgs.protocol.session.v2.client.DestroySessionRequest) returns (.bgs.protocol.NoData);
+	rpc GetSignedSessionState (.bgs.protocol.session.v2.client.GetSignedSessionStateRequest) returns (.bgs.protocol.session.v2.client.GetSignedSessionStateResponse);
+	rpc GetSessionState (.bgs.protocol.session.v2.client.GetSessionStateRequest) returns (.bgs.protocol.session.v2.client.GetSessionStateResponse);
+	rpc MarkSessionAlive (.bgs.protocol.session.v2.client.MarkSessionAliveRequest) returns (.bgs.protocol.NoData);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/session/v2/client";

@@ -1,0 +1,7 @@
+package Blizzard.Telemetry.Fenris.Client.v1;
+import "telemetry_extensions.proto";
+import "LocaleInfo.proto";
+
+message LocaleUpdated {
+	optional .Blizzard.Telemetry.Fenris.Client.v1.LocaleInfo locale_info = 1;
+}

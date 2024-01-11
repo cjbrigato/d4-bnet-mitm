@@ -1,0 +1,685 @@
+package Fenris.ClientMessage;
+import "Account.proto";
+import "Hero.proto";
+import "HeroCommon.proto";
+import "OnlineCommon.proto";
+import "Online.proto";
+import "Settings.proto";
+import "CS.proto";
+import "Clan.proto";
+import "License.proto";
+import "Search.proto";
+import "TACTKey.proto";
+import "Store.proto";
+import "Items.proto";
+import "Profile.proto";
+import "GameMessage.proto";
+
+message GenericMessage {
+}
+message GenericRequest {
+}
+message GenericResponse {
+	optional uint32 error_code = 1;
+}
+message GetTACTKeysRequest {
+}
+message GetTACTKeysResponse {
+	optional .Fenris.TACTKey.Keys keys = 1;
+}
+message ActivateTACTKeysRequest {
+	optional bool activate_all = 1;
+	repeated string key_names = 2;
+}
+message ActivateTACTKeysResponse {
+}
+message ResetAllGiftsRequest {
+}
+message ResetAllGiftsResponse {
+}
+message VirtualCurrencyCreditRequest {
+	optional uint32 amount = 1;
+	optional string currency_code = 2;
+	optional bytes session_key = 3;
+}
+message VirtualCurrencyCreditResponse {
+}
+message VirtualCurrencyDebitRequest {
+	optional uint32 amount = 1;
+	optional string currency_code = 2;
+	optional bytes session_key = 3;
+}
+message VirtualCurrencyDebitResponse {
+}
+message PingConnectInfoRequest {
+	required uint32 connected_region_id = 1;
+}
+message PingConnectInfoResponse {
+	required uint64 request_id = 1;
+	optional uint32 expected_result_count = 2;
+}
+message PingConnectInfoSingleResult {
+	required uint64 request_id = 1;
+	optional .Fenris.Online.PingConnectionInfo ping_connect_info = 2;
+	optional .Fenris.Online.Trace trace = 3;
+}
+message GetInitialDataRequest {
+	optional bytes session_key = 1;
+	optional string game_server_pool = 2;
+	optional bool multiplayer_allowed = 4;
+}
+message TestingGroupVariant {
+	optional string experiment_name = 1;
+	optional string variation = 2;
+}
+message LiveEventInfo {
+	optional sfixed32 live_event_sno = 1;
+	optional uint64 live_event_start_time = 2;
+	optional uint64 live_event_end_time = 3;
+}
+message GetInitialDataResponse {
+	required .Fenris.Account.Digest account_digest = 1;
+	repeated .Fenris.Hero.Digest heroes = 2;
+	optional .Fenris.Hero.Digest deleted_hero = 5;
+	optional string sync_var_cmd_line = 3;
+	repeated .Fenris.Online.PlayerNotification account_notification = 4;
+	optional .Fenris.License.PlayerLicenses playerLicenses = 6;
+	optional .Fenris.TACTKey.Keys keys = 7;
+	optional .Fenris.Client.GameAccountSettings settings = 9;
+	optional string service_version = 10;
+	optional bytes content_stack_api_key = 11;
+	optional bytes content_stack_dev_access_token = 12;
+	optional bytes content_stack_prod_access_token = 13;
+	repeated .Fenris.ClientMessage.TestingGroupVariant ab_testing_groups = 14;
+	optional .Fenris.GameMessage.ZoneProgressGlobalDataMessage zone_progress_data = 17;
+	repeated bytes commerce_sdk_placement_id = 18;
+	optional .Fenris.ClientMessage.LiveEventInfo live_event_info = 19;
+}
+message FindUserProxyRequest {
+	optional .Fenris.Online.PlatformAccount platform_account = 2;
+	optional string auth_code = 3;
+	optional uint64 token = 4;
+	optional string session_id = 5;
+	optional string server_pool = 6;
+	optional bytes session_key = 7;
+	repeated string content_license_names = 8;
+	optional .Fenris.Online.Trace trace = 9;
+	optional uint32 connected_region_id = 10;
+}
+message FindUserProxyResponse {
+	optional .Fenris.Online.ConnectionInfo connect_info = 1;
+	optional uint32 error_code = 2;
+	optional uint64 token = 3;
+	optional .Fenris.Online.QueueEntryKey entry_key = 4;
+	optional .Fenris.Online.Trace trace = 5;
+}
+message CreateHeroRequest {
+	optional string hero_name = 1;
+	optional sfixed32 sno_class = 2;
+	optional bool is_female = 3;
+	optional .Fenris.Hero.AppearanceCustomization appearance_customization = 4;
+	optional bool is_hardcore = 5;
+	optional bool is_seasonal = 6;
+	optional bool allow_all_cosmetics = 7;
+	optional bool apply_campaign_skip = 8;
+	optional bytes session_key = 10;
+}
+message CreateHeroResponse {
+	optional .Fenris.Hero.Digest hero = 1;
+}
+message DeleteHeroRequest {
+	optional string hero_id = 1;
+	optional bool delete_immediately = 2;
+}
+message RenameHero {
+	optional string hero_id = 1;
+	optional string hero_name = 2;
+}
+message RenameHeroesRequest {
+	repeated .Fenris.ClientMessage.RenameHero rename_heroes = 1;
+}
+message ListHeroesResponse {
+	repeated .Fenris.Hero.Digest heroes = 1;
+	optional .Fenris.Hero.Digest deleted_hero = 2;
+	optional bool campaign_skip_allowed = 3;
+}
+message SelectHeroRequest {
+	required string hero_id = 1;
+	optional sint32 world_tier = 2;
+}
+message SelectHeroResponse {
+	optional int32 account_partition_type = 1;
+	optional .Fenris.Hero.Digest digest = 2;
+}
+message ApplyCampaignSkipRequest {
+	optional string hero_id = 1;
+}
+message ApplyCampaignSkipResponse {
+	optional .Fenris.Hero.Digest digest = 1;
+}
+message AddLocalPlayerToUserProxyRequest {
+	optional uint32 sponsor_game_account_id = 1;
+	optional .Fenris.Online.PlatformAccount platform_account = 2;
+	optional string auth_code = 3;
+	optional bytes session_key = 4;
+	repeated string content_license_names = 5;
+	optional .Fenris.Online.Trace trace = 6;
+	optional uint32 connected_region_id = 7;
+}
+message AddLocalPlayerToUserProxyResponse {
+	optional uint64 token = 2;
+	optional uint32 game_account_id = 3;
+	optional uint32 error_code = 4;
+	optional .Fenris.Online.Trace trace = 5;
+}
+message SaveAccountPreferencesRequest {
+	optional .Fenris.Client.Preferences preferences = 1;
+}
+message SaveAccountSettingsRequest {
+	optional .Fenris.Client.GameAccountSettings settings = 1;
+}
+message SyncedXVarUpdate {
+	optional string cmd_line = 1;
+}
+message DeleteMailRequest {
+	optional string mail_id = 1;
+}
+message GetHeroDigestsRequest {
+	optional uint32 game_account_id = 1;
+}
+message GetHeroDigestsResponse {
+	repeated .Fenris.Hero.Digest hero_digests = 1;
+}
+message GetAccountProfileRequest {
+	optional uint32 game_account_id = 1;
+	optional uint32 season_id = 2;
+}
+message GetAccountProfileResponse {
+	optional .Fenris.Profile.AccountProfile account_profile = 1;
+}
+message GetHeroProfilesRequest {
+	optional uint32 game_account_id = 1;
+}
+message GetHeroProfileRequest {
+	optional uint32 target_game_account_id = 1;
+	optional string hero_id = 2;
+}
+message GetHeroProfileResponse {
+	optional .Fenris.Profile.HeroProfile hero_profile = 1;
+}
+message UpdateAccountProfilePrivacyFlagRequest {
+	optional bool privacy_flag = 1;
+}
+message ListSnapshotVersionsRequest {
+	optional uint32 game_account_id = 1;
+	optional bool return_snapshots = 2;
+	optional uint32 limit = 3;
+}
+message ListSnapshotVersionsResponse {
+	optional .Fenris.CS.SnapshotVersions versions = 1;
+}
+message RestoreAccountRequest {
+	optional uint32 target_game_account = 1;
+	optional uint32 source_game_account = 2;
+	optional uint64 snapshot_version = 3;
+}
+message AddLocalPlayerToPartyRequest {
+	optional string party_id = 1;
+	optional uint64 party_token = 2;
+	optional bool crossplay_enabled = 3;
+}
+message AddLocalPlayerToGameRequest {
+	optional bytes session_key = 1;
+	optional uint32 game_account = 2;
+}
+message AddLocalPlayerToGameResponse {
+	optional uint32 err_code = 1;
+	optional .Fenris.Online.ConnectionInfo connection_info = 2;
+}
+message InviteToPartyRequest {
+	optional uint32 invitee_game_account_id = 1;
+}
+message InviteToPartyResponse {
+	optional uint64 invite_id = 1;
+	optional string party_id = 2;
+}
+message RevokeInviteRequest {
+	optional uint64 invite_id = 1;
+}
+message RespondToPartyInviteRequest {
+	optional string inviter_party_id = 1;
+	optional uint64 invite_id = 2;
+	optional bool accepted = 3;
+	optional uint32 decline_reason = 4;
+}
+message PromoteToPartyLeaderRequest {
+	optional uint32 game_account_id = 1;
+}
+message RemovePartyMemberRequest {
+	optional uint32 game_account_id = 1;
+}
+message LeavePartyRequest {
+}
+message AddReservationForLocalPlayerRequest {
+}
+message AddReservationForLocalPlayerResponse {
+	optional uint64 reservation_token = 1;
+}
+message PartyInviteRequestRequest {
+	optional uint32 requestee_game_account_id = 1;
+	optional string requester_battletag = 2;
+}
+message DeclinePartyInviteRequest {
+	optional uint32 requester_game_account_id = 1;
+	optional uint32 decline_reason = 2;
+}
+message PartyQuickJoinRequest {
+	optional uint32 requestee_game_account_id = 1;
+	optional bool is_platform_quick_join = 2;
+}
+message RejectPartyQuickJoin {
+	optional uint32 requestee_game_account_id = 1;
+	optional uint32 requester_game_account_id = 2;
+	optional uint32 reason = 3;
+}
+message PartyKickMemberRequest {
+	optional uint32 game_account_id = 1;
+}
+message PartyJoinByConsoleInviteRequest {
+	optional string party_id = 1;
+	optional uint32 inviter_game_account_id = 2;
+	optional uint64 inviter_platform_account_id = 3;
+}
+message CancelPartyReservation {
+	optional uint64 reservation_token = 1;
+}
+message PartyInviteReceived {
+	optional string invite_party_id = 1;
+	optional uint64 invite_id = 2;
+	optional uint32 inviter_game_account_id = 4;
+	optional uint32 inviter_bnet_account_id = 6;
+	optional .Fenris.Online.PlatformAccount inviter_platform_account = 7;
+	optional string inviter_name = 5;
+	optional string inviter_hero_name = 8;
+}
+message PartyInviteRequestReceived {
+	optional uint32 requester_game_account_id = 2;
+	optional uint32 requester_bnet_account_id = 4;
+	optional .Fenris.Online.PlatformAccount requester_platform_account = 5;
+	optional string requester_name = 3;
+}
+message PartyQuickJoinRequestReceived {
+	optional uint32 requester_game_account_id = 2;
+	optional uint32 requester_bnet_account_id = 3;
+	optional .Fenris.Online.PlatformAccount requester_platform_account = 4;
+	optional bool is_platform_quick_join = 5;
+}
+message PartyInviteRemoved {
+	optional string invite_party_id = 1;
+	optional uint64 invite_id = 2;
+	optional uint32 reason = 3;
+}
+message PartyMemberRemoved {
+	optional string party_id = 1;
+	optional uint32 game_account_id = 2;
+	optional uint32 reason = 3;
+}
+message PartyFindGameRequest {
+	optional sfixed32 sno_subzone = 1;
+	optional sfixed32 sno_world = 2;
+	optional bool is_hardcore_hero = 3;
+	optional bool is_seasonal_hero = 4;
+	optional uint32 game_account_id = 5;
+	optional string party_id = 6;
+	optional bytes session_key = 7;
+	optional string hero_id = 8;
+}
+message PartyGameFound {
+	optional uint32 err_code = 1;
+	optional .Fenris.Online.ConnectionInfo connection_info = 2;
+	optional .Fenris.Online.QueueEntryKey entry_key = 3;
+}
+message PartyCampaignStateChanged {
+	optional string party_id = 1;
+	optional .Fenris.Hero.CampaignState campaign_state = 2;
+	optional bool reset_game_quest_states = 3;
+}
+message PartyGameQuestStateChanged {
+	optional string party_id = 1;
+	optional .Fenris.Online.GameHandle game_handle = 2;
+	optional bytes game_quest_state = 3;
+}
+message KeyedDungeonPartyVoteData {
+	optional sfixed32 sno_dungeon = 1;
+	optional sfixed32 dungeon_tier = 2;
+}
+message PartyMemberGroupVote {
+	repeated uint32 inviter_game_account_id = 1;
+	optional uint32 vote_type = 2;
+	optional .Fenris.ClientMessage.KeyedDungeonPartyVoteData keyed_dungeon_data = 3;
+	optional int32 requested_world_tier = 4;
+}
+message PartyVoteRejected {
+	optional int32 vote_rejection_type = 2;
+}
+message PartyVoteResponse {
+	repeated uint32 game_account_id = 1;
+	optional bool vote = 2;
+}
+message PartyVoteComplete {
+	optional bool vote_passed = 1;
+}
+message PartyKeyedDungeonActivated {
+	optional string party_id = 1;
+	optional uint32 game_account_id = 2;
+	optional fixed32 sno_dungeon = 3;
+	optional uint32 dungeon_tier = 4;
+}
+message PartyResetCampaignState {
+}
+message PartyOfferStayInParty {
+	optional string party_id = 1;
+	optional uint32 member_count = 2;
+}
+message PartyStayInPartyUpdate {
+	optional string party_id = 1;
+	optional uint32 members_staying_count = 2;
+}
+message PartyLockStateChanged {
+	optional string party_id = 1;
+	optional bool is_locked = 2;
+}
+message UpdateMapPinDataRequest {
+	optional int32 x_position = 1;
+	optional int32 y_position = 2;
+	optional sfixed32 world_sno = 3;
+	optional uint32 game_account_id = 4;
+}
+message CreateClanRequest {
+	optional string name = 1;
+	optional string tag = 2;
+	optional string description = 3;
+	repeated uint32 label = 4;
+}
+message CreateClanResponse {
+	optional string clan_id = 1;
+}
+message LeaveClanRequest {
+	optional string clan_id = 1;
+}
+message InviteToClanRequest {
+	optional string clan_id = 1;
+	optional uint32 invitee_game_account_id = 2;
+}
+message RespondToClanInviteRequest {
+	optional string clan_id = 1;
+	optional bool accept = 2;
+}
+message ApplyToClanRequest {
+	optional string clan_id = 1;
+}
+message RespondToClanApplicationRequest {
+	optional string clan_id = 1;
+	optional uint32 applicant_game_account_id = 2;
+	optional uint32 response = 3;
+}
+message PromoteClanMemberRequest {
+	optional string clan_id = 1;
+	optional uint32 target_game_account_id = 2;
+	optional uint32 target_new_rank = 3;
+}
+message DemoteClanMemberRequest {
+	optional string clan_id = 1;
+	optional uint32 target_game_account_id = 2;
+}
+message KickClanMemberRequest {
+	optional string clan_id = 1;
+	optional uint32 target_game_account_id = 2;
+	optional bool ban = 3;
+}
+message UpdateClanInfoRequest {
+	optional string clan_id = 1;
+	optional .Fenris.Clan.ClanInfo clan_info = 2;
+}
+message GetClanProfileRequest {
+	optional string clan_id = 1;
+}
+message GetClanProfileResponse {
+	optional .Fenris.Clan.ClanProfile summary = 1;
+}
+message GetClanNewsRequest {
+	optional string clan_id = 1;
+}
+message GetClanNewsResponse {
+	optional .Fenris.Clan.ClanNewsList news = 1;
+}
+message ClanChatMessage {
+	optional string text = 1;
+	optional uint32 platform = 2;
+	optional bool crosschat_enabled = 3;
+}
+message ClanForgetInvitesAndApplicationsMessage {
+	optional string clan_id = 1;
+}
+message RunStressRequest {
+	enum StressType {
+		STRESS_TYPE_RABBIT = 0;
+		STRESS_TYPE_CASSANDRA = 1;
+	}
+	optional uint32 message_count = 1;
+	optional .Fenris.ClientMessage.RunStressRequest.StressType stress_type = 2;
+}
+message RunStressResponse {
+}
+message ClanMyInvitesApplications {
+	repeated .Fenris.Clan.ClanInvite invite = 1;
+	repeated .Fenris.Clan.ClanApplication application = 2;
+}
+message SubscribeToClanBankChanges {
+	optional string clan_id = 1;
+}
+message SubscribeToClanBankChangesResponse {
+	optional .Fenris.Clan.ClanBank clan_bank = 1;
+}
+message UnsubscribeFromClanBankChanges {
+	optional string clan_id = 1;
+}
+message ClanBankUpdate {
+	optional string clan_id = 1;
+	optional uint32 updated_num_tabs = 2;
+	optional .Fenris.Clan.ClanBankTabs updated_tabs = 3;
+	repeated .Fenris.Items.SavedItem added_item = 4;
+	repeated .Fenris.Items.SavedItem updated_item = 5;
+	repeated bytes removed_item_id = 6;
+}
+message FindClansRequest {
+	optional uint64 client_search_token = 1;
+	optional .Fenris.Search.FindClansParams params = 2;
+}
+message FindClansResponse {
+	repeated .Fenris.Clan.ClanProfile clan = 1;
+}
+message ClanDethroneRequest {
+	optional string clan_id = 1;
+	optional uint32 target_game_account_id = 2;
+}
+message ClanDisbandRequest {
+	optional string clan_id = 1;
+}
+message ClanLeftNotification {
+	optional string clan_id = 1;
+	optional uint32 removal_reason = 2;
+}
+message PartyInviteConfirmationRequired {
+	optional string party_id = 1;
+	optional uint64 invite_id = 2;
+	repeated uint64 reservation_id = 3;
+	optional uint32 confirmation_type = 4;
+}
+message ConfirmPartyJoin {
+	optional string inviter_party_id = 1;
+	optional uint64 invite_id = 2;
+	repeated uint64 reservation_tokens = 3;
+	optional bool confirmed = 4;
+}
+message QueuedForInstance {
+	optional sfixed32 subzone_type = 1;
+}
+message RequeuedForInstance {
+	optional sfixed32 subzone_type = 1;
+}
+message UnqueuedFromInstance {
+	optional sfixed32 sno_subzone = 1;
+	optional uint32 reason = 2;
+}
+message QueuedInstanceEntered {
+	optional sfixed32 sno_subzone = 1;
+}
+message QueueInviteResponse {
+	repeated uint32 game_account_id = 1;
+	optional bool accept = 2;
+}
+message ModifyBankTab {
+	optional string clan_id = 1;
+	optional .Fenris.Clan.ClanBankTab bank_tab_info = 3;
+}
+message ModifyClanBankTabCountRequest {
+	optional string clan_id = 1;
+	optional uint32 new_numer_of_tabs = 2;
+}
+message QueueEntryAdded {
+	optional .Fenris.Online.QueueEntryKey entry_key = 1;
+	optional uint32 avg_wait_seconds = 2;
+}
+message QueueUpdate {
+	optional .Fenris.Online.QueueEntryKey entry_key = 1;
+	optional uint32 avg_wait_seconds = 2;
+}
+message FindGameQueueIdResponse {
+	optional string queue_id = 1;
+}
+message RefreshSessionKeyRequest {
+	optional bytes old_session_key = 1;
+}
+message RefreshSessionKeyResponse {
+	optional bytes new_session_key = 1;
+}
+message UpdateSessionKey {
+	optional bytes new_session_key = 1;
+}
+message GetCatalogResponse {
+	optional .Fenris.Store.Catalog catalog = 1;
+}
+message WriteSnapshotRequest {
+	optional uint32 target_game_account_id = 1;
+}
+message SubscribeToQueueUpdates {
+	optional .Fenris.Online.QueueEntryKey entry_key = 1;
+}
+message PartyJoinFailed {
+	optional uint32 reason = 1;
+}
+message GetFallenHeroesResponse {
+	repeated .Fenris.Hero.FallenHero heroes = 1;
+}
+message DeleteFallenHeroRequest {
+	required string hero_id = 1;
+}
+message RefreshLicensesRequest {
+	optional bytes session_key = 1;
+}
+message RefreshLicensesResponse {
+	optional .Fenris.License.PlayerLicenses licenses = 1;
+}
+message RefreshLicenseAndConsumableRequest {
+	optional uint32 account_id = 1;
+	optional bytes session_key = 2;
+}
+message RefreshLicenseAndConsumableResponse {
+}
+message ConsumeConsoleEntitlementsRequest {
+	optional bytes session_key = 1;
+	optional int32 voucher_sno = 2;
+	optional string instance_id = 3;
+	optional uint64 product_id = 4 [default = 0];
+	optional string transaction_id = 5;
+}
+message ConsumableErrorState {
+	optional int32 voucher_sno = 1 [default = -1];
+	optional string order_id = 2;
+	optional uint32 error_code = 3;
+	optional uint64 product_id = 4 [default = 0];
+}
+message ConsumeConsoleEntitlementsResponse {
+	repeated .Fenris.ClientMessage.ConsumableErrorState consumables_error_state = 1;
+}
+message ConsumeEntitlementRequest {
+	optional int32 voucher_sno = 1 [default = -1];
+	optional string order_id = 2;
+}
+message ActivateBattlePassRequest {
+	optional bytes session_key = 1;
+	repeated .Fenris.ClientMessage.ConsumeEntitlementRequest consumables = 2;
+}
+message ActivateBattlePassResponse {
+	repeated .Fenris.ClientMessage.ConsumableErrorState consumables_error_state = 1;
+}
+message TierSkipErrorState {
+	optional int32 voucher_sno = 1 [default = -1];
+	optional uint32 error_code = 2;
+	optional uint64 product_id = 3 [default = 0];
+}
+message ConsumeTierSkipsRequest {
+	optional bytes session_key = 1;
+}
+message ConsumeTierSkipsResponse {
+	repeated .Fenris.ClientMessage.TierSkipErrorState consumables_error_state = 1;
+}
+message CheatAddPmtProductRequest {
+	optional int32 pmt_product_id = 1;
+	optional bytes session_key = 2;
+}
+message MultiplayerAllowed {
+	optional bool is_multiplayer_allowed = 1;
+}
+message ListDeletedHeroesResponse {
+	repeated .Fenris.Hero.Digest heroes = 1;
+}
+message RestoreDeletedHeroRequest {
+	required string hero_id = 1;
+}
+message CancelQueueEntry {
+	optional .Fenris.Online.QueueEntryKey entry_key = 1;
+}
+message UnbanPlayer {
+	optional string clan_id = 1;
+	optional uint32 target_game_account_id = 2;
+}
+message AcknowledgePlayerNotification {
+	optional string notification_id = 1;
+}
+message UpdateAccountLastConnectedTime {
+	optional uint32 target_game_account_id = 1;
+	optional uint64 last_connected_time = 2;
+}
+message AcknowledgeLegalDocumentRequest {
+	optional string document_id = 1;
+	optional bytes session_key = 2;
+	optional uint32 connected_region_id = 3;
+}
+message GetLegalDocumentResponse {
+	repeated string document_ids = 1;
+	optional string url = 2;
+}
+message WardenPayload {
+	optional bytes payload = 1;
+}
+message AuthorityTransferMessage {
+	optional .Fenris.Online.GameHandle game_handle = 1;
+	optional uint32 game_heartbeat_time = 2;
+	optional bool is_seamless_transfer = 3;
+	optional .Fenris.Online.Trace trace = 4;
+}
+message ForcefulDisconnect {
+	optional uint32 reason = 1;
+}

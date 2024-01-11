@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e 
+export REPO_ROOT="$(git rev-parse --show-toplevel)"
+export REPO_NAME="$(basename $REPO_ROOT)"
+cd ${REPO_ROOT}
+export MODNAME=$(cat ${REPO_ROOT}/go.mod|grep module|cut -d' ' -f2)
+
+for D in build bin bnet; do
+ if [[ ! -d ${D}/ ]];then echo "No ${D} dir found -> use rebuild_full"; exit 127 ;fi
+done
+
+
+mkdir -p $REPO_ROOT/{bin,build}
+if ! which protoc >/dev/null ; then
+	wget "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VER}/${PROTOC_FILE}.zip"
+	unzip -d build/ ${PROTOC_FILE}.zip
+	rm ${PROTOC_FILE}.zip
+	export PATH=$PATH:$(realpath build/bin)
+fi
+
+cd ${REPO_ROOT}
+scripts/mk_svc_code build/protos/ > services/generated.go
+scripts/fix_generated
+go build -o bin/
+GOOS=windows GOARCH=amd64 go build -o bin/

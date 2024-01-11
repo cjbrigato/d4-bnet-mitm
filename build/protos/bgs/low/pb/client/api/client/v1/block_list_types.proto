@@ -1,0 +1,22 @@
+package bgs.protocol.block_list.v1.client;
+import "bgs/low/pb/client/rpc_types.proto";
+
+message BlockedPlayer {
+	optional uint64 id = 1;
+	optional string battle_tag = 2;
+	optional uint64 creation_time_us = 4;
+	optional uint64 modified_time_us = 5;
+}
+message BlockPlayerOptions {
+	optional uint64 account_id = 1;
+}
+message UnblockPlayerOptions {
+	optional uint64 account_id = 1;
+}
+message UnblockPlayerAssignment {
+	optional uint64 id = 1;
+}
+message BlockListState {
+	repeated .bgs.protocol.block_list.v1.client.BlockedPlayer player = 1;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/block_list/v1/client";

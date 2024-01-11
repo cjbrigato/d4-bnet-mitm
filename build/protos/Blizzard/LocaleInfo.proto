@@ -1,0 +1,7 @@
+package Blizzard.Telemetry.Fenris.Client.v1;
+
+message LocaleInfo {
+	optional int32 base_locale = 1;
+	optional int32 text_locale = 2;
+	optional int32 speech_locale = 3;
+}

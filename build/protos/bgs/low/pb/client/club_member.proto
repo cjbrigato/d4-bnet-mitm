@@ -1,0 +1,89 @@
+package bgs.protocol.club.v1;
+import "bgs/low/pb/client/club_member_id.proto";
+import "bgs/low/pb/client/api/client/v2/attribute_types.proto";
+import "bgs/low/pb/client/club_enum.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message Member {
+	optional .bgs.protocol.club.v1.MemberId id = 1;
+	optional string battle_tag = 2;
+	repeated uint32 role = 3;
+	repeated .bgs.protocol.v2.Attribute attribute = 4;
+	optional uint64 join_time = 5;
+	optional .bgs.protocol.club.v1.PresenceLevel presence_level = 6;
+	optional bool moderator_mute = 7;
+	optional .bgs.protocol.club.v1.WhisperLevel whisper_level = 8;
+	optional string note = 9;
+	optional bool active = 50;
+	optional .bgs.protocol.club.v1.MemberVoiceState voice = 51;
+}
+message MemberResult {
+	optional .bgs.protocol.club.v1.MemberId member_id = 1;
+	optional uint32 status = 2;
+}
+message RemoveMemberOptions {
+	optional .bgs.protocol.club.v1.MemberId id = 1;
+	optional .bgs.protocol.club.v1.ClubRemovedReason reason = 2;
+}
+message MemberRemovedAssignment {
+	optional .bgs.protocol.club.v1.MemberId id = 1;
+	optional .bgs.protocol.club.v1.ClubRemovedReason reason = 2;
+}
+message MemberVoiceOptions {
+	optional uint64 stream_id = 1;
+	optional bool joined = 2;
+	optional .bgs.protocol.club.v1.VoiceMicrophoneState microphone = 3;
+	optional bool active = 4;
+}
+message MemberVoiceState {
+	optional string id = 1;
+	optional uint64 stream_id = 2;
+	optional bool joined = 3;
+	optional .bgs.protocol.club.v1.VoiceMicrophoneState microphone = 4;
+	optional bool active = 5;
+}
+message CreateMemberOptions {
+	optional .bgs.protocol.club.v1.MemberId id = 1;
+	repeated .bgs.protocol.v2.Attribute attribute = 2;
+	optional uint32 join_club_source = 3;
+}
+message MemberDescription {
+	optional .bgs.protocol.club.v1.MemberId id = 1;
+	optional string battle_tag = 2;
+}
+message RoleOptions {
+	optional .bgs.protocol.club.v1.MemberId member_id = 1;
+	repeated uint32 role = 2;
+}
+message RoleAssignment {
+	optional .bgs.protocol.club.v1.MemberId member_id = 1;
+	repeated uint32 role = 2;
+}
+message MemberAttributeAssignment {
+	optional .bgs.protocol.club.v1.MemberId member_id = 1;
+	repeated .bgs.protocol.v2.Attribute attribute = 2;
+}
+message SubscriberStateOptions {
+	optional .bgs.protocol.club.v1.MemberVoiceOptions voice = 1;
+}
+message SubscriberStateAssignment {
+	optional .bgs.protocol.club.v1.MemberId member_id = 1;
+	optional bool active = 2;
+	optional .bgs.protocol.club.v1.MemberVoiceState voice = 3;
+}
+message MemberStateOptions {
+	repeated .bgs.protocol.v2.Attribute attribute = 1;
+	optional .bgs.protocol.club.v1.PresenceLevel presence_level = 2;
+	optional bool moderator_mute = 3;
+	optional .bgs.protocol.club.v1.WhisperLevel whisper_level = 4;
+	optional string note = 5;
+}
+message MemberStateAssignment {
+	optional .bgs.protocol.club.v1.MemberId member_id = 1;
+	repeated .bgs.protocol.v2.Attribute attribute = 2;
+	optional .bgs.protocol.club.v1.PresenceLevel presence_level = 3;
+	optional bool moderator_mute = 4;
+	optional .bgs.protocol.club.v1.WhisperLevel whisper_level = 5;
+	optional string note = 6;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/club/v1";

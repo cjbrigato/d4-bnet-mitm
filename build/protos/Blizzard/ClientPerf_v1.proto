@@ -1,0 +1,47 @@
+package Blizzard.Telemetry.D4.Client.Metrics.v1;
+import "telemetry_extensions.proto";
+
+message ClientPerf {
+	optional sint32 world_sno = 1;
+	optional string world_name = 2;
+	optional sint32 scene_sno = 3;
+	optional string scene_name = 4;
+	optional int32 grid_x = 5;
+	optional int32 grid_y = 6;
+	optional float average_delta = 7;
+	optional float max_delta = 8;
+	optional float average_monster = 9;
+	optional float max_monster = 10;
+	optional float average_pet = 11;
+	optional float max_pet = 12;
+	optional float average_player = 13;
+	optional float max_player = 14;
+	optional float average_actor = 15;
+	optional float max_actor = 16;
+	optional float average_particle = 17;
+	optional float max_particle = 18;
+	optional float average_particle_system = 19;
+	optional float max_particle_system = 20;
+	optional float average_visible_monster = 21;
+	optional float max_visible_monster = 22;
+	optional float average_visible_pet = 23;
+	optional float max_visible_pet = 24;
+	optional float average_visible_player = 25;
+	optional float max_visible_player = 26;
+	optional float average_visible_actor = 27;
+	optional float max_visible_actor = 28;
+	optional float average_visible_particle = 29;
+	optional float max_visible_particle = 30;
+	optional float average_visible_particle_system = 31;
+	optional float max_visible_particle_system = 32;
+	optional int64 max_cpu_cache_required_size = 33;
+	optional int64 max_gpu_cache_required_size = 34;
+	optional int64 max_main_heap_used_size = 35;
+	optional int64 max_small_heap_used_size = 36;
+	optional float average_resolution_scale = 37;
+	optional float minimum_resolution_scale = 38;
+	optional string hw_class = 39;
+	optional uint32 world_tier = 40;
+	optional bool event_is_helltide = 41;
+	optional bool player_in_nightmare_dungeon = 42;
+}

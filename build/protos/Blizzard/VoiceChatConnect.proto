@@ -1,0 +1,8 @@
+package Blizzard.Telemetry.Fenris.Client.v1;
+import "telemetry_extensions.proto";
+
+message VoiceChatConnect {
+	optional uint32 game_account_id = 1;
+	optional uint32 bnet_account_id = 2;
+	optional bool is_connected = 3;
+}

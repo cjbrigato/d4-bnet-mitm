@@ -1,0 +1,17 @@
+package Blizzard.Telemetry.D4.Common.Game.v1;
+import "NightmareDungeonInfo_v1.proto";
+
+message Item {
+	optional sint32 item_sno = 1;
+	optional string item_quality_modifier = 2;
+	optional string item_quality_level = 3;
+	optional sint32 item_power = 4;
+	optional string inventory_slot = 5;
+	optional string item_id = 6;
+	optional sint32 legendary_affix_sno = 7;
+	optional sint32 imprinted_affix_sno = 8;
+	optional sint32 replaced_affix_sno = 9;
+	optional .Blizzard.Telemetry.D4.Common.Game.v1.NightmareDungeonInfo nightmare_dungeon_info = 10;
+	optional sint32 item_power_upgrade_rank = 11;
+	optional sint64 item_stack_count = 12;
+}

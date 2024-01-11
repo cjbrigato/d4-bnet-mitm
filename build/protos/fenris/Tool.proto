@@ -1,0 +1,1250 @@
+package ToolChannelMsg;
+
+enum ActionType {
+	ACTIONTYPE_MODIFY = 1;
+	ACTIONTYPE_ADD = 2;
+	ACTIONTYPE_REMOVE = 3;
+}
+enum GlobalSNOBucket {
+	GlobalSNOBucket_ToolsAndTesting = 0;
+	GlobalSNOBucket_Main = 1;
+	GlobalSNOBucket_Non_Beta = 2;
+	GlobalSNOBucket_Beta_Only = 3;
+}
+enum UITreeOperationType {
+	UITREEOPERATION_ADD = 1;
+	UITREEOPERATION_DELETE = 2;
+}
+message ConsoleCommand {
+	required string command = 1;
+}
+message ConsoleCommandResult {
+	required string command = 1;
+	required string output = 2;
+	required int32 commandState = 3;
+}
+message WwiseSoundBankIDsToNameRequest {
+	required int32 sno = 1;
+}
+message WwiseSoundBankIDToName {
+	required uint32 id = 1;
+	required string name = 2;
+}
+message WwiseSoundBankIDsToNameResult {
+	repeated .ToolChannelMsg.WwiseSoundBankIDToName entries = 1;
+}
+message Log {
+	required string severity = 1;
+	required string log = 2;
+}
+message QueryCameraPos {
+}
+message Ping {
+}
+message Acknowledged {
+}
+message Completed {
+}
+message RequestMainHolodeckSettings {
+}
+message MainHolodeckSettings {
+	required int32 holodeck_id = 1;
+	required bool grid_visible = 2;
+}
+message FrameHolodeckWithOffsetVector {
+	required int32 holodeck_id = 1;
+	required float x = 2;
+	required float y = 3;
+	required float z = 4;
+}
+message HolodeckAdjustMainActorYaw {
+	required int32 holodeck_id = 1;
+	required float angle = 2;
+}
+message HolodeckControllerEnabled {
+	required bool enabled = 1;
+	required int32 holodeck_id = 2;
+}
+message ToggleFullscreen {
+	optional bool fullscreen = 1;
+}
+message Vector2 {
+	required float x = 1;
+	required float y = 2;
+}
+message Vector3 {
+	required float x = 1;
+	required float y = 2;
+	required float z = 3;
+}
+message Rect2D {
+	required float l = 1;
+	required float t = 2;
+	required float r = 3;
+	required float b = 4;
+}
+message Quaternion {
+	required float x = 1;
+	required float y = 2;
+	required float z = 3;
+	required float w = 4;
+}
+message ConsoleCommandList {
+	message ConsoleCommandEntry {
+		required string command = 1;
+		required uint32 flags = 2;
+	}
+	repeated .ToolChannelMsg.ConsoleCommandList.ConsoleCommandEntry entries = 1;
+}
+message AddressResponse {
+	required uint32 address = 1;
+	required int32 port = 2;
+}
+message AddressRequest {
+}
+message PartialFieldXMLValue {
+	required string field_path = 1;
+	required string xml_value = 2;
+	required .ToolChannelMsg.ActionType action_type = 3;
+	required int32 index = 4;
+}
+message PartialFieldsXMLUpdateCommand {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+	repeated .ToolChannelMsg.PartialFieldXMLValue fields = 3;
+	repeated uint32 platform_needing_binary_updates = 4;
+	required bool first_update = 5;
+	required uint32 xml_crc = 6;
+}
+message PartialFieldValue {
+	required string field_path = 1;
+	required bytes binary_value = 2;
+}
+message PartialFieldsUpdateCommand {
+	required uint32 platform_filter = 1;
+	required int32 sno_group = 2;
+	required int32 sno_handle = 3;
+	repeated .ToolChannelMsg.PartialFieldValue fields = 4;
+	required bool first_update = 5;
+}
+message EndLiveEditCommand {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+}
+message RefreshLiveEditCommand {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+}
+message SetStatusMessage {
+	required string message = 1;
+	required bool infinite_duration = 2;
+}
+message SetCompilationStatusMessage {
+	required string compilation_message = 1;
+	required int32 completed_request_count = 2;
+	required int32 total_request_count = 3;
+}
+message SetAxeSharpBuildSmokeTestedMessage {
+	required bool buildSmokeTested = 1;
+}
+message StartInfo {
+	optional .ToolChannelMsg.Vector3 start_location = 1;
+	optional .ToolChannelMsg.Quaternion start_orientation = 2;
+	required int32 sno_subzone = 3 [default = -1];
+	optional int32 sno_scene = 4;
+	optional string marker = 5;
+	optional int32 seed = 6;
+}
+message GameModeSettings {
+	optional .ToolChannelMsg.StartInfo start_location_info = 1;
+	optional bool simulate_real_game = 2;
+	optional bool no_reload = 3;
+	optional bool join_local_lan_server = 4;
+	optional int32 world_seed = 5;
+	optional bool dungeon_states_overridden = 6;
+	repeated uint32 dungeon_states = 7;
+	optional bool clear_existing_start_location_overrides = 8;
+	optional int32 world_tier = 9;
+	optional bool automated = 10;
+	optional bool force_hardcore = 11;
+	optional bool restore_various_settings_from_local_hero_save = 12;
+	optional bool seasonal_game = 13;
+	optional bool override_season = 14;
+	optional int32 override_season_num = 15;
+	optional int32 override_season_state = 16;
+	optional bool override_seasonal_post_campaign_complete = 17;
+}
+message SeasonSettings {
+	optional bool season_overridden = 2;
+	optional int32 season_num = 3;
+	optional int32 season_state = 4;
+	optional bool seasonal_post_campaign_complete = 5;
+}
+message CampaignSettings {
+	repeated int32 completed_quests = 1;
+}
+message SetGameModeRequest {
+	required int32 requested_mode = 1;
+	optional int32 sno_world = 2;
+	optional .ToolChannelMsg.GameModeSettings settings = 3;
+	optional int32 sno_subzone = 4;
+	optional int32 start_reason = 5;
+	optional .ToolChannelMsg.CampaignSettings campaign_settings = 6;
+	optional int32 sno_starting_quest = 7;
+	optional bool automated = 8;
+}
+message CampaignStateChanged {
+	repeated int32 completed_quests = 1;
+}
+message SetGameModeResponse {
+	required bool success = 1;
+}
+message SetGameMode {
+	required int32 requested_mode = 1;
+	required int32 sno_world = 2;
+	optional int32 game_parts = 3;
+}
+message ReloadGameMode {
+	required int32 sno_world = 1;
+	required int32 sno_subzone = 2;
+	optional .ToolChannelMsg.Quaternion camera_orientation = 3;
+	optional .ToolChannelMsg.Vector3 player_position = 4;
+}
+message SetLANServerMode {
+	required bool enabled = 1;
+	optional int32 sno_world = 2;
+}
+message SetFrontEndLANServerMode {
+	required bool enabled = 1;
+}
+message SetBnetServerMode {
+	required bool enabled = 1;
+}
+message TexturePreviewChangeCurrentFrame {
+	required int64 hwnd_texture_preview = 1;
+	required int32 current_frame = 2;
+}
+message TexturePreviewChangeCurrentSection {
+	required int64 hwnd_texture_preview = 1;
+	repeated int32 current_line = 2;
+	repeated int32 current_section = 3;
+	required bool add_to_current = 4;
+}
+message TextureInformationRequest {
+	required int32 sno_handle = 1;
+}
+message TextureInformation {
+	required int32 sno_handle = 1;
+	required int32 width = 2;
+	required int32 height = 3;
+	required int32 estimated_size = 4;
+	required .ToolChannelMsg.Vector3 avg_color = 5;
+	required int32 original_width = 6;
+	required int32 original_height = 7;
+}
+message AnimPermutationInformationRequest {
+	required int32 sno_handle = 1;
+	required int32 permutation_index = 2;
+}
+message AnimPermutationInformation {
+	required int32 sno_handle = 1;
+	required int32 permutation_index = 2;
+	required float payload_size = 3;
+	required bool removed_on_gen8 = 4;
+}
+message HoudiniSimInformationRequest {
+	required int32 sno_handle = 1;
+}
+message HoudiniSimInformation {
+	required int32 sno_handle = 1;
+	required float simulation_size = 2;
+	required int32 particle_count = 3;
+	required int32 frame_count = 4;
+	required float duration = 5;
+}
+message AppearanceBoneInformationRequest {
+	required int32 sno_handle = 1;
+	required int32 bone_index = 2;
+	required int32 shape_index = 3;
+}
+message AppearanceBoneInformation {
+	required int32 sno_handle = 1;
+	required int32 bone_index = 2;
+	required int32 shape_index = 3;
+	required float mass = 4;
+	required int32 animation_lod = 5;
+	required bool inherited_bone = 6;
+	required bool cloth_bone = 7;
+	required int32 true_bone_lod = 8;
+	required bool partial_ragdoll_bone = 9;
+}
+message ActorTypeUpdateNotification {
+	required int32 sno_handle = 1;
+}
+message SNOName {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+}
+message OriginalFileWatch {
+	required string file = 1;
+	required int32 sno_group = 2;
+	required int32 sno_handle = 3;
+}
+message ReimportFromOriginalFileWatch {
+	repeated .ToolChannelMsg.OriginalFileWatch reimports = 1;
+}
+message EnumerateActorsOfTypeRequest {
+	required int32 actortype = 1;
+}
+message EnumerateActorsOfTypeResponse {
+	repeated .ToolChannelMsg.SNOName list = 1;
+}
+message SNONameWithLabel {
+	required .ToolChannelMsg.SNOName sno_name = 1;
+	required string label = 2;
+}
+message EnumerateActorsOfTypeWithLabelRequest {
+	required int32 actortype = 1;
+}
+message EnumerateActorsOfTypeWithLabelResponse {
+	repeated .ToolChannelMsg.SNONameWithLabel list = 1;
+}
+message EnumerateItemsWithLabelRequest {
+}
+message EnumerateItemsWithLabelResponse {
+	repeated .ToolChannelMsg.SNONameWithLabel list = 1;
+}
+message GetDependenciesRequest {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+	required int32 platform = 3;
+	required bool include_soft_links = 4;
+}
+message GetDependenciesResponse {
+	repeated .ToolChannelMsg.SNOName list = 1;
+}
+message GetDetailedDependenciesRequest {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+	required int32 platform = 3;
+	required bool include_soft_links = 4;
+}
+message ManualValidationResult {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+	required string message = 3;
+	required int32 validation_type = 4;
+}
+message ManualValidationEntry {
+	repeated .ToolChannelMsg.ManualValidationResult errors = 1;
+}
+message DetailedDependency {
+	required int32 expected_sno_group = 1;
+	required int32 sno_group = 2;
+	required int32 sno_handle = 3;
+	required string field_name = 4;
+	required string field_display_name = 5;
+	optional string user_readable_name = 6;
+}
+message GetDetailedDependenciesResponse {
+	repeated .ToolChannelMsg.DetailedDependency list = 1;
+}
+message GlobalSNOEntry {
+	required int32 global_sno_enum = 1;
+	required .ToolChannelMsg.GlobalSNOBucket bucket = 2;
+	required .ToolChannelMsg.SNOName snoname = 3;
+	required bool only_referenced_from_enumerating_snos = 4;
+}
+message GlobalSNOList {
+	repeated .ToolChannelMsg.GlobalSNOEntry sno_entries = 1;
+}
+message GlobalGBIDList {
+	repeated int32 gbid_entries = 1;
+}
+message GlobalImageFrameList {
+	repeated string image_frame_name = 1;
+}
+message ImageFrameInfo {
+	required int32 sno_texture = 1;
+	required bool deleted = 2;
+}
+message RefreshImageFrames {
+	repeated .ToolChannelMsg.ImageFrameInfo image_frame_info = 1;
+}
+message ReplacedSNO {
+	required int32 sno_original = 1;
+	required int32 sno_replacement = 2;
+}
+message ReplacedSNOsRequest {
+}
+message ReplacedSNOsResponse {
+	repeated .ToolChannelMsg.ReplacedSNO replacement = 1;
+}
+message BuildTOCRequest {
+	required int32 platform = 1;
+	required string global_snos = 2;
+	required string excluded_snos = 3;
+	required string excluded_groups = 4;
+}
+message BuildTOCResponse {
+	repeated .ToolChannelMsg.SNOName list = 1;
+}
+message BuildPlatformDependenciesRequest {
+	required int32 platform = 1;
+	required int32 asset_mode = 2;
+	required string global_snos = 3;
+	required string excluded_snos = 4;
+	required string excluded_groups = 5;
+}
+message BuildPlatformDependenciesResponse {
+}
+message OpenSNORequest {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+}
+message DiffSnoRequest {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+	required int32 changelistID_1 = 3;
+	required int32 changelistID_2 = 4;
+}
+message ConsoleCommandRequest {
+	required string console_command = 1;
+}
+message PlaySubzoneRequest {
+	required int32 sno_subzone = 1;
+}
+message PlayWorldRequest {
+	required int32 sno_world = 1;
+	optional .ToolChannelMsg.Vector3 pos = 2;
+	optional int32 seed = 3;
+}
+message PlayQuestRequest {
+	required int32 sno_quest = 1;
+	optional int32 sno_subzone = 2;
+}
+message PlayMarkerSetRequest {
+	required int32 sno_markerset = 1;
+}
+message EditMarkerSetRequest {
+	required int32 sno_markerset = 1;
+}
+message OpenScriptRequest {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+	required int32 line_number = 3;
+}
+message SNOReference {
+	required int32 sno_group_parent = 1;
+	required int32 sno_handle_parent = 2;
+	required int32 sno_group_child = 3;
+	required int32 sno_handle_child = 4;
+}
+message AllSNOReferencesRequest {
+	required int32 platform = 1;
+	required bool include_soft_link_roots = 2;
+	required bool include_soft_links = 3;
+	required int32 page_size = 4;
+	required int32 continue_from_index = 5;
+}
+message AllSNOReferences {
+	repeated .ToolChannelMsg.SNOReference references = 1;
+}
+message IterateReferencesRequest {
+	required int32 platform = 1;
+	required string global_snos = 2;
+	required string excluded_snos = 3;
+	required string excluded_groups = 4;
+	required bool include_soft_link_roots = 5;
+}
+message IterateReferencesResponse {
+	repeated .ToolChannelMsg.SNOReference list = 1;
+}
+message AxePrefetchContent {
+	repeated .ToolChannelMsg.SNOReference list = 1;
+}
+message ReverseCompilationDependenciesRequest {
+	repeated .ToolChannelMsg.SNOName list = 1;
+}
+message ReverseCompilationDependenciesResponse {
+	repeated .ToolChannelMsg.SNOName list = 1;
+	required bool too_many_dependencies = 2;
+}
+message LocalOrNewerSNOsRequest {
+	required int32 p4_revision = 1;
+}
+message LocalOrNewerSNOsResponse {
+	repeated .ToolChannelMsg.SNOName list = 1;
+	required bool all_shaders_local_or_newer = 2;
+}
+message AppearanceGeometryInfoRequest {
+	required int32 sno_handle = 1;
+}
+message LookInfo {
+	required string name = 1;
+	required int32 vertices = 2;
+	required int32 triangles = 3;
+}
+message GeometryInfo {
+	optional string name = 1;
+	required int32 vertices = 2;
+	required int32 indices = 3;
+	required int32 triangles = 4;
+	required int32 degenerate_triangles = 5;
+}
+message LODGeometryInfo {
+	required .ToolChannelMsg.GeometryInfo info = 1;
+	repeated .ToolChannelMsg.GeometryInfo sub_objects = 2;
+	repeated .ToolChannelMsg.LookInfo look_infos = 3;
+}
+message ChunkGeometryInfo {
+	repeated .ToolChannelMsg.LODGeometryInfo lods = 2;
+}
+message AppearanceGeometryInfo {
+	required int32 sno_handle = 1;
+	required float surface = 2;
+	required int32 bones = 3;
+	repeated .ToolChannelMsg.ChunkGeometryInfo chunks = 4;
+	required .ToolChannelMsg.GeometryInfo totals = 5;
+	required .ToolChannelMsg.GeometryInfo lod_totals = 6;
+	required uint32 vertex_and_index_buffer_size = 7;
+	required uint32 lod_vertex_and_index_buffer_size = 8;
+	required uint32 collision_size = 9;
+	required uint32 height_field_collision_size = 10;
+	required uint32 spherical_harmonic_size = 11;
+	required uint32 octree_size = 12;
+	required uint32 instance_vertex_a_o_size = 13;
+}
+message ShaderInfoRequest {
+	required int32 sno_handle = 1;
+}
+message ShaderProgramInfo {
+	required int32 max_output_parameter_count = 1;
+	required int32 max_instruction_count = 2;
+	required int32 max_resource_count = 3;
+	required int32 max_sampler_count = 4;
+	required int32 max_texture_load_instructions = 5;
+	required int32 max_static_flow_control_count = 6;
+	required int32 max_dynamic_flow_control_count = 7;
+}
+message ShaderPassInfo {
+	repeated .ToolChannelMsg.ShaderProgramInfo shader_program_info = 1;
+	required int32 shader_pass_permutation_count = 2;
+	required string shader_pass_permutations = 3;
+}
+message ShaderInfo {
+	required int32 sno_handle = 1;
+	repeated .ToolChannelMsg.ShaderPassInfo shader_pass_info = 2;
+}
+message MarkerSetInfoRequest {
+	required int32 sno_handle = 1;
+}
+message MarkerSetInfo {
+	required int32 sno_handle = 1;
+	required int32 height_field_count = 2;
+	required uint32 mask_textures_size = 3;
+	required uint32 height_textures_size = 4;
+	required uint32 flow_map_textures_size = 5;
+	required uint32 clutter_buffers_size = 6;
+	required uint32 index_buffers_size = 7;
+	required uint32 fog_mask_buffers_size = 8;
+	required uint32 ocean_mask_buffers_size = 9;
+	required uint32 spherical_harmonic_size = 10;
+	required uint32 vertex_ao_size = 11;
+}
+message AxePrefsXmlUpdate {
+	required string axe_prefs_xml = 1;
+}
+message AxeDebugRenderStateChanged {
+	required int32 debug_render_mode = 1;
+	optional bytes draw_flags = 2;
+	optional bytes hide_render_layer = 3;
+}
+message AxeQueryDebugRenderState {
+}
+message TestPower {
+	required int32 sno_power = 1;
+}
+message FlagSnosUsedByUser {
+	repeated .ToolChannelMsg.SNOName sno = 1;
+}
+message AxeShortcutKey {
+	required int32 key = 1;
+	required uint32 modifiers = 2;
+	required int32 key_alt = 3;
+	required uint32 modifiers_alt = 4;
+}
+message AxeShortcutKeys {
+	repeated .ToolChannelMsg.AxeShortcutKey shortcut_keys = 1;
+}
+message AxeShortcutKeyProcessed {
+	required bool processed = 1;
+}
+message SimulateShortcutKeyPress {
+	required int32 key = 1;
+	required uint32 modifiers = 2;
+	required int32 window_id = 3;
+}
+message ClientEnterWorld {
+	required int32 sno = 1;
+}
+message DominoContactPoint {
+	required int32 sno1 = 1;
+	required int32 sno2 = 2;
+	required int32 material1 = 3;
+	required int32 material2 = 4;
+	required float velocity = 5;
+}
+message CollisionInfoGathering {
+	required bool enabled = 1;
+}
+message UITreeRequest {
+}
+message UITreeNode {
+	required uint64 hash = 1;
+	required string id = 2;
+	required string control_type = 3;
+	required bool active = 4;
+	required bool is_visual_control = 5;
+	required bool is_template_instance = 6;
+	required bool is_scoped_id = 7;
+	repeated .ToolChannelMsg.UITreeNode child_nodes = 8;
+	required .ToolChannelMsg.Vector2 absolute_pos = 9;
+	required .ToolChannelMsg.Vector2 relative_pos = 10;
+	required .ToolChannelMsg.Vector2 dim = 11;
+	required .ToolChannelMsg.Rect2D clip_rect = 12;
+	required uint32 breakpoint_flags = 13;
+}
+message ResetUITree {
+}
+message UITreeResponse {
+	required .ToolChannelMsg.UITreeNode root_node = 1;
+}
+message UITreeOperation {
+	required .ToolChannelMsg.UITreeOperationType type = 1;
+	optional .ToolChannelMsg.UITreeNode added_node = 2;
+	optional uint64 parent_hash = 3;
+	optional uint64 deleted_hash = 4;
+}
+message UITreeOperations {
+	repeated .ToolChannelMsg.UITreeOperation ops = 1;
+}
+message UITreeActiveStateChange {
+	required uint64 hash = 1;
+	required bool active = 2;
+}
+message UpdateUITreeNodes {
+	repeated .ToolChannelMsg.UITreeActiveStateChange nodes = 1;
+}
+message HighlightUITreeNode {
+	required uint64 hash = 1;
+}
+message SelectUIControlModeRequest {
+	required bool enabled = 1;
+}
+message UITreeSelectControl {
+	required uint64 hash = 1;
+}
+message ToggleUIControlActiveState {
+	required uint64 hash = 1;
+}
+message SetUIControlBreakpoint {
+	required uint64 hash = 1;
+	required uint32 breakpoint_type = 2;
+	required bool enable = 3;
+}
+message ToggleUITreeSyncState {
+	required bool enabled = 1;
+}
+message OpenUISno {
+	required uint64 hash = 1;
+}
+message ServerBrowserUpdateRequest {
+}
+message ServerBrowserShutDownGameRequest {
+	required uint32 game_id = 1;
+}
+message ServerBrowserWorldPlace {
+	required sfixed32 sno_world = 1;
+	required .ToolChannelMsg.Vector3 pos = 2;
+}
+message ServerBrowserPlayerData {
+	optional uint32 game_id = 1;
+	required uint64 game_account_id = 2;
+	optional string hero_name = 3;
+	optional string hero_id = 4;
+	optional string party_id = 5;
+	optional uint32 acdid = 6;
+	optional bool non_authoritative = 7;
+	optional .ToolChannelMsg.ServerBrowserWorldPlace world_place = 8;
+	optional uint32 command_frame_adjusted = 9;
+}
+message ServerBrowserWorldData {
+	optional string name = 1;
+	optional uint32 sno = 2;
+	optional uint32 id = 3;
+}
+message ServerBrowserGameData {
+	required uint32 game_id = 1;
+	required bool has_players_data = 2;
+	repeated .ToolChannelMsg.ServerBrowserPlayerData players = 3;
+	optional sfixed32 sno_subzone = 4;
+	optional bool matchmaking_on = 5;
+	optional string instance_party_id = 6;
+	optional uint32 ticks_since_player_in_game = 7;
+	optional uint32 server_command_frame = 8;
+	optional bool has_world_data = 9;
+	repeated .ToolChannelMsg.ServerBrowserWorldData worlds = 10;
+	optional int32 party_size = 11;
+	optional sfixed32 sno_instance_quest = 12;
+	optional int32 game_world_tier = 13;
+}
+message ServerBrowserGameShutdown {
+	required uint32 game_id = 1;
+}
+message ServerBrowserPlayerDeleted {
+	required uint32 game_id = 1;
+	required uint64 game_account_id = 2;
+}
+message UIControlSelected {
+	required string path = 1;
+	required int32 ui_sno = 2;
+	optional int32 operation = 3;
+}
+message UIControlVisibility {
+	required string path = 1;
+	required int32 ui_sno = 2;
+	optional bool is_visible = 3;
+	required bool should_override = 4;
+}
+message UIControlSelectedAction {
+	required int32 use_handle = 1;
+	required int32 ui_sno = 2;
+	required int32 delta_x = 3;
+	required int32 delta_y = 4;
+}
+message UIControlAxeAction {
+	required int32 ui_sno = 1;
+	required int32 action = 2;
+}
+message UIOpenContextMenu {
+	required int32 ui_sno = 1;
+}
+message UIEditorAdjustCanvas {
+	required int32 ui_sno = 1;
+	required float zoom_amount = 2;
+	required .ToolChannelMsg.Vector2 translate = 3;
+}
+message StoryboardEditorStoryboardInstanceListRequest {
+}
+message StoryboardInstance {
+	required string description = 1;
+	required int32 sno = 2;
+}
+message StoryboardEditorStoryboardInstanceList {
+	required int32 editor_id = 1;
+	required int32 list_id = 2;
+	repeated .ToolChannelMsg.StoryboardInstance instances = 3;
+}
+message StoryboardEditorInstanceActionRequest {
+	enum RequestType {
+		PLAY = 1;
+		STOP = 2;
+		JUMP = 3;
+	}
+	required int32 editor_id = 1;
+	required int32 list_id = 2;
+	required int32 instance_index = 3;
+	required .ToolChannelMsg.StoryboardEditorInstanceActionRequest.RequestType request_type = 4;
+	required float time = 5;
+}
+message StoryboardEditorInstanceAttachmentRequest {
+	required int32 editor_id = 1;
+	required int32 list_id = 2;
+	required int32 instance_index = 3;
+	required bool is_attached = 4;
+}
+message StoryboardEditorInstanceTimeChanged {
+	required int32 editor_id = 1;
+	required int32 list_id = 2;
+	required int32 instance_index = 3;
+	required float time = 4;
+	required bool is_playing = 5;
+}
+message PRTransform {
+	required .ToolChannelMsg.Vector3 pos = 1;
+	required .ToolChannelMsg.Quaternion q = 2;
+}
+message PRSTransform {
+	required .ToolChannelMsg.Vector3 pos = 1;
+	required .ToolChannelMsg.Quaternion q = 2;
+	required .ToolChannelMsg.Vector3 scale = 3;
+}
+message ExportToObjFileRequest {
+	message ObjExportEntry {
+		required .ToolChannelMsg.PRSTransform transform = 1;
+		required int32 sno_group = 2;
+		required int32 sno_handle = 3;
+		required string marker_name = 4;
+		required int32 marker_id = 5;
+		required bool has_ocean = 6;
+	}
+	required string filename = 1;
+	required bool include_collision = 2;
+	repeated .ToolChannelMsg.ExportToObjFileRequest.ObjExportEntry entries = 3;
+}
+message ExportToObjFileResponse {
+	required bool success = 1;
+}
+message QuestChangeList {
+	message IdFieldPair {
+		required uint32 uid = 1;
+		required string field_name = 2;
+	}
+	message RootChanges {
+		repeated string field_name = 1;
+	}
+	message PhaseChanges {
+		repeated .ToolChannelMsg.QuestChangeList.IdFieldPair phase_modifications = 1;
+		repeated uint32 phase_adds_and_deletes = 2;
+	}
+	message ObjectiveSetChanges {
+		repeated .ToolChannelMsg.QuestChangeList.IdFieldPair objectiveset_modifications = 1;
+		repeated uint32 objectiveset_adds_and_deletes = 2;
+	}
+	message CallbackChanges {
+		repeated .ToolChannelMsg.QuestChangeList.IdFieldPair callback_modifications = 1;
+		repeated uint32 callback_adds_and_deletes = 2;
+	}
+	optional .ToolChannelMsg.QuestChangeList.RootChanges root_changes = 1;
+	optional .ToolChannelMsg.QuestChangeList.PhaseChanges phase_changes = 2;
+	optional .ToolChannelMsg.QuestChangeList.ObjectiveSetChanges objectiveset_changes = 3;
+	optional .ToolChannelMsg.QuestChangeList.CallbackChanges callback_changes = 8;
+	required bool start_phase_changed = 4;
+	required bool end_phase_changed = 5;
+	required bool background_phase_changed = 6;
+	required bool script_changed = 7;
+	required int32 quest_sno = 9;
+	required bool unassigned_phase_changed = 10;
+	optional bool bonus_phase_changed = 11;
+}
+message QuestChangeListResponse {
+	enum ResponseType {
+		OK = 1;
+		WARNING = 2;
+		CRITICAL = 3;
+	}
+	required .ToolChannelMsg.QuestChangeListResponse.ResponseType response_type = 1;
+	required string message = 2;
+}
+message QuestStop {
+	required int32 sno_quest = 1;
+}
+message QuestDebugSnapshot {
+	message CallbackDebugInfo {
+		required uint32 callback_uid = 1;
+		required bool callback_complete = 2;
+		required uint32 callback_count_current = 3;
+		required uint32 callback_count_required = 4;
+	}
+	message CallbackSetDebugInfo {
+		required uint32 callback_set_uid = 1;
+		required bool callback_set_complete = 2;
+		repeated .ToolChannelMsg.QuestDebugSnapshot.CallbackDebugInfo callback_info = 3;
+	}
+	message PhaseDebugInfo {
+		required uint32 phase_uid = 1;
+		required bool phase_complete = 2;
+		repeated .ToolChannelMsg.QuestDebugSnapshot.CallbackSetDebugInfo callback_set_info = 3;
+	}
+	message QuestDebugInfo {
+		required int32 quest_sno = 1;
+		required int32 quest_state = 2;
+		optional .ToolChannelMsg.QuestDebugSnapshot.PhaseDebugInfo current_phase_info = 3;
+		optional .ToolChannelMsg.QuestDebugSnapshot.PhaseDebugInfo background_phase_info = 4;
+		optional .ToolChannelMsg.QuestDebugSnapshot.PhaseDebugInfo unassigned_phase_info = 5;
+		optional uint32 unassigned_phase_start = 6;
+		optional uint32 unassigned_callback_set_start = 7;
+		optional .ToolChannelMsg.QuestDebugSnapshot.PhaseDebugInfo bonus_phase_info = 8;
+	}
+	repeated .ToolChannelMsg.QuestDebugSnapshot.QuestDebugInfo updated_quests = 1;
+}
+message QuestCallbackRegionInfoRequest {
+	required int32 quest_sno = 1;
+	required uint32 phase_uid = 2;
+	required uint32 callback_uid = 3;
+}
+message QuestCallbackRegionInfoResponse {
+	message CallbackObjectiveLocationData {
+		required .ToolChannelMsg.Vector2 pos = 1;
+	}
+	message CallbackPolygonRegionData {
+		repeated .ToolChannelMsg.Vector2 pos = 1;
+		required .ToolChannelMsg.Vector2 center_pos = 2;
+	}
+	required bool success = 1;
+	required int32 quest_sno = 2;
+	required uint32 phase_uid = 3;
+	required uint32 callback_uid = 4;
+	repeated .ToolChannelMsg.QuestCallbackRegionInfoResponse.CallbackObjectiveLocationData callback_objective_location_data = 5;
+	optional int32 world_sno = 6;
+	optional .ToolChannelMsg.QuestCallbackRegionInfoResponse.CallbackPolygonRegionData default_polygon_region_data = 7;
+}
+message ReflectionProbesCaptured {
+	required bool success = 1;
+}
+message SceneChunksInSubzoneRequest {
+	required int32 sno_world = 1;
+	required int32 sno_subzone = 2;
+}
+message SceneChunksInSubzoneResponse {
+	repeated int32 chunk_index = 1;
+}
+message RollDRLGRequest {
+	required int32 sno_world = 1;
+	required int32 detail = 2;
+	optional int32 seed = 3;
+	optional uint32 count = 4;
+	repeated uint32 dungeon_states = 5;
+	repeated uint32 spawning_pools = 6;
+	optional bool treat_warnings_as_errors = 7;
+	optional bool validate_instead_of_build = 8;
+}
+message RollDRLGResponse {
+	message DRLGTile {
+		required .ToolChannelMsg.Vector2 pos = 1;
+		required float height_offset = 2;
+		required int32 create_order = 3;
+		required uint32 node_id = 4;
+		required int32 tile_type = 5;
+		required int32 distance_from_start = 6;
+		required int32 sno_scene = 7;
+		required int32 sno_level_area = 8;
+		optional int32 scene_thumbnail_offset_x = 9;
+		optional int32 scene_thumbnail_offset_y = 10;
+		optional int32 scene_thumbnail_bounds_x = 11;
+		optional int32 scene_thumbnail_bounds_y = 12;
+		required uint32 flags = 13;
+		required int32 batch_id = 14;
+	}
+	message ErrorLogEntry {
+		required uint32 node_id = 1;
+		required string error_message = 2;
+	}
+	message SeedResult {
+		required int32 seed = 1;
+		required bool success = 2;
+		repeated .ToolChannelMsg.RollDRLGResponse.DRLGTile tiles = 3;
+		repeated .ToolChannelMsg.RollDRLGResponse.ErrorLogEntry errors = 4;
+		repeated uint32 dungeon_states = 5;
+	}
+	required int32 sno_world = 1;
+	repeated .ToolChannelMsg.RollDRLGResponse.SeedResult result = 2;
+}
+message NPCGenerateLook {
+	required int32 sno_actor = 1;
+	required bool randomize = 2;
+}
+message NPCLook {
+	required int32 HairColor = 1;
+	required int32 SkinColor = 2;
+	required string HeadComponent = 3;
+	required string TorsoComponent = 4;
+	required string LegsComponent = 5;
+	required string HelmComponent = 6;
+	required int32 HeadDye = 7;
+	required int32 TorsoDye = 8;
+	required int32 LegsDye = 9;
+	required int32 HelmDye = 10;
+	required int32 MainHand = 11;
+	required int32 OffHand = 12;
+}
+message GfxDeviceReset {
+}
+message SetXMLTransformValue {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+	required string xml_path = 3;
+	required .ToolChannelMsg.Vector3 location = 4;
+	required .ToolChannelMsg.Quaternion orientation = 5;
+}
+message UndoXMLTransformValue {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+}
+message RedoXMLTransformValue {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+}
+message ChangeManipulator {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+	required int32 manipulator = 3;
+}
+message AnimationFramesRequest {
+	required int32 sno_animation = 1;
+	required int32 permutation = 2;
+	required string bone_name = 3;
+}
+message BoneTangent {
+	required .ToolChannelMsg.Vector2 neg_x_axis = 1;
+	required .ToolChannelMsg.Vector2 pos_x_axis = 2;
+	required .ToolChannelMsg.Vector2 neg_y_axis = 3;
+	required .ToolChannelMsg.Vector2 pos_y_axis = 4;
+	required .ToolChannelMsg.Vector2 neg_z_axis = 5;
+	required .ToolChannelMsg.Vector2 pos_z_axis = 6;
+}
+message ModelSpaceBoneTransformFrame {
+	required int32 frame_index = 1;
+	required .ToolChannelMsg.PRTransform transform = 2;
+	optional .ToolChannelMsg.BoneTangent tangent = 3;
+}
+message FieldOfViewFrame {
+	required int32 frame_index = 1;
+	required float field_of_view = 2;
+}
+message DepthOfFieldFrame {
+	required int32 frame_index = 1;
+	required float f_stop = 2;
+	required float focal_distance = 3;
+	required float near_transition = 4;
+	required float focal_region = 5;
+	required float far_transition = 6;
+}
+message AnimationFramesResponse {
+	repeated .ToolChannelMsg.ModelSpaceBoneTransformFrame model_space_bone_transform = 1;
+	repeated .ToolChannelMsg.FieldOfViewFrame Field_of_view = 2;
+	repeated .ToolChannelMsg.DepthOfFieldFrame depth_of_field = 3;
+}
+message ParametricCavitySettings {
+	required int32 mode = 1;
+	required float tolerance = 2;
+	required float smoothness = 3;
+}
+message ParametricHeightSettings {
+	required float min = 1;
+	required float max = 2;
+	required float min_smoothness = 3;
+	required float max_smoothness = 4;
+}
+message ParametricSlopeSettings {
+	required float min = 1;
+	required float max = 2;
+	required float min_smoothness = 3;
+	required float max_smoothness = 4;
+}
+message ParametricDirectionSettings {
+	required float altitude = 1;
+	required float azimuth = 2;
+	required float tolerance = 3;
+	required float smoothness = 4;
+}
+message ParametricNoiseSettings {
+	required float frequency = 1;
+	required float tile_distance = 2;
+	required float min = 3;
+	required float max = 4;
+	required float offset_x = 5;
+	required float offset_y = 6;
+}
+message ParametricDistanceToWaterSettings {
+	required float min = 1;
+	required float max = 2;
+	required float min_smoothness = 3;
+	required float max_smoothness = 4;
+}
+message ParametricSettings {
+	optional .ToolChannelMsg.ParametricCavitySettings cavity_settings = 1;
+	optional .ToolChannelMsg.ParametricHeightSettings height_settings = 2;
+	optional .ToolChannelMsg.ParametricSlopeSettings slope_settings = 3;
+	optional .ToolChannelMsg.ParametricDirectionSettings direction_settings = 4;
+	optional .ToolChannelMsg.ParametricNoiseSettings noise_settings = 5;
+	optional .ToolChannelMsg.ParametricDistanceToWaterSettings distance_to_water_settings = 6;
+	required bool invert = 7;
+}
+message HeightFieldPreviewParametricSettings {
+	required bool preview = 1;
+	optional .ToolChannelMsg.ParametricSettings parametric_settings = 2;
+}
+message UpdateWaypointsProgress {
+	required bool finished = 1;
+	required string current = 2;
+	required float progress = 3;
+}
+message UpdateWaypointsCanceled {
+	required bool canceled = 1;
+}
+message UpdateRoadsProgress {
+	required bool finished = 1;
+	required string current = 2;
+	required float progress = 3;
+}
+message UpdateRoadsCanceled {
+	required bool canceled = 1;
+}
+message RequestActorsForAnimTree {
+	required int32 anim_tree_handle = 1;
+}
+message ActorForAnimTreeData {
+	required int32 sno_handle = 1;
+	required int32 ractor_id = 2;
+}
+message ActorsForAnimTree {
+	repeated .ToolChannelMsg.ActorForAnimTreeData data = 1;
+}
+message AnimChannelData {
+	required uint32 id = 1;
+	required bool anim_playing = 2;
+	required float current_blend_factor = 3;
+}
+message AnimTreeForActorData {
+	repeated .ToolChannelMsg.AnimChannelData data = 2;
+}
+message RequestAnimTreeForActor {
+	required int32 ractor_id = 1;
+}
+message IsMarkerUnderTerrainRequest {
+	required int32 marker_index = 1;
+	required int32 sno_marker_set = 2;
+	required int32 sno_scene = 3;
+}
+message AreMarkersUnderTerrainRequest {
+	repeated .ToolChannelMsg.IsMarkerUnderTerrainRequest markers_to_check = 1;
+}
+message IsMarkerUnderTerrainResult {
+	required int32 marker_index = 1;
+	required int32 sno_marker_set = 2;
+	required bool is_under_terrain = 3;
+	required float ratio = 4;
+}
+message AreMarkersUnderTerrainResult {
+	repeated .ToolChannelMsg.IsMarkerUnderTerrainResult markers_under_terrain = 1;
+}
+message PlantMarkersMessage {
+	repeated int32 sno_markerset = 1;
+	required float density = 2;
+	repeated int32 scene_index = 3;
+	required int32 fill_type = 4;
+	required float scene_boundary_buffer = 5;
+}
+message PlantMarkersSceneResult {
+	required int32 sno_scene = 1;
+	required int32 sno_markerset = 2;
+	repeated .ToolChannelMsg.Vector3 points = 3;
+}
+message PlantMarkersResult {
+	repeated .ToolChannelMsg.PlantMarkersSceneResult results = 1;
+}
+message EditSceneCheat {
+	optional int32 sno_scene = 1;
+	optional .ToolChannelMsg.Vector3 camera_pos = 2;
+	optional .ToolChannelMsg.Vector3 camera_ypr = 3;
+}
+message EditSubzoneCheat {
+	optional int32 sno_world = 1;
+	optional int32 sno_subzone = 2;
+	optional .ToolChannelMsg.Vector3 camera_pos = 3;
+	optional .ToolChannelMsg.Vector3 camera_ypr = 4;
+}
+message AppExitMessage {
+	optional int32 exit_code = 1;
+}
+message AppearanceMeshDataRequest {
+	required int32 sno_handle = 1;
+	optional int32 xobj_source = 2;
+}
+message HeightFieldMeshRequest {
+	required int32 sno_markerset = 1;
+	required int32 marker_id = 2;
+}
+message HeightFieldMeshFailureResponse {
+}
+message MeshData {
+	repeated int32 index_list = 1;
+	repeated .ToolChannelMsg.Vector3 vert_list = 2;
+}
+message AppearanceMeshData {
+	repeated .ToolChannelMsg.MeshData meshData_list = 1;
+}
+message EffectGroupPlayerStart {
+	required int32 sno_effect_group_handle = 1;
+	required float start_time = 2;
+	required bool take_control_of_camera = 3;
+	required bool scrubbing = 4;
+	required int32 ticks_per_sec = 5;
+}
+message EffectGroupPlayerPause {
+}
+message EffectGroupPlayerStop {
+	required bool reached_the_end = 1;
+	required int32 ticks_per_sec = 2;
+}
+message EffectGroupPlayerSaveCameraState {
+}
+message EffectGroupPlayerRestoreCameraState {
+}
+message SubmitMetadataCacheRequest {
+	required string generated_metadata_cache_path = 1;
+}
+message SubmitMetadataCacheResponse {
+	required bool success = 1;
+}
+message MountActorSnosRequest {
+}
+message MountActorSnosResponse {
+	repeated int32 mount_actor_sno_handles = 1;
+}
+message EncryptedSno {
+	required int32 sno_handle = 1;
+	required uint64 key = 2;
+}
+message EncryptedRootSnosRequest {
+}
+message EncryptedRootSnosResponse {
+	repeated .ToolChannelMsg.EncryptedSno encrypted_root_snos = 1;
+}
+message UpdateEncryptedSnos {
+	repeated .ToolChannelMsg.EncryptedSno encrypted_snos = 1;
+}
+message UpdateEncryptedSnosResult {
+	required bool success = 1;
+}
+message SaveExportedProductSnos {
+	message ExportedProductSno {
+		optional int32 sno_handle = 1;
+		optional int32 bnet_license_id = 2;
+		optional int32 bnet_product_id = 3;
+		optional int32 bnet_image_id = 4;
+		optional uint64 bnet_image_hash = 5;
+	}
+	repeated .ToolChannelMsg.SaveExportedProductSnos.ExportedProductSno entries = 1;
+}
+message PMTExportCompleted {
+	required int32 error_code = 1;
+}
+message ConsoleConfigExportCompleted {
+	required int32 error_code = 1;
+}
+message TACTKeyInternal {
+	optional uint64 id = 1;
+	optional string value = 2;
+	optional string name = 3;
+}
+message GetTACTKeysInternalRequest {
+}
+message GetTACTKeysInternalResponse {
+	repeated .ToolChannelMsg.TACTKeyInternal keys = 1;
+}
+message ValidationErrorCreationEntry {
+	required int32 sno_group = 1;
+	required int32 sno_handle = 2;
+	required string message = 3;
+	required int32 validation_type = 4;
+}
+message ValidationErrorCreationRequest {
+	repeated .ToolChannelMsg.ValidationErrorCreationEntry errors = 1;
+	required bool quitWhenFinished = 2;
+}
+message ValidationErrorCreationResponse {
+	required bool success = 1;
+}

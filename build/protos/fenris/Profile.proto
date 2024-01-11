@@ -1,0 +1,76 @@
+package Fenris.Profile;
+import "Items.proto";
+import "HeroCommon.proto";
+
+message ClassInfo {
+	optional uint64 playtime = 1 [default = 0];
+	optional uint32 highest_level = 2 [default = 0];
+}
+message ActiveSkills {
+	repeated sfixed32 sno_skills = 1;
+}
+message KillerInfo {
+	optional int32 sno_killer = 1 [default = -1];
+	optional uint32 rarity = 2;
+	repeated int32 rare_name_gbids = 3;
+}
+message HeroProfile {
+	optional uint64 monsters_killed = 1;
+	optional uint64 elites_killed = 2;
+	optional uint64 gold_collected = 3;
+	optional uint32 highest_level = 4;
+	optional uint32 create_time = 6;
+	optional uint32 item_power = 13;
+	optional uint32 resist_shadow = 14;
+	optional uint32 resist_fire = 15;
+	optional uint32 resist_lightning = 16;
+	optional uint32 resist_poison = 17;
+	optional uint32 resist_cold = 18;
+	optional .Fenris.Items.ItemList equipment = 19;
+	optional .Fenris.Profile.ActiveSkills sno_active_skills = 20;
+	optional uint32 death_time = 22;
+	optional .Fenris.Profile.KillerInfo killer_info = 23;
+	optional uint32 sno_kill_location = 24;
+	optional bytes hero_id = 27;
+	optional float toughness = 39;
+	optional float healing = 40;
+	optional uint32 season_created = 41;
+	optional .Fenris.Hero.PlayerTitle player_title = 42;
+	optional uint32 player_flags = 43;
+	optional uint32 sno_class = 44;
+	repeated .Fenris.Hero.TransmogSlot transmog_slot = 45;
+	optional .Fenris.Hero.VisualEquipment visual_equipment = 46;
+	optional float campaign_progress = 47;
+	optional bool privacy_flag = 48;
+}
+message HeroProfileList {
+	repeated .Fenris.Profile.HeroProfile heros = 1;
+}
+message HeroMiniProfile {
+	optional bytes hero_id = 1;
+	optional string hero_name = 2;
+	optional sfixed32 hero_gbid_class = 3;
+	optional uint32 hero_flags = 4;
+	optional uint32 hero_level = 5;
+	optional .Fenris.Hero.VisualEquipment hero_visual_equipment = 6;
+}
+message AccountProfile {
+	optional uint64 monsters_killed = 6 [default = 0];
+	optional uint64 elites_killed = 7 [default = 0];
+	optional uint64 gold_collected = 8 [default = 0];
+	optional uint64 highest_hardcore_level = 9;
+	optional uint64 hardcore_monsters_killed = 10;
+	optional .Fenris.Profile.ClassInfo class_druid = 11;
+	optional .Fenris.Profile.ClassInfo class_sorcerer = 12;
+	optional .Fenris.Profile.ClassInfo class_barbarian = 13;
+	optional .Fenris.Profile.ClassInfo class_rogue = 14;
+	optional .Fenris.Profile.ClassInfo class_necromancer = 15;
+	optional uint64 highest_level = 31 [default = 0];
+	optional uint64 blood_shards_collected = 32 [default = 0];
+	repeated .Fenris.Profile.HeroMiniProfile heroes = 34;
+	optional uint32 season_id = 35 [default = 0];
+	optional uint64 dungeons_completed = 36 [default = 0];
+	optional uint64 players_killed = 37 [default = 0];
+	optional uint64 bosses_killed = 38 [default = 0];
+	optional bool privacy_flag = 39;
+}

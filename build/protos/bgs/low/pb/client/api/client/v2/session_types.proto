@@ -1,0 +1,85 @@
+package bgs.protocol.session.v2.client;
+import "bgs/low/pb/client/api/client/v2/game_account_handle.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+enum SessionRestrictionType {
+	SESSION_RESTRICTION_TYPE_UNSPECIFIED = 0;
+	SESSION_RESTRICTION_TYPE_PARENTAL_CONTROL = 1;
+	SESSION_RESTRICTION_TYPE_GOVERNMENT_CONTROL = 2;
+	SESSION_RESTRICTION_TYPE_CAIS = 3;
+}
+enum SessionDestructionStatusDetails {
+	ACCOUNT_MUTED = 1;
+	BATTLE_TAG_CHANGED = 2;
+	BNET_ACCOUNT_BANNED = 3;
+	BNET_ACCOUNT_FLAG_CHANGED = 4;
+	COUNTRY_CHANGED = 5;
+	CURRENCY_CHANGED = 6;
+	GAME_ACCOUNT_UNLINKED = 7;
+	LEGAL_REGION_CHANGED = 8;
+	LEGAL_LOCALE_CHANGED = 9;
+	LICENSE_CHANGED = 10;
+	NAME_CHANGED = 11;
+	OPT_IN_CHANGED = 12;
+	REGION_CHANGED = 13;
+}
+message CreateOptions {
+	optional string mac_address = 1;
+}
+message StateOptions {
+	optional bool billing = 1;
+	optional bool presence = 2;
+}
+message RestoreOptions {
+	optional string client_address = 1;
+	optional string mac_address = 2;
+	optional string platform = 3;
+	optional string locale = 4;
+	optional int32 application_version = 5;
+	optional string user_agent = 6;
+	optional string auth_platform = 7;
+}
+message SessionId {
+	optional uint64 account_id = 1;
+	optional .bgs.protocol.account.v2.GameAccountHandle game_account = 2;
+	optional string instance_id = 3;
+}
+message BillingState {
+	optional .bgs.protocol.session.v2.client.BenefactorState benefactor = 1;
+	optional bool billing_enabled = 2;
+	optional bool free_session = 3;
+	optional bool using_life_time_license = 4;
+	optional bool using_subscription = 5;
+	optional uint32 consumption_game_time = 6;
+	optional uint64 expire_time_ms = 7;
+}
+message SessionConstraint {
+	optional bool parental_controls_active = 1;
+	optional uint64 next_pc_kick_time_ms = 2;
+}
+message SessionState {
+	optional .bgs.protocol.session.v2.client.SessionId session_id = 1;
+	optional uint64 create_time_ms = 2;
+	optional .bgs.protocol.session.v2.client.BillingState billing = 3;
+	optional .bgs.protocol.session.v2.client.SessionConstraint constraint = 4;
+}
+message BenefactorId {
+	optional string uuid = 1;
+	optional uint32 external_id = 2;
+}
+message BenefactorState {
+	optional .bgs.protocol.session.v2.client.BenefactorId benefactor_id = 1;
+	optional bool registered_location = 2;
+	optional bool activated = 3;
+	optional bool igr_paid = 4;
+}
+message SessionVariables {
+	optional uint32 creation_timeout_s = 1;
+	optional uint32 recommended_mark_alive_interval_s = 2;
+	optional uint32 max_mark_alive_interval_s = 3;
+}
+message SessionKey {
+	optional bytes key = 1;
+	optional uint64 expiration_s = 2;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/session/v2/client";

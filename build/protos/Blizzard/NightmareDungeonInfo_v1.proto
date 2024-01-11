@@ -1,0 +1,8 @@
+package Blizzard.Telemetry.D4.Common.Game.v1;
+
+message NightmareDungeonInfo {
+	optional int32 sigil_tier = 1;
+	repeated sint32 afflictions = 2;
+	optional sint32 dungeon_sno = 3;
+	optional sint32 keyed_dungeon_type_gbid = 4;
+}

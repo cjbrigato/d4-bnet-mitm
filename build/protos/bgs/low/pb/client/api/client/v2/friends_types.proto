@@ -1,0 +1,79 @@
+package bgs.protocol.friends.v2.client;
+import "bgs/low/pb/client/global_extensions/field_options.proto";
+import "bgs/low/pb/client/api/client/v2/attribute_types.proto";
+import "bgs/low/pb/client/invitation_types.proto";
+
+enum FriendLevel {
+	FRIEND_LEVEL_BATTLE_TAG = 1;
+	FRIEND_LEVEL_REAL_ID = 2;
+}
+message SendInvitationTarget {
+	optional string name = 1;
+	optional uint64 account_id = 10;
+	optional string email = 11;
+	optional string battle_tag = 12;
+	optional string phone_number = 13;
+}
+message SendInvitationOptions {
+	optional uint32 level = 1;
+	repeated .bgs.protocol.v2.Attribute attributes = 2;
+}
+message AcceptInvitationOptions {
+	optional uint32 level = 1;
+}
+message GetFriendsOptions {
+	optional bool fetch_names = 1;
+}
+message UserDescription {
+	optional uint64 account_id = 1;
+	optional string battle_tag = 2;
+	optional string full_name = 3;
+}
+message ReceivedInvitation {
+	optional uint64 id = 1;
+	optional .bgs.protocol.friends.v2.client.UserDescription inviter = 2;
+	optional .bgs.protocol.friends.v2.client.UserDescription invitee = 3;
+	optional uint32 level = 4;
+	optional fixed32 program = 5;
+	repeated .bgs.protocol.v2.Attribute attributes = 6;
+	optional uint64 creation_time_s = 7;
+	optional uint64 expiration_time_s = 8;
+}
+message SentInvitation {
+	optional uint64 id = 1;
+	optional string target_name = 2;
+	optional uint32 level = 3;
+	optional fixed32 program = 4;
+	repeated .bgs.protocol.v2.Attribute attributes = 5;
+	optional uint64 creation_time_s = 6;
+}
+message RemovedInvitationAssignment {
+	optional uint64 invitation_id = 1;
+	optional uint32 reason = 2;
+}
+message RemovedFriendAssignment {
+	optional uint64 id = 1;
+}
+message UpdateFriendStateOptions {
+	repeated .bgs.protocol.v2.Attribute attributes = 1;
+}
+message Friend {
+	optional uint64 id = 1;
+	optional uint32 level = 2;
+	optional string battle_tag = 3;
+	optional string full_name = 4;
+	repeated .bgs.protocol.v2.Attribute attributes = 5;
+	optional uint64 creation_time_s = 6;
+}
+message FriendStateAssignment {
+	optional uint64 id = 1;
+	optional uint32 level = 2;
+	repeated .bgs.protocol.v2.Attribute attributes = 3;
+}
+message FriendOfFriend {
+	optional uint64 id = 1;
+	optional uint32 level = 2;
+	optional string full_name = 3;
+	optional string battle_tag = 4;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/friends/v2/client";

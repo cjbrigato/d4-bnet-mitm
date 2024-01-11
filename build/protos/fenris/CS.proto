@@ -1,0 +1,92 @@
+package Fenris.CS;
+import "Items.proto";
+import "Hero.proto";
+import "Account.proto";
+import "Profile.proto";
+import "Settings.proto";
+import "Clan.proto";
+import "Achievements.proto";
+import "Gift.proto";
+
+message ToolTip {
+	required fixed64 itemId = 1;
+	required uint32 ItemQualityLevel = 2;
+	required string Name = 3;
+	required string Type = 4;
+	required int32 SetItem = 5;
+	required string Flavor = 6;
+	required string Cost = 7;
+	required string Durability_deprecated = 8;
+	required string ClassReqs = 9;
+	required string Requirements = 10;
+	required string Enhancement_deprecated = 11;
+	required uint64 StackCount = 12;
+	required uint32 NumSockets = 13;
+	required uint32 FilledSockets = 14;
+	required string DisplayName = 15;
+}
+message TooltipList {
+	repeated .Fenris.CS.ToolTip tooltips = 1;
+}
+message Snapshot {
+	optional uint64 version = 1;
+	optional uint32 game_account_id = 2;
+	optional .Fenris.Account.SavedDefinition definition = 3;
+	repeated .Fenris.Hero.SavedDefinition heroes = 4;
+	optional .Fenris.Profile.HeroProfileList hero_profiles = 5;
+	optional .Fenris.Items.Mails mails = 6;
+	repeated .Fenris.Profile.AccountProfile account_profiles = 7;
+	optional .Fenris.Client.Preferences preferences = 8;
+	optional bool banned = 9;
+}
+message SnapshotVersion {
+	optional uint64 version = 1;
+	optional .Fenris.CS.Snapshot snapshot = 2;
+}
+message SnapshotVersions {
+	repeated .Fenris.CS.SnapshotVersion versions = 1;
+}
+message PartitionedGBID {
+	required sfixed32 gbid = 1;
+	required uint32 partition_id = 2;
+}
+message PartitionedGBIDList {
+	repeated .Fenris.CS.PartitionedGBID partitioned_gbids = 1;
+}
+message PartitionedGBIDCapQuantity {
+	required sfixed32 gbid = 1;
+	required uint32 partition_id = 2;
+	required uint64 cap_quantity = 3;
+}
+message PartitionedGBIDCapQuantityList {
+	repeated .Fenris.CS.PartitionedGBIDCapQuantity partitioned_gbids = 1;
+}
+message AccountData {
+	required .Fenris.Account.Digest digest = 1;
+	repeated .Fenris.Account.AccountPartition partitions = 2;
+}
+message FallenHeroData {
+	repeated .Fenris.Hero.FallenHero fallen_heroes = 1;
+}
+message ClanData {
+	optional .Fenris.Clan.ClanInfo info = 1;
+	optional .Fenris.Clan.ClanMember member_info = 2;
+	repeated .Fenris.Clan.ClanInvite invites = 3;
+	repeated .Fenris.Clan.ClanApplication applications = 4;
+	optional .Fenris.Clan.ClanNewsList news_list = 5;
+	optional uint32 removal_reason = 6;
+	optional uint64 removal_time = 7;
+}
+message AchievementData {
+	repeated .Fenris.Achievements.PartitionSnapshot partition_snapshots = 1;
+}
+message GiftData {
+	repeated .Fenris.Gift.GiftInfo gifts = 1;
+}
+message GDPRPlayerDataAll {
+	optional .Fenris.CS.Snapshot account_snapshot = 1;
+	optional .Fenris.CS.FallenHeroData fallen_hero_data = 2;
+	optional .Fenris.CS.ClanData clan_data = 3;
+	optional .Fenris.CS.AchievementData achievement_data = 4;
+	optional .Fenris.CS.GiftData gift_data = 5;
+}

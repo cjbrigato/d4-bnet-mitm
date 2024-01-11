@@ -1,0 +1,34 @@
+package bgs.protocol.session.v2.client;
+import "bgs/low/pb/client/api/client/v2/session_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message SessionCreatedNotification {
+	optional uint32 status = 1;
+	optional .bgs.protocol.session.v2.client.SessionKey session_key = 2;
+	optional .bgs.protocol.session.v2.client.SessionId session_id = 3;
+}
+message SessionDestroyedNotification {
+	optional uint32 status = 1;
+	optional uint32 status_details = 2;
+	optional .bgs.protocol.session.v2.client.SessionId session_id = 3;
+}
+message SessionGameTimeWarningNotification {
+	optional uint32 remaining_time_duration_min = 1;
+	optional uint32 restriction_type = 2;
+}
+message SessionQueueUpdatedNotification {
+	optional uint32 position = 1;
+	optional uint64 avg_creation_time_ms = 2;
+	optional uint64 queued_time_ms = 3;
+}
+message SessionQueueEndNotification {
+	optional uint32 status = 1;
+}
+service SessionListener {
+	rpc OnSessionCreated (.bgs.protocol.session.v2.client.SessionCreatedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnSessionDestroyed (.bgs.protocol.session.v2.client.SessionDestroyedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnSessionGameTimeWarning (.bgs.protocol.session.v2.client.SessionGameTimeWarningNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnSessionQueueUpdated (.bgs.protocol.session.v2.client.SessionQueueUpdatedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnSessionQueueEnd (.bgs.protocol.session.v2.client.SessionQueueEndNotification) returns (.bgs.protocol.NO_RESPONSE);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/session/v2/client";

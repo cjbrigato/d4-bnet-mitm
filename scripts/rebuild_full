@@ -1,6 +1,9 @@
 #!/bin/bash
+set -e 
 export REPO_ROOT="$(git rev-parse --show-toplevel)"
 export REPO_NAME="$(basename $REPO_ROOT)"
+cd ${REPO_ROOT}
+rm -rf bin/ build/ services/generated.go
 PROTOC_VER="25.2"
 PROTOC_ARCH="$(uname -m)"
 PROTOC_OS="$(uname -s | tr 'A-Z' 'a-z')"
@@ -12,6 +15,7 @@ D4PROTO_URL="https://github.com/cjbrigato/diablo4-proto/archive/${D4PROTO_COMMIT
 
 mkdir -p $REPO_ROOT/{bin,build}
 
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 if ! which protoc >/dev/null ; then
 	wget "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VER}/${PROTOC_FILE}.zip"
 	unzip -d build/ ${PROTOC_FILE}.zip
@@ -19,8 +23,19 @@ if ! which protoc >/dev/null ; then
 	export PATH=$PATH:$(realpath build/bin)
 fi
 
-curl "$D4PROTO_URL" | tar -C build/ --strip-components=1 -xzvf - diablo4-proto-${D4PROTO_COMMIT}/protos
-fix_bnet 
-bgs_pb_bundle  
-fenris_pb_bundle
-./mk_svc_code build/protos/ > services/generated.go
+curl -sL "$D4PROTO_URL" | tar -C build/ --strip-components=1 -xzvf - diablo4-proto-${D4PROTO_COMMIT}/protos
+cd ${REPO_ROOT}/scripts
+./fix_bnet
+./bgs_pb_bundle  
+./fenris_pb_bundle | true
+cd ${REPO_ROOT}
+scripts/mk_svc_code build/protos/ > services/generated.go
+scripts/fix_generated
+rm bnet/bgs/protocol/channel/v2/channel_types.pb.go
+#mv build/pb/$MODNAME/bnet .
+mkdir -p bnet
+cp -r build/pb/${MODNAME}/bnet/* bnet/
+cp build/pb/*.binpb bin/
+cp scripts/proxy.sh scripts/proxy.ps1 bnetserver.key bnetserver.crt bin/
+go build -o bin/
+GOOS=windows GOARCH=amd64 go build -o bin/

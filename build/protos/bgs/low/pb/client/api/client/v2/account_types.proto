@@ -1,0 +1,9 @@
+package bgs.protocol.account.v2;
+import "bgs/low/pb/client/rpc_types.proto";
+import "bgs/low/pb/client/api/client/v2/game_account_handle.proto";
+
+message Identity {
+	optional uint64 account = 1;
+	optional .bgs.protocol.account.v2.GameAccountHandle game_account = 2;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/account/v2";

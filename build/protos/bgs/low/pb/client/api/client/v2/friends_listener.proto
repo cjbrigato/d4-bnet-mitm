@@ -1,0 +1,42 @@
+package bgs.protocol.friends.v2.client;
+import "bgs/low/pb/client/api/client/v2/friends_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message FriendAddedNotification {
+	optional uint64 agent_account_id = 1;
+	repeated .bgs.protocol.friends.v2.client.Friend friends = 2;
+}
+message FriendRemovedNotification {
+	optional uint64 agent_account_id = 1;
+	repeated .bgs.protocol.friends.v2.client.RemovedFriendAssignment assignments = 2;
+}
+message ReceivedInvitationAddedNotification {
+	optional uint64 agent_account_id = 1;
+	repeated .bgs.protocol.friends.v2.client.ReceivedInvitation invitations = 2;
+}
+message ReceivedInvitationRemovedNotification {
+	optional uint64 agent_account_id = 1;
+	repeated .bgs.protocol.friends.v2.client.RemovedInvitationAssignment assignments = 2;
+}
+message SentInvitationAddedNotification {
+	optional uint64 agent_account_id = 1;
+	repeated .bgs.protocol.friends.v2.client.SentInvitation invitations = 2;
+}
+message SentInvitationRemovedNotification {
+	optional uint64 agent_account_id = 1;
+	repeated .bgs.protocol.friends.v2.client.RemovedInvitationAssignment assignments = 2;
+}
+message UpdateFriendStateNotification {
+	optional uint64 agent_account_id = 1;
+	repeated .bgs.protocol.friends.v2.client.FriendStateAssignment assignments = 2;
+}
+service FriendsListener {
+	rpc OnFriendAdded (.bgs.protocol.friends.v2.client.FriendAddedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnFriendRemoved (.bgs.protocol.friends.v2.client.FriendRemovedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnReceivedInvitationAdded (.bgs.protocol.friends.v2.client.ReceivedInvitationAddedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnReceivedInvitationRemoved (.bgs.protocol.friends.v2.client.ReceivedInvitationRemovedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnSentInvitationAdded (.bgs.protocol.friends.v2.client.SentInvitationAddedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnSentInvitationRemoved (.bgs.protocol.friends.v2.client.SentInvitationRemovedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnUpdateFriendState (.bgs.protocol.friends.v2.client.UpdateFriendStateNotification) returns (.bgs.protocol.NO_RESPONSE);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/friends/v2/client";

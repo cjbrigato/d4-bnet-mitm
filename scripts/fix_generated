@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cat ${REPO_ROOT}/services/generated.go |egrep -v "bnet/bgs/protocol/channel/v2/server|bnet/bgs/protocol/channel/v2/membership|bnet/bgs/protocol/club/v1/membership" > ${REPO_ROOT}/services/generated_fixed.go
+mv ${REPO_ROOT}/services/generated_fixed.go ${REPO_ROOT}/services/generated.go

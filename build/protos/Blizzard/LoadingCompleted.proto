@@ -1,0 +1,17 @@
+package Blizzard.Telemetry.Fenris.Client.v1;
+import "telemetry_extensions.proto";
+
+message LoadingCompleted {
+	message LocationInfo {
+		optional bool main_menu = 1;
+		optional sint32 world_sno = 2;
+		optional string world_name = 3;
+		optional sint32 scene_sno = 4;
+		optional string scene_name = 5;
+		optional int32 grid_x = 6;
+		optional int32 grid_y = 7;
+	}
+	optional .Blizzard.Telemetry.Fenris.Client.v1.LoadingCompleted.LocationInfo source_location = 1;
+	optional .Blizzard.Telemetry.Fenris.Client.v1.LoadingCompleted.LocationInfo current_location = 2;
+	optional float loading_time = 3;
+}

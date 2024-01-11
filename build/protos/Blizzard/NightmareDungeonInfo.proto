@@ -1,0 +1,7 @@
+package Blizzard.Telemetry.Fenris.Game.v1;
+
+message NightmareDungeonInfo {
+	optional int32 sigil_tier = 1;
+	repeated sint32 afflictions = 2;
+	optional sint32 world_sno = 3;
+}

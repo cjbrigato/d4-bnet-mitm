@@ -1,0 +1,25 @@
+package bgs.protocol.voice.v2.client;
+import "bgs/low/pb/client/voice_types.proto";
+import "bgs/low/pb/client/account_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message CreateLoginCredentialsRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_account_id = 1;
+	optional uint32 version = 2;
+}
+message CreateLoginCredentialsResponse {
+	optional .bgs.protocol.VoiceCredentials credentials = 1;
+}
+message CreateChannelSttTokenRequest {
+	optional .bgs.protocol.account.v1.AccountId agent_account_id = 1;
+	optional string channel_uri = 2;
+	optional uint32 version = 3;
+}
+message CreateChannelSttTokenResponse {
+	optional string token = 1;
+}
+service VoiceService {
+	rpc CreateLoginCredentials (.bgs.protocol.voice.v2.client.CreateLoginCredentialsRequest) returns (.bgs.protocol.voice.v2.client.CreateLoginCredentialsResponse);
+	rpc CreateChannelSttToken (.bgs.protocol.voice.v2.client.CreateChannelSttTokenRequest) returns (.bgs.protocol.voice.v2.client.CreateChannelSttTokenResponse);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/voice/v2/client";

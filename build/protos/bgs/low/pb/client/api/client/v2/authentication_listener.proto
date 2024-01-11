@@ -1,0 +1,23 @@
+package bgs.protocol.authentication.v2.client;
+import "bgs/low/pb/client/api/client/v2/authentication_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message LogonCompleteNotification {
+	optional uint32 error_code = 1;
+	optional .bgs.protocol.authentication.v2.client.LogonRecord record = 2;
+}
+message LogonQueueUpdateNotification {
+	optional .bgs.protocol.authentication.v2.client.LogonQueueState state = 1;
+}
+message ExternalChallengeNotification {
+	optional string request_token = 1;
+	optional string payload_type = 2;
+	optional bytes payload = 3;
+}
+service AuthenticationListener {
+	rpc OnLogonComplete (.bgs.protocol.authentication.v2.client.LogonCompleteNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnLogonQueueUpdate (.bgs.protocol.authentication.v2.client.LogonQueueUpdateNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnLogonQueueEnd (.bgs.protocol.NoData) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnExternalChallenge (.bgs.protocol.authentication.v2.client.ExternalChallengeNotification) returns (.bgs.protocol.NO_RESPONSE);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/authentication/v2/client";

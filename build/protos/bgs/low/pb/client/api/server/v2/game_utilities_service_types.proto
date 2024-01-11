@@ -1,0 +1,25 @@
+package bgs.protocol.game_utilities.v2.server;
+import "bgs/low/pb/client/rpc_types.proto";
+import "bgs/low/pb/client/api/client/v2/account_types.proto";
+import "bgs/low/pb/client/api/client/v2/attribute_types.proto";
+
+message ClientInfo {
+	optional string client_address = 1;
+	optional bool privileged_network = 2;
+	optional .bgs.protocol.account.v2.Identity user = 3;
+}
+message Registration {
+	optional string registration_id = 1;
+	repeated .bgs.protocol.v2.Attribute attribute = 2;
+	optional uint64 creation_time_s = 3;
+	optional uint64 modified_time_s = 4;
+}
+message GetRegistrationsContinuation {
+	optional uint64 token = 1;
+	optional string position = 2;
+}
+message GetRegistrationsOptions {
+	optional .bgs.protocol.v2.AttributeFilter filter = 1;
+	optional uint32 max_servers = 2;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/game_utilities/v2/server";

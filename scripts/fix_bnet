@@ -3,6 +3,8 @@
 mkdir -p $REPO_ROOT/build/pb
 cd $REPO_ROOT
 for I in $(find build/protos/bgs/|grep \.proto$);do 
-	./fix_bnet_package $I;
+	${REPO_ROOT}/scripts/fix_bnet_packages $I;
+done
+for I in $(find build/protos/bgs/|grep \.proto$);do 
         protoc -I./build/protos --go_out=build/pb $I
 done

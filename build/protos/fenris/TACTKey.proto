@@ -1,0 +1,12 @@
+package Fenris.TACTKey;
+
+message Key {
+	optional uint64 id = 1;
+	optional bytes value = 2;
+	optional string name = 3;
+	optional string release_date = 4;
+}
+message Keys {
+	repeated .Fenris.TACTKey.Key keys = 1;
+	optional uint64 seconds_until_refresh = 2;
+}

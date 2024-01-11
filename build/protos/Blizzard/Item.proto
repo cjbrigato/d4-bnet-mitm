@@ -1,0 +1,18 @@
+package Blizzard.Telemetry.Fenris.Game.v1;
+import "NightmareDungeonInfo.proto";
+
+message Item {
+	optional sint32 sno_handle = 1;
+	optional sint32 item_power = 2;
+	optional sint32 quality_level = 3;
+	optional float attack_defense_bonus_roll = 4;
+	optional sint32 body_slot = 5;
+	optional string item_id = 6;
+	optional bytes generator = 7;
+	optional sint32 item_quality_modifier = 8;
+	optional sint32 sno_legendary_affix = 9;
+	optional sint32 sno_imbued_affix = 10;
+	optional sint32 sno_replaced_affix = 11;
+	optional .Blizzard.Telemetry.Fenris.Game.v1.NightmareDungeonInfo nightmare_dungeon_info = 12;
+	optional sint32 item_power_bonus = 13;
+}

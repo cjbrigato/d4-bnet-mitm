@@ -1,0 +1,130 @@
+package bgs.protocol.session.v1;
+import "bgs/low/pb/client/account_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+import "bgs/low/pb/client/session_types.proto";
+
+message CreateSessionRequest {
+	optional .bgs.protocol.account.v1.Identity identity = 1;
+	optional fixed32 platform = 2;
+	optional fixed32 locale = 3;
+	optional string client_address = 4;
+	optional int32 application_version = 5;
+	optional string user_agent = 6;
+	optional bytes session_key = 7;
+	optional .bgs.protocol.session.v1.SessionOptions options = 8;
+	optional bool requires_mark_alive = 9 [default = false];
+	optional string mac_address = 10;
+	optional string auth_platform = 11;
+}
+message CreateSessionResponse {
+	optional string session_id = 1;
+	optional uint32 timeout_s = 2;
+}
+message UpdateSessionRequest {
+	optional .bgs.protocol.account.v1.Identity identity = 1;
+	optional .bgs.protocol.session.v1.SessionOptions options = 2;
+	optional string session_id = 3;
+}
+message DestroySessionRequest {
+	optional .bgs.protocol.account.v1.Identity identity = 1;
+	optional string session_id = 2;
+}
+message GetSessionStateByBenefactorRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle benefactor_handle = 1;
+	optional bool include_billing_disabled = 2 [default = false];
+	optional string benefactor_uuid = 3;
+}
+message GetSessionStateByBenefactorResponse {
+	optional .bgs.protocol.account.v1.GameAccountHandle benefactor_handle = 1;
+	repeated .bgs.protocol.session.v1.SessionState session = 2;
+	optional uint32 minutes_remaining = 3;
+}
+message MarkSessionsAliveRequest {
+	repeated .bgs.protocol.session.v1.SessionIdentifier session = 1;
+}
+message MarkSessionsAliveResponse {
+	repeated .bgs.protocol.session.v1.SessionIdentifier failed_session = 1;
+}
+message GetSessionStateRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle handle = 1;
+	optional bool include_billing_disabled = 2 [default = false];
+}
+message GetSessionStateResponse {
+	optional .bgs.protocol.account.v1.GameAccountHandle handle = 1;
+	optional .bgs.protocol.session.v1.SessionState session = 2;
+}
+message GetSignedSessionStateRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+}
+message GetSignedSessionStateResponse {
+	optional string token = 1;
+}
+message RefreshSessionKeyRequest {
+	optional bytes session_key = 1;
+	optional uint64 account_id = 2;
+}
+message RefreshSessionKeyResponse {
+	optional bytes session_key = 1;
+}
+message GetGameSessionInfoRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle handle = 1;
+}
+message GetGameSessionInfoResponse {
+	optional .bgs.protocol.session.v1.GameSessionInfo session_info = 1;
+}
+message SessionCreatedNotification {
+	optional .bgs.protocol.account.v1.Identity identity = 1;
+	optional uint32 reason = 2;
+	optional string session_id = 3;
+	optional bytes session_key = 4;
+	optional string client_id = 5;
+}
+message SessionDestroyedNotification {
+	optional .bgs.protocol.account.v1.Identity identity = 1;
+	optional uint32 reason = 2;
+	optional string session_id = 3;
+	optional uint32 reason_details = 4;
+}
+message SessionUpdatedNotification {
+	optional .bgs.protocol.account.v1.Identity identity = 1;
+	optional uint32 reason = 2;
+	optional string session_id = 3;
+}
+message SessionGameTimeWarningNotification {
+	optional .bgs.protocol.account.v1.Identity identity = 1;
+	optional string session_id = 2;
+	optional uint32 remaining_time_duration_min = 3;
+	optional uint32 restriction_type = 4;
+}
+message SessionQueueUpdatedNotification {
+	optional .bgs.protocol.account.v1.Identity identity = 1;
+	optional string session_id = 2;
+	optional uint32 position = 3;
+	optional uint64 avg_creation_time_ms = 4;
+	optional uint64 queued_time_ms = 5;
+}
+message SessionQueueEndNotification {
+	optional .bgs.protocol.account.v1.Identity identity = 1;
+	optional string session_id = 2;
+	optional uint32 reason = 3;
+}
+service SessionListener {
+	rpc OnSessionCreated (.bgs.protocol.session.v1.SessionCreatedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnSessionDestroyed (.bgs.protocol.session.v1.SessionDestroyedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnSessionUpdated (.bgs.protocol.session.v1.SessionUpdatedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnSessionGameTimeWarning (.bgs.protocol.session.v1.SessionGameTimeWarningNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnSessionQueueUpdated (.bgs.protocol.session.v1.SessionQueueUpdatedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnSessionQueueEnd (.bgs.protocol.session.v1.SessionQueueEndNotification) returns (.bgs.protocol.NO_RESPONSE);
+}
+service SessionService {
+	rpc CreateSession (.bgs.protocol.session.v1.CreateSessionRequest) returns (.bgs.protocol.session.v1.CreateSessionResponse);
+	rpc DestroySession (.bgs.protocol.session.v1.DestroySessionRequest) returns (.bgs.protocol.NoData);
+	rpc UpdateSession (.bgs.protocol.session.v1.UpdateSessionRequest) returns (.bgs.protocol.NoData);
+	rpc GetSessionStateByBenefactor (.bgs.protocol.session.v1.GetSessionStateByBenefactorRequest) returns (.bgs.protocol.session.v1.GetSessionStateByBenefactorResponse);
+	rpc MarkSessionsAlive (.bgs.protocol.session.v1.MarkSessionsAliveRequest) returns (.bgs.protocol.session.v1.MarkSessionsAliveResponse);
+	rpc GetSessionState (.bgs.protocol.session.v1.GetSessionStateRequest) returns (.bgs.protocol.session.v1.GetSessionStateResponse);
+	rpc GetSignedSessionState (.bgs.protocol.session.v1.GetSignedSessionStateRequest) returns (.bgs.protocol.session.v1.GetSignedSessionStateResponse);
+	rpc RefreshSessionKey (.bgs.protocol.session.v1.RefreshSessionKeyRequest) returns (.bgs.protocol.session.v1.RefreshSessionKeyResponse);
+	rpc GetGameSessionInfo (.bgs.protocol.session.v1.GetGameSessionInfoRequest) returns (.bgs.protocol.session.v1.GetGameSessionInfoResponse);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/session/v1";

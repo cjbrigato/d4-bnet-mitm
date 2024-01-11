@@ -1,0 +1,42 @@
+package Fenris.Trade;
+import "Items.proto";
+
+message Trader {
+	optional uint32 game_account_id = 1;
+	optional string clan_id = 2;
+	optional string hero_id = 3;
+}
+message EscrowInfo {
+	optional uint64 started_at = 1;
+	optional uint32 state = 2;
+	repeated string item_ids_to_escrow = 3;
+	optional int32 bank_tab_to_reserve = 4;
+	optional uint32 bank_slots_to_reserve = 5;
+	optional uint64 reserve_bank_tab_to_purchase_at_price = 8;
+	optional uint32 trader_side = 6;
+}
+message TradeItem {
+	optional .Fenris.Items.SavedItem saved_item = 1;
+	optional uint64 quantity = 2;
+}
+message TradeInfo {
+	optional uint64 started_at = 1;
+	optional .Fenris.Trade.Trader trader_1 = 2;
+	optional .Fenris.Trade.Trader trader_2 = 3;
+	repeated .Fenris.Trade.TradeItem items_to_trade_1 = 4;
+	repeated .Fenris.Trade.TradeItem items_to_trade_2 = 5;
+	repeated .Fenris.Items.CurrencyData currencies_to_trade_1 = 6;
+	repeated .Fenris.Items.CurrencyData currencies_to_trade_2 = 7;
+	optional int32 bank_tab_to_add_items_into = 9;
+	optional uint64 purchase_bank_tab_at_price = 12;
+	optional uint32 trade_state_1 = 10;
+	optional uint32 trade_state_2 = 11;
+}
+message TradeData {
+	optional string trade_id = 1;
+	optional .Fenris.Trade.EscrowInfo escrow_info = 2;
+	optional .Fenris.Trade.TradeInfo trade_info = 3;
+}
+message SavedData {
+	repeated .Fenris.Trade.TradeData trade_data = 1;
+}

@@ -1,0 +1,13 @@
+package Blizzard.Telemetry.D4.Common.Game.v1;
+
+message Location {
+	optional sint32 world_sno = 1;
+	optional float world_x = 2;
+	optional float world_y = 3;
+	optional float world_z = 4;
+	optional sint32 scene_sno = 5;
+	optional float scene_x = 6;
+	optional float scene_y = 7;
+	optional float scene_z = 8;
+	optional sint32 subzone_sno = 9;
+}

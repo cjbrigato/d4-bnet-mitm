@@ -10,11 +10,12 @@ mk_def () {
 
 echo "// #  Generated from mk_svc_code DO NOT EDIT"
 echo "package services"
+echo "import ("
 for I in $(list_service_files $1);
 do
 echo "// looping over : $I"
-echo -ne "   _ \"${MODNAME}/bnet/\""
-	echo -n "$(cat $I|grep 'package' | tr -d '\015' | cut -d' ' -f2|sed 's,\.,/,g'|sed 's/;//g')"
+echo -ne "   _ \"${MODNAME}/bnet/"
+	echo -n "$(cat $I|grep -v 'go_package' | grep 'package' | tr -d '\015' | cut -d' ' -f2|sed 's,\.,/,g'|sed 's/;//g')"
 	echo '"'
 done
 echo ")"

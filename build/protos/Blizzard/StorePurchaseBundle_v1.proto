@@ -1,0 +1,9 @@
+package Blizzard.Telemetry.D4.Client.Store.v1;
+import "telemetry_extensions.proto";
+import "StoreSessionInfo_v1.proto";
+import "StoreProductInfo_v1.proto";
+
+message StorePurchaseBundle {
+	optional .Blizzard.Telemetry.D4.Client.Store.v1.StoreSessionInfo session_info = 1;
+	optional .Blizzard.Telemetry.D4.Client.Store.v1.StoreProductInfo product_info = 2;
+}

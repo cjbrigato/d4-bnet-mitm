@@ -1,0 +1,54 @@
+package bgs.protocol.channel.v2.membership;
+import "bgs/low/pb/client/api/client/v2/channel_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+import "bgs/low/pb/client/invitation_types.proto";
+
+message SubscribeRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+}
+message SubscribeResponse {
+	optional .bgs.protocol.channel.v2.ChannelMembershipState state = 1;
+}
+message UnsubscribeRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+}
+message GetStateRequest {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+}
+message GetStateResponse {
+	optional .bgs.protocol.channel.v2.ChannelMembershipState state = 1;
+}
+message ChannelAddedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional .bgs.protocol.channel.v2.ChannelDescription membership = 3;
+}
+message ChannelRemovedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 4;
+	optional .bgs.protocol.channel.v2.ChannelRemovedReason reason = 5;
+}
+message ReceivedInvitationAddedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional .bgs.protocol.channel.v2.ChannelInvitation invitation = 3;
+}
+message ReceivedInvitationRemovedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.account.v1.GameAccountHandle subscriber_id = 2;
+	optional fixed64 invitation_id = 3;
+	optional .bgs.protocol.InvitationRemovedReason reason = 4;
+}
+service ChannelMembershipService {
+	rpc Subscribe (.bgs.protocol.channel.v2.membership.SubscribeRequest) returns (.bgs.protocol.channel.v2.membership.SubscribeResponse);
+	rpc Unsubscribe (.bgs.protocol.channel.v2.membership.UnsubscribeRequest) returns (.bgs.protocol.NoData);
+	rpc GetState (.bgs.protocol.channel.v2.membership.GetStateRequest) returns (.bgs.protocol.channel.v2.membership.GetStateResponse);
+}
+service ChannelMembershipListener {
+	rpc OnChannelAdded (.bgs.protocol.channel.v2.membership.ChannelAddedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnChannelRemoved (.bgs.protocol.channel.v2.membership.ChannelRemovedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnReceivedInvitationAdded (.bgs.protocol.channel.v2.membership.ReceivedInvitationAddedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnReceivedInvitationRemoved (.bgs.protocol.channel.v2.membership.ReceivedInvitationRemovedNotification) returns (.bgs.protocol.NO_RESPONSE);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/channel/v2/membership";

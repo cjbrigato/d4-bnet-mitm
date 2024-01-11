@@ -1,0 +1,28 @@
+package Fenris.Store;
+import "License.proto";
+import "OnlineCommon.proto";
+
+message License {
+	optional uint32 bnet_license_id = 1;
+	optional .Fenris.License.Entitlement entitlement = 2;
+	optional uint32 license_type = 4;
+}
+message Catalog {
+	optional uint32 proto_version = 1;
+	repeated .Fenris.Store.License licenses = 3;
+}
+message StartPlatformPurchaseRequest {
+	optional string currency_code = 2;
+	optional uint64 item_id = 3;
+	optional uint32 quantity = 4;
+	optional uint64 purchase_price = 5;
+	optional string item_description = 6;
+	optional string locale = 7;
+}
+message StartPlatformPurchaseResponse {
+}
+message GetPlatformCatalogRequest {
+}
+message GetPlatformCatalogResponse {
+	repeated .Fenris.Online.PlatformProduct product = 1;
+}

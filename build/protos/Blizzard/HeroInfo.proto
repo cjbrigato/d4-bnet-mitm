@@ -1,0 +1,33 @@
+package Blizzard.Telemetry.Fenris.Game.v1;
+import "HeroLocation.proto";
+import "HeroCombatInfo.proto";
+import "Item.proto";
+
+message HeroInfo {
+	message GameHandle {
+		optional uint64 matchmaker_id = 1;
+		optional uint64 game_server_guid = 2;
+		optional uint32 game_instance_id = 3;
+	}
+	optional string hero_id = 1;
+	optional uint32 account_id = 2;
+	optional uint32 game_account_id = 13;
+	optional string party_id = 3;
+	optional int32 hero_class = 4;
+	optional uint32 time_played = 5;
+	optional int32 hero_level = 6;
+	optional .Blizzard.Telemetry.Fenris.Game.v1.HeroLocation location = 7;
+	optional .Blizzard.Telemetry.Fenris.Game.v1.HeroCombatInfo combat_info = 8;
+	optional string session_id = 9;
+	optional int32 persona_index = 10;
+	optional int32 hair_dye_index = 11;
+	optional sfixed32 sno_face = 20;
+	optional uint64 clan_id = 12;
+	optional .Blizzard.Telemetry.Fenris.Game.v1.HeroInfo.GameHandle game_handle = 14;
+	optional int32 paragon_level = 15;
+	optional string v2_clan_id = 16;
+	repeated .Blizzard.Telemetry.Fenris.Game.v1.Item equipped_items = 17;
+	optional int32 world_tier = 18;
+	optional int32 platform = 19;
+	optional uint64 gold = 21;
+}

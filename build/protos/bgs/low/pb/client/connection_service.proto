@@ -1,0 +1,79 @@
+package bgs.protocol.connection.v1;
+import "bgs/low/pb/client/content_handle_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+import "bgs/low/pb/client/semantic_version.proto";
+
+enum MeteringLevel {
+	METERING_LEVEL_LEGACY = 0;
+	METERING_LEVEL_CATEGORIZED = 1;
+}
+message ClientSdkVersionInfo {
+	optional string sdk_name = 1;
+	optional .bgs.protocol.SemanticVersion sdk_version = 2;
+	optional .bgs.protocol.SemanticVersion protocol_version = 3;
+}
+message ConnectRequest {
+	optional .bgs.protocol.ProcessId client_id = 1;
+	optional .bgs.protocol.connection.v1.BindRequest bind_request = 2;
+	optional bool use_bindless_rpc = 3 [default = true];
+	optional .bgs.protocol.connection.v1.MeteringLevel metering_level = 4;
+	optional .bgs.protocol.connection.v1.ClientSdkVersionInfo client_sdk_info = 5;
+}
+message ConnectionMeteringContentHandles {
+	repeated .bgs.protocol.ContentHandle content_handle = 1;
+}
+message ConnectResponse {
+	required .bgs.protocol.ProcessId server_id = 1;
+	optional .bgs.protocol.ProcessId client_id = 2;
+	optional uint32 bind_result = 3;
+	optional .bgs.protocol.connection.v1.BindResponse bind_response = 4;
+	optional .bgs.protocol.connection.v1.ConnectionMeteringContentHandles content_handle_array = 5;
+	optional uint64 server_time = 6;
+	optional bool use_bindless_rpc = 7 [default = false];
+	optional .bgs.protocol.connection.v1.ConnectionMeteringContentHandles binary_content_handle_array = 8;
+	optional string ciid = 9;
+	optional uint32 connected_region = 10;
+}
+message BoundService {
+	required fixed32 hash = 1;
+	required uint32 id = 2;
+}
+message BindRequest {
+	repeated fixed32 deprecated_imported_service_hash = 1;
+	repeated .bgs.protocol.connection.v1.BoundService deprecated_exported_service = 2;
+	repeated .bgs.protocol.connection.v1.BoundService exported_service = 3;
+	repeated .bgs.protocol.connection.v1.BoundService imported_service = 4;
+}
+message BindResponse {
+	repeated uint32 imported_service_id = 1;
+}
+message EchoRequest {
+	optional fixed64 time = 1;
+	optional bool network_only = 2 [default = false];
+	optional bytes payload = 3;
+	optional .bgs.protocol.ProcessId forward = 4;
+	optional string forward_client_id = 5;
+}
+message EchoResponse {
+	optional fixed64 time = 1;
+	optional bytes payload = 2;
+}
+message DisconnectRequest {
+	required uint32 error_code = 1;
+}
+message DisconnectNotification {
+	required uint32 error_code = 1;
+	optional string reason = 2;
+}
+message EncryptRequest {
+}
+service ConnectionService {
+	rpc Connect (.bgs.protocol.connection.v1.ConnectRequest) returns (.bgs.protocol.connection.v1.ConnectResponse);
+	rpc Bind (.bgs.protocol.connection.v1.BindRequest) returns (.bgs.protocol.connection.v1.BindResponse);
+	rpc Echo (.bgs.protocol.connection.v1.EchoRequest) returns (.bgs.protocol.connection.v1.EchoResponse);
+	rpc ForceDisconnect (.bgs.protocol.connection.v1.DisconnectNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc KeepAlive (.bgs.protocol.NoData) returns (.bgs.protocol.NO_RESPONSE);
+	rpc Encrypt (.bgs.protocol.connection.v1.EncryptRequest) returns (.bgs.protocol.NoData);
+	rpc RequestDisconnect (.bgs.protocol.connection.v1.DisconnectRequest) returns (.bgs.protocol.NO_RESPONSE);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/connection/v1";

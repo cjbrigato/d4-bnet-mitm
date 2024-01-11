@@ -1,0 +1,20 @@
+package Blizzard.Telemetry.D4.Common.Game.v1;
+
+message HeroInfo {
+	optional string game_handle = 1;
+	optional string session_id = 2;
+	optional string hero_id = 3;
+	optional string hero_class = 4;
+	optional uint32 seconds_played = 5;
+	optional int32 hero_level = 6;
+	optional uint32 bnet_account_id = 7;
+	optional string party_id = 8;
+	optional string clan_id = 9;
+	optional string world_tier = 10;
+	optional string platform = 11;
+	optional bool is_hardcore = 12;
+	optional uint32 game_account_id = 13;
+	optional bool is_seasonal = 14;
+	optional bool skipped_campaign = 15;
+	optional uint64 gold = 16;
+}

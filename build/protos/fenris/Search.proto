@@ -1,0 +1,58 @@
+package Fenris.Search;
+import "Clan.proto";
+
+message FindClansParams {
+	optional string text = 1;
+	repeated uint32 label = 2;
+}
+message Results {
+	optional uint64 client_search_token = 1;
+	optional uint32 document_type = 2;
+	repeated bytes document = 3;
+	optional uint32 offset = 4;
+	optional bool more = 5;
+}
+message ClanDocument {
+	optional string clan_id = 1;
+	optional string name = 2;
+	optional uint32 last_edited_name_bnet_account = 15;
+	optional uint32 last_edited_name_game_account = 16;
+	optional string tag = 3;
+	optional uint32 last_edited_tag_bnet_account = 17;
+	optional uint32 last_edited_tag_game_account = 18;
+	optional string description = 4;
+	optional uint32 last_edited_description_bnet_account = 13;
+	optional uint32 last_edited_description_game_account = 14;
+	optional uint64 created_at = 5;
+	optional .Fenris.Clan.ClanProfile.Member leader = 6;
+	optional uint32 member_count = 7;
+	repeated uint32 label = 8;
+	optional bool is_searchable = 9;
+	optional .Fenris.Clan.ClanHeraldry heraldry = 10;
+	optional uint32 last_edited_heraldry_bnet_account = 11;
+	optional uint32 last_edited_heraldry_game_account = 12;
+}
+message Attribute {
+	optional uint32 id = 1;
+	optional bool bool_value = 2;
+	optional uint64 uint_value = 3;
+	optional int64 int_value = 4;
+	optional double double_value = 5;
+	optional string string_value = 6;
+	optional bytes blob_value = 7;
+}
+message Document {
+	optional string id = 1;
+	optional uint32 type = 2;
+	optional bytes data = 3;
+	repeated string indexing_text = 4;
+	repeated .Fenris.Search.Attribute attribute = 5;
+	optional uint64 sort_score = 6;
+	optional uint64 last_activity_time = 7;
+}
+message Criteria {
+	optional uint32 document_type = 1;
+	optional uint32 max_results = 2;
+	optional string text = 3;
+	repeated .Fenris.Search.Attribute attribute = 4;
+}

@@ -1,0 +1,40 @@
+package bgs.protocol.channel.v2.server;
+import "bgs/low/pb/client/api/client/v2/channel_types.proto";
+import "bgs/low/pb/client/api/server/v2/channel_types.proto";
+import "bgs/low/pb/client/rpc_types.proto";
+
+message ChannelStateChangedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	optional .bgs.protocol.channel.v2.ChannelStateAssignment assignment = 4;
+}
+message MemberAddedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	repeated .bgs.protocol.channel.v2.Member member = 4;
+}
+message MemberRemovedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	optional uint32 reason = 4;
+	repeated .bgs.protocol.account.v1.GameAccountHandle member_id = 5;
+	repeated uint64 member_account_id = 6;
+}
+message MemberStateChangedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	repeated .bgs.protocol.channel.v2.MemberStateAssignment assignment = 5;
+}
+message MemberRoleChangedNotification {
+	optional .bgs.protocol.account.v1.GameAccountHandle agent_id = 1;
+	optional .bgs.protocol.channel.v2.ChannelId channel_id = 3;
+	repeated .bgs.protocol.channel.v2.RoleAssignment assignment = 5;
+}
+service ChannelServerListener {
+	rpc OnChannelStateChanged (.bgs.protocol.channel.v2.server.ChannelStateChangedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnMemberAdded (.bgs.protocol.channel.v2.server.MemberAddedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnMemberRemoved (.bgs.protocol.channel.v2.server.MemberRemovedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnMemberStateChanged (.bgs.protocol.channel.v2.server.MemberStateChangedNotification) returns (.bgs.protocol.NO_RESPONSE);
+	rpc OnMemberRoleChanged (.bgs.protocol.channel.v2.server.MemberRoleChangedNotification) returns (.bgs.protocol.NO_RESPONSE);
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/channel/v2/server";

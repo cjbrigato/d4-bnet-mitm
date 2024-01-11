@@ -1,0 +1,14 @@
+package Blizzard.Telemetry.Fenris.Client.v1;
+import "telemetry_extensions.proto";
+import "HeroInfo.proto";
+
+message Survey {
+	optional .Blizzard.Telemetry.Fenris.Game.v1.HeroInfo hero_info = 1;
+	optional string game_handle = 2;
+	optional sint32 sno_group = 3;
+	optional sint32 sno_handle = 4;
+	repeated int32 question_value_list = 5;
+	optional string survey_text = 6;
+	optional sint32 gbid_survey_type = 7;
+	optional sint32 sno_questions_stringlist = 8;
+}
