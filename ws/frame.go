@@ -197,6 +197,7 @@ type Header struct {
 	Masked bool
 	Mask   [4]byte
 	Length int64
+	Bytes  []byte
 }
 
 // Rsv1 reports whether the header has first rsv bit set.

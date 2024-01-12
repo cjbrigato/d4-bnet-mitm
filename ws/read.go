@@ -10,6 +10,7 @@ import (
 var (
 	ErrHeaderLengthMSB        = fmt.Errorf("header error: the most significant bit must be 0")
 	ErrHeaderLengthUnexpected = fmt.Errorf("header error: unexpected payload length bits")
+	LastReadFrame             = []byte{}
 )
 
 // ReadHeader reads a frame header from r.
@@ -26,6 +27,7 @@ func ReadHeader(r io.Reader) (h Header, err error) {
 	if err != nil {
 		return h, err
 	}
+	h.Bytes = append(h.Bytes, bts...)
 
 	h.Fin = bts[0]&bit0 != 0
 	h.Rsv = (bts[0] & 0x70) >> 4
@@ -65,6 +67,7 @@ func ReadHeader(r io.Reader) (h Header, err error) {
 	if err != nil {
 		return h, err
 	}
+	h.Bytes = append(h.Bytes, bts[:extra]...)
 
 	switch {
 	case length == 126:
@@ -104,7 +107,8 @@ func ReadFrame(r io.Reader) (f Frame, err error) {
 		f.Payload = make([]byte, int(f.Header.Length))
 		_, err = io.ReadFull(r, f.Payload)
 	}
-
+	LastReadFrame = append(LastReadFrame, f.Header.Bytes...)
+	LastReadFrame = append(LastReadFrame, f.Payload...)
 	return f, err
 }
 
