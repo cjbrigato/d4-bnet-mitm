@@ -2,7 +2,6 @@ package dynamic
 
 import (
 	"embed"
-	"fmt"
 	"log"
 	"os"
 
@@ -51,6 +50,7 @@ func Register(pbfile string, efs *embed.FS) {
 		log.Fatalf("failed to process descriptors in %s: %v\n", fileDescriptorSet, err)
 	}
 
+	//fmt.Printf("Registered at runtimes:[  ")
 	for _, file := range files.File {
 		_, err := protoregistry.GlobalFiles.FindFileByPath(file.GetName())
 		if err == nil {
@@ -63,6 +63,7 @@ func Register(pbfile string, efs *embed.FS) {
 		if err := protoregistry.GlobalFiles.RegisterFile(fileDescriptor); err != nil {
 			log.Fatalf("failed to process %q: %v\n", file.GetName(), err)
 		}
-		fmt.Printf("Registered %q\n", file.GetName())
+		//fmt.Printf("%q, ", file.GetName())
 	}
+	//fmt.Printf("]\n")
 }

@@ -26,6 +26,12 @@ import (
 	"embed"
 )
 
+const banner = ` ____  _  _   _                _                  _ _             
+|  _ \| || | | |__  _ __   ___| |_      _ __ ___ (_) |_ _ __ ___  
+| | | | || |_| '_ \| '_ \ / _ \ __|____| '_ ` + "`" + ` _ \| | __| '_ ` + "`" + ` _ \ 
+| |_| |__   _| |_) | | | |  __/ ||_____| | | | | | | |_| | | | | |
+|____/   |_| |_.__/|_| |_|\___|\__|    |_| |_| |_|_|\__|_| |_| |_|`
+
 //go:embed ssl/bnetserver.*
 //go:embed build/pb/*_bundle.binpb
 var f embed.FS
@@ -35,9 +41,11 @@ var ids = 0
 var log_mutex sync.RWMutex
 
 var (
-	noTLS    = flag.Bool("no-tls", false, "don't use TLS/SSL for both connections")
-	certFile = flag.String("cert", "", "X.509 certificate file")
-	keyFile  = flag.String("keyfile", "", "X.509 key file")
+	noTLS         = flag.Bool("no-tls", false, "don't use TLS/SSL for both connections")
+	certFile      = flag.String("cert", "", "X.509 certificate file")
+	keyFile       = flag.String("keyfile", "", "X.509 key file")
+	checkRegistry = flag.Bool("check-registry", false, "check registry at startup for missing proto descriptor")
+	verbose       = flag.Bool("verbose", false, "more verbose output with usefull messages in edge cases")
 )
 
 func LoadEmbededX509KeyPair() (tls.Certificate, error) {
@@ -182,7 +190,6 @@ func recall_pending_response(token TrackingToken) (PendingResponse, bool) {
 func dumpData(r io.Reader, source string, conn_id int) {
 
 	upgraded := false
-
 	data := make([]byte, 512)
 	for {
 
@@ -264,35 +271,7 @@ func dumpData(r io.Reader, source string, conn_id int) {
 					PrintMessage(*msg)
 					mtype := protoreflect.FullName(services.PbMessageStr(val.Name(), method, *bgs_header.ServiceId))
 					if fmt.Sprintf("%s", mtype) == "bgs.protocol.notification.v2.client.NotificationReceivedNotification" {
-						notifmsg := &client.NotificationReceivedNotification{}
-						if err := proto.Unmarshal(bgs_rpc_message_bytes, notifmsg); err != nil {
-							fmt.Printf("Failed to parse Notification: %s\n", err)
-						}
-						notif := notifmsg.GetNotifications()[0].GetAttribute()
-						messageid := notif[0].GetValue().GetIntValue()
-						payload := notif[1].GetValue().GetBlobValue()
-						var messageid_type string
-						switch messageid {
-						case 0:
-							messageid_type = "Fenris.ClientMessage.FindUserProxyResponse"
-						case 5:
-							messageid_type = "Fenris.ClientMessage.PingConnectInfoSingleResult"
-						case 2:
-							messageid_type = "Fenris.ClientMessage.QueueUpdate"
-						default:
-							messageid_type = "unknown"
-						}
-						fmt.Printf("### %s (as FEN.NotificationMessage.Payload)\n", messageid_type)
-						if messageid_type != "unknown" {
-							FenrisMessage, err := dynamic.ParseAs(messageid_type, payload)
-							if err != nil {
-								fmt.Printf("Failed to parse %s: %s\n", messageid_type, err)
-							} else {
-								PrintMessage(*FenrisMessage)
-							}
-						} else {
-							fmt.Printf("%s\n", hex.Dump(payload))
-						}
+						ResolveNotificationPayload(bgs_rpc_message_bytes)
 					}
 				}
 			}
@@ -329,6 +308,38 @@ func dumpData(r io.Reader, source string, conn_id int) {
 				continue
 			}
 		}
+	}
+}
+
+func ResolveNotificationPayload(bgs_rpc_message_bytes []byte) {
+	notifmsg := &client.NotificationReceivedNotification{}
+	if err := proto.Unmarshal(bgs_rpc_message_bytes, notifmsg); err != nil {
+		fmt.Printf("Failed to parse Notification: %s\n", err)
+	}
+	notif := notifmsg.GetNotifications()[0].GetAttribute()
+	messageid := notif[0].GetValue().GetIntValue()
+	payload := notif[1].GetValue().GetBlobValue()
+	var messageid_type string
+	switch messageid {
+	case 0:
+		messageid_type = "Fenris.ClientMessage.FindUserProxyResponse"
+	case 5:
+		messageid_type = "Fenris.ClientMessage.PingConnectInfoSingleResult"
+	case 2:
+		messageid_type = "Fenris.ClientMessage.QueueUpdate"
+	default:
+		messageid_type = "unknown"
+	}
+	fmt.Printf("### %s (as FEN.NotificationMessage.Payload)\n", messageid_type)
+	if messageid_type != "unknown" {
+		FenrisMessage, err := dynamic.ParseAs(messageid_type, payload)
+		if err != nil {
+			fmt.Printf("Failed to parse %s: %s\n", messageid_type, err)
+		} else {
+			PrintMessage(*FenrisMessage)
+		}
+	} else {
+		fmt.Printf("%s\n", hex.Dump(payload))
 	}
 }
 
@@ -391,21 +402,23 @@ func handle(done chan<- net.Conn) chan net.Conn {
 
 func main() {
 
-	init_pending_responses()
-	dynamic.Register("build/pb/bgs_bundle.binpb", &f)
-	dynamic.Register("build/pb/fenris_bundle.binpb", &f)
-	services.Test_protos()
-
 	flag.Parse()
 	if flag.NArg() != 2 {
 		usage()
+	}
+
+	init_pending_responses()
+	dynamic.Register("build/pb/bgs_bundle.binpb", &f)
+	dynamic.Register("build/pb/fenris_bundle.binpb", &f)
+	if *checkRegistry {
+		services.Test_protos()
 	}
 
 	var err error
 
 	laddr, err := net.ResolveTCPAddr("tcp", flag.Arg(0))
 	if err != nil {
-		fatal("listen addr:", err, "\n")
+		fatal("listen addr: %s\n", err)
 	}
 
 	raddr = flag.Arg(1)
@@ -417,14 +430,14 @@ func main() {
 		fatal("listen:", err, "\n")
 	}
 
+	tlsMessage := " [ TLS: using embedded X509 pair ]"
 	if !*noTLS {
 		config := tls.Config{}
 		config.Certificates = make([]tls.Certificate, 1)
 		if !*noTLS && !(exists(*certFile) && exists(*keyFile)) {
-			fmt.Printf("No key/cert files specified : using embedded X509 pair\n")
 			config.Certificates[0], err = LoadEmbededX509KeyPair()
 		} else {
-			fmt.Printf("Using CLI specified key/cert files\n")
+			tlsMessage = "[ TLS: Using CLI specified key/cert files ]"
 			config.Certificates[0], err = tls.LoadX509KeyPair(*certFile, *keyFile)
 		}
 
@@ -435,7 +448,10 @@ func main() {
 		ln = tls.NewListener(ln, &config)
 	}
 
-	log.Println("listening on", laddr)
+	fmt.Printf("%s\n", banner)
+	fmt.Printf(" %s%s", tlsMessage, "    +---Ready------------------ \n\n")
+	log.Println("::  Listening on <-", laddr)
+	log.Println(":: with upstream ->", raddr)
 
 	done := cleanup()
 	conns := handle(done)
