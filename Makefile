@@ -1,14 +1,18 @@
-bin:
+runw:
+	.\4-bnet-mitm.exe localhost:1119 185.60.112.74:1119
+
+runl:
+	 ./bin/d4-bnet-mitm 127.0.0.1:1119 185.60.112.74:1119
+
+
+bin: rebin
 
 rebin: bnet build
-	go build -o bin/
-	GOOS=windows GOARCH=amd64 go build -o bin/
+	go build
+	GOOS=windows GOARCH=amd64 go build
 
 bnet: build
 
-all: bin bnet build
-	scripts/rebuild_full
-	 
 clean: clean-bin clean-generated clean-bnet clean-build
 
 clean-bin:

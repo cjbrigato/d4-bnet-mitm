@@ -48,6 +48,8 @@ var (
 	noTLS         = flag.Bool("no-tls", false, "don't use TLS/SSL for both connections")
 	certFile      = flag.String("cert", "", "X.509 certificate file")
 	keyFile       = flag.String("keyfile", "", "X.509 key file")
+	listenAddr    = flag.String("listen-addr", "127.0.0.1:1119", "Listen Address")
+	remoteAddr    = flag.String("remote-addr", "185.60.112.74:1119", "Remote Address")
 	checkRegistry = flag.Bool("check-registry", false, "check registry at startup for missing proto descriptor")
 	verbose       = flag.Bool("verbose", false, "more verbose output with usefull messages in edge cases")
 )
@@ -76,11 +78,11 @@ func LoadEmbededX509KeyPair() (tls.Certificate, error) {
 	return tls.X509KeyPair(certPEMBlock, keyPEMBlock)
 }
 
-func usage() {
+/*func usage() {
 	fmt.Fprintf(os.Stderr, "usage: %s [options] <listen-addr> <remote-addr>\n", os.Args[0])
 	flag.PrintDefaults()
 	os.Exit(1)
-}
+}*/
 
 func fatal(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, args...)
@@ -219,8 +221,8 @@ func handleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 			LastReadFrame = append(LastReadFrame, frame.Header.Bytes...)
 			LastReadFrame = append(LastReadFrame, frame.Payload...)
 
-			n, err := c.Write(LastReadFrame)
-			color.Infoln("Wrote %d bytes representing last frame from remote conn to cli conn", n)
+			_, err = c.Write(LastReadFrame)
+			//color.Infoln("Wrote %d bytes representing last frame from remote conn to cli conn", n)
 
 			log_mutex.Lock()
 			bgs_rpc_header_len := binary.BigEndian.Uint16(frame.Payload[0:])
@@ -329,7 +331,7 @@ func handleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 				}
 				c.Write(data)
 				data = nil
-				color.Infoln("Wrote %d bytes representing last frame from remote conn to cli conn", n)
+				//color.Infoln("Wrote %d bytes representing last frame from remote conn to cli conn", n)
 				continue
 			}
 
@@ -549,9 +551,6 @@ func handle(done chan<- net.Conn) chan net.Conn {
 func main() {
 
 	flag.Parse()
-	if flag.NArg() != 2 {
-		usage()
-	}
 
 	init_pending_responses()
 	dynamic.Register("build/pb/bgs_bundle.binpb", &f)
@@ -562,12 +561,12 @@ func main() {
 
 	var err error
 
-	laddr, err := net.ResolveTCPAddr("tcp", flag.Arg(0))
+	laddr, err := net.ResolveTCPAddr("tcp", *listenAddr)
 	if err != nil {
 		fatal("listen addr: %s\n", err)
 	}
 
-	raddr = flag.Arg(1)
+	raddr = *remoteAddr
 
 	var ln net.Listener
 
@@ -576,14 +575,12 @@ func main() {
 		fatal("listen:", err, "\n")
 	}
 
-	tlsMessage := " [ TLS: using embedded X509 pair ]"
 	if !*noTLS {
 		config := tls.Config{}
 		config.Certificates = make([]tls.Certificate, 1)
 		if !*noTLS && !(exists(*certFile) && exists(*keyFile)) {
 			config.Certificates[0], err = LoadEmbededX509KeyPair()
 		} else {
-			tlsMessage = "[ TLS: Using CLI specified key/cert files ]"
 			config.Certificates[0], err = tls.LoadX509KeyPair(*certFile, *keyFile)
 		}
 
@@ -594,9 +591,7 @@ func main() {
 		ln = tls.NewListener(ln, &config)
 	}
 
-	//fmt.Printf("%s\n", banner)
 	fbanner()
-	fmt.Printf("                               %s%s", tlsMessage, "    +---Ready------------------ \n\n")
 	log.Println("::  Listening on <-", laddr)
 	log.Println(":: with upstream ->", raddr)
 
