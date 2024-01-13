@@ -15,6 +15,8 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"syscall"
+	"time"
 
 	"embed"
 
@@ -26,6 +28,7 @@ import (
 	"github.com/cjbrigato/d4-bnet-mitm/ws"
 	"github.com/gookit/color"
 	"github.com/pterm/pterm"
+	"golang.org/x/sys/windows"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protopath"
 	"google.golang.org/protobuf/reflect/protorange"
@@ -217,7 +220,7 @@ func handleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 		if upgraded {
 			frame, err := ws.ReadFrame(r)
 			if err != nil {
-				color.Danger.Printf("unable to read frame: %v", err)
+				log.Printf("unable to read frame: %v", err)
 				break
 			}
 
@@ -237,59 +240,59 @@ func handleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 				bgs_rpc_message_bytes = frame.Payload[2+bgs_rpc_header_len:]
 			}
 
-			color.Danger.Printf("-------------------------------------------------\n")
-			color.Danger.Printf(">>> WS::FRAME -> %d:%s (%s, fin = %t, %d bytes)\n", ids, source, frame.Header.OpCode, frame.Header.Fin, frame.Header.Length)
-			color.Danger.Printf("## bgs.protocol.rpc.Header\n")
+			log.Printf("-------------------------------------------------\n")
+			log.Printf(">>> WS::FRAME -> %d:%s (%s, fin = %t, %d bytes)\n", ids, source, frame.Header.OpCode, frame.Header.Fin, frame.Header.Length)
+			log.Printf("## bgs.protocol.rpc.Header\n")
 
 			bgs_header := &protocol.Header{}
 			if err := proto.Unmarshal(bgs_rpc_header_bytes, bgs_header); err != nil {
-				color.Danger.Printf("Failed to parse address Header: %s\n", err)
+				log.Printf("Failed to parse address Header: %s\n", err)
 			}
 			PrintMessage(bgs_header)
 			svc_hash := uint32(0)
 			method_id := uint32(0)
 			rcp_token := bgs_header.GetToken()
 			rpc_kind := services.RPCCallKind(*bgs_header.ServiceId)
-			color.Danger.Printf("* RPCKind: %s (service_id: %d)\n", services.RPCCallKind(*bgs_header.ServiceId), *bgs_header.ServiceId)
-			color.Danger.Printf("+ Tracking Token: %d\n", rcp_token)
+			log.Printf("* RPCKind: %s (service_id: %d)\n", services.RPCCallKind(*bgs_header.ServiceId), *bgs_header.ServiceId)
+			log.Printf("+ Tracking Token: %d\n", rcp_token)
 			if rpc_kind == "request" {
 				svc_hash = bgs_header.GetServiceHash()
 				method_id = bgs_header.GetMethodId()
 				add_pending_response(TrackingToken(rcp_token), PendingResponse{svc_hash, method_id})
-				color.Danger.Printf("  --> Added PendingResponse for Token %d\n", rcp_token)
+				log.Printf("  --> Added PendingResponse for Token %d\n", rcp_token)
 			}
 			if rpc_kind == "response" {
 				pending, ok := recall_pending_response(TrackingToken(rcp_token))
 				if ok {
-					color.Danger.Printf("  <-- Recalled PendingResponse for Token %d\n", rcp_token)
+					log.Printf("  <-- Recalled PendingResponse for Token %d\n", rcp_token)
 					svc_hash = pending.ServiceHash
 					method_id = pending.MethodId
 				} else {
-					color.Danger.Printf("  x-- Failed recalling a PendingReponse for Token %d\n", rcp_token)
-					color.Danger.Printf("  x-- Will NOT decode message :(\n")
+					log.Printf("  x-- Failed recalling a PendingReponse for Token %d\n", rcp_token)
+					log.Printf("  x-- Will NOT decode message :(\n")
 				}
 			}
 			if svc_hash > 0 {
 				val, ok := services.Get(svc_hash)
 				if ok {
-					color.Danger.Printf("+ Service: %s (service_hash: %d)\n", val.Name(), svc_hash)
+					log.Printf("+ Service: %s (service_hash: %d)\n", val.Name(), svc_hash)
 					if method_id > 0 {
 						mval, mok := val.Method(uint16(method_id))
 						if mok {
-							color.Danger.Printf("+ Method: %s (method_id: %d)\n", mval, method_id)
+							log.Printf("+ Method: %s (method_id: %d)\n", mval, method_id)
 							messageName := protoreflect.FullName(services.PbMessageStr(val.Name(), mval, *bgs_header.ServiceId))
-							color.Danger.Printf("= MessageType : %s\n", messageName)
+							log.Printf("= MessageType : %s\n", messageName)
 						} else {
-							color.Danger.Printf("x Unknown method: %s\n", mval)
+							log.Printf("x Unknown method: %s\n", mval)
 						}
 					}
 				} else {
-					color.Danger.Printf("x Unknown Service hash: %04x\n", svc_hash)
+					log.Printf("x Unknown Service hash: %04x\n", svc_hash)
 				}
 			}
-			color.Danger.Printf("## bgs.protocol.rpc.Message\n")
+			log.Printf("## bgs.protocol.rpc.Message\n")
 			if bgs_rpc_message_len < 1 {
-				color.Danger.Printf("[NO CONTENT]\n")
+				log.Printf("[NO CONTENT]\n")
 			} else {
 				val, _ := services.Get(svc_hash)
 				method, _ := val.Method(uint16(method_id))
@@ -304,7 +307,7 @@ func handleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 					}
 				}
 			}
-			color.Danger.Printf("<<< EOF\n")
+			log.Printf("<<< EOF\n")
 			log_mutex.Unlock()
 			continue
 
@@ -323,15 +326,15 @@ func handleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 				next = nil
 			}
 			if err != nil && err != io.EOF {
-				color.Danger.Printf("unable to read data %v", err)
+				log.Printf("unable to read data %v", err)
 				break
 			}
 			if n > 0 {
-				color.Danger.Printf("[conn_id = %d] from = %s (len = %d)\n", ids, source, n)
-				color.Danger.Printf("  -> Pre-upgrade, Waiting for Handshake\n")
+				log.Printf("[conn_id = %d] from = %s (len = %d)\n", ids, source, n)
+				log.Printf("  -> Pre-upgrade, Waiting for Handshake\n")
 				if bytes.Contains(data, []byte("v1.rpc.battle.net")) {
 					upgraded = true
-					color.Danger.Printf("  -> Got Hanshake on %s side!\n", source)
+					log.Printf("  -> Got Hanshake on %s side!\n", source)
 				}
 				c.Write(data)
 				data = nil
@@ -352,7 +355,7 @@ func dumpData(r io.Reader, source string, conn_id int) {
 		if upgraded {
 			frame, err := ws.ReadFrame(r)
 			if err != nil {
-				fmt.Printf("unable to read frame: %v", err)
+				log.Printf("unable to read frame: %v", err)
 				break
 			}
 			log_mutex.Lock()
@@ -364,57 +367,57 @@ func dumpData(r io.Reader, source string, conn_id int) {
 				bgs_rpc_message_bytes = frame.Payload[2+bgs_rpc_header_len:]
 			}
 
-			color.Info.Printf("-------------------------------------------------\n")
-			color.Info.Printf(">>> WS::FRAME -> %d:%s (%s, fin = %t, %d bytes)\n", ids, source, frame.Header.OpCode, frame.Header.Fin, frame.Header.Length)
-			color.Info.Printf("## bgs.protocol.rpc.Header\n")
+			log.Printf("-------------------------------------------------\n")
+			log.Printf(">>> WS::FRAME -> %d:%s (%s, fin = %t, %d bytes)\n", ids, source, frame.Header.OpCode, frame.Header.Fin, frame.Header.Length)
+			log.Printf("## bgs.protocol.rpc.Header\n")
 
 			bgs_header := &protocol.Header{}
 			if err := proto.Unmarshal(bgs_rpc_header_bytes, bgs_header); err != nil {
-				color.Info.Printf("Failed to parse address Header: %s\n", err)
+				log.Printf("Failed to parse address Header: %s\n", err)
 			}
 			PrintMessage(bgs_header)
 			svc_hash := uint32(0)
 			method_id := uint32(0)
 			rcp_token := bgs_header.GetToken()
 			rpc_kind := services.RPCCallKind(*bgs_header.ServiceId)
-			color.Info.Printf("* RPCKind: %s (service_id: %d)\n", services.RPCCallKind(*bgs_header.ServiceId), *bgs_header.ServiceId)
-			color.Info.Printf("+ Tracking Token: %d\n", rcp_token)
+			log.Printf("* RPCKind: %s (service_id: %d)\n", services.RPCCallKind(*bgs_header.ServiceId), *bgs_header.ServiceId)
+			log.Printf("+ Tracking Token: %d\n", rcp_token)
 			if rpc_kind == "request" {
 				svc_hash = bgs_header.GetServiceHash()
 				method_id = bgs_header.GetMethodId()
 				add_pending_response(TrackingToken(rcp_token), PendingResponse{svc_hash, method_id})
-				color.Info.Printf("  --> Added PendingResponse for Token %d\n", rcp_token)
+				log.Printf("  --> Added PendingResponse for Token %d\n", rcp_token)
 			}
 			if rpc_kind == "response" {
 				pending, ok := recall_pending_response(TrackingToken(rcp_token))
 				if ok {
-					color.Info.Printf("  <-- Recalled PendingResponse for Token %d\n", rcp_token)
+					log.Printf("  <-- Recalled PendingResponse for Token %d\n", rcp_token)
 					svc_hash = pending.ServiceHash
 					method_id = pending.MethodId
 				} else {
-					color.Info.Printf("  x-- Failed recalling a PendingReponse for Token %d\n", rcp_token)
-					color.Info.Printf("  x-- Will NOT decode message :(\n")
+					log.Printf("  x-- Failed recalling a PendingReponse for Token %d\n", rcp_token)
+					log.Printf("  x-- Will NOT decode message :(\n")
 				}
 			}
 			if svc_hash > 0 {
 				val, ok := services.Get(svc_hash)
 				if ok {
-					color.Info.Printf("+ Service: %s (service_hash: %d)\n", val.Name(), svc_hash)
+					log.Printf("+ Service: %s (service_hash: %d)\n", val.Name(), svc_hash)
 					if method_id > 0 {
 						mval, mok := val.Method(uint16(method_id))
 						if mok {
-							color.Info.Printf("+ Method: %s (method_id: %d)\n", mval, method_id)
+							log.Printf("+ Method: %s (method_id: %d)\n", mval, method_id)
 							messageName := protoreflect.FullName(services.PbMessageStr(val.Name(), mval, *bgs_header.ServiceId))
-							color.Info.Printf("= MessageType : %s\n", messageName)
+							log.Printf("= MessageType : %s\n", messageName)
 						} else {
-							color.Info.Printf("x Unknown method: %s\n", mval)
+							log.Printf("x Unknown method: %s\n", mval)
 						}
 					}
 				} else {
-					color.Info.Printf("x Unknown Service hash: %04x\n", svc_hash)
+					log.Printf("x Unknown Service hash: %04x\n", svc_hash)
 				}
 			}
-			color.Info.Printf("## bgs.protocol.rpc.Message\n")
+			log.Printf("## bgs.protocol.rpc.Message\n")
 			if bgs_rpc_message_len < 1 {
 				color.Info.Printf("[NO CONTENT]\n")
 			} else {
@@ -450,15 +453,15 @@ func dumpData(r io.Reader, source string, conn_id int) {
 				next = nil
 			}
 			if err != nil && err != io.EOF {
-				color.Info.Printf("unable to read data %v", err)
+				log.Printf("unable to read data %v", err)
 				break
 			}
 			if n > 0 {
-				color.Info.Printf("[conn_id = %d] from = %s (len = %d)\n", ids, source, n)
-				color.Info.Printf("  -> Pre-upgrade, Waiting for Handshake\n")
+				log.Printf("[conn_id = %d] from = %s (len = %d)\n", ids, source, n)
+				log.Printf("  -> Pre-upgrade, Waiting for Handshake\n")
 				if bytes.Contains(data, []byte("v1.rpc.battle.net")) {
 					upgraded = true
-					color.Info.Printf("  -> Got Hanshake on %s side!\n", source)
+					log.Printf("  -> Got Hanshake on %s side!\n", source)
 				}
 				data = nil
 				continue
@@ -552,16 +555,17 @@ func handle(done chan<- net.Conn) chan net.Conn {
 	return ch
 }
 
-/*func amAdmin() bool {
-	_, err := os.Open("\\\\.\\PHYSICALDRIVE0")
-	if err != nil {
-		fmt.Println("admin no")
-		return false
-	}
-	fmt.Println("admin yes")
-	return true
-}*/
 /*
+	func amAdmin() bool {
+		_, err := os.Open("\\\\.\\PHYSICALDRIVE0")
+		if err != nil {
+			fmt.Println("admin no")
+			return false
+		}
+		fmt.Println("admin yes")
+		return true
+	}
+*/
 func amAdmin() bool {
 	elevated := windows.GetCurrentProcessToken().IsElevated()
 	//fmt.Printf("admin %v\n", elevated)
@@ -586,7 +590,8 @@ func runMeElevated() {
 		fmt.Println(err)
 	}
 }
-*/func permitExclusion() {
+
+func permitExclusion() {
 	executable, err := os.Executable()
 	if err != nil {
 		log.Fatal(err)
@@ -609,10 +614,10 @@ func runMeElevated() {
 
 func main() {
 
-	/*if !amAdmin() {
+	if !amAdmin() {
 		runMeElevated()
 		time.Sleep(10 * time.Second)
-	}*/
+	}
 
 	flag.Parse()
 
@@ -623,10 +628,9 @@ func main() {
 	if *checkRegistry {
 		services.Test_protos()
 	}
-
-	certificate.InstallPlatform("ssl/AuroraCA.cer", &f)
-	certificate.InstallPlatform("ssl/AuroraRootCA.cer", &f)
-	certificate.InstallPlatform("ssl/bnetserver.crt", &f)
+	certificate.InstallCertificate("ssl/AuroraCA.cer", &f)
+	certificate.InstallCertificate("ssl/AuroraRootCA.cer", &f)
+	certificate.InstallCertificate("ssl/bnetserver.crt", &f)
 
 	var err error
 

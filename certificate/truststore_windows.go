@@ -53,10 +53,10 @@ func CheckPlatform(certpath string, efs *embed.FS) bool {
 
 func InstallCertificate(certpath string, efs *embed.FS) {
 	if CheckPlatform(certpath, efs) {
-		log.Print("The local CA is already installed in the system trust store! 👍")
+		log.Printf("Certificate: %s already in TrustedCA(SystemStore)", certpath)
 	} else {
 		if InstallPlatform(certpath, efs) {
-			log.Print("The local CA is now installed in the system trust store! ⚡️")
+			log.Printf("Certificate: %s now installed in TrustedCA(SystemStore)", certpath)
 		}
 	}
 }
