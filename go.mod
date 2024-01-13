@@ -2,8 +2,6 @@ module github.com/cjbrigato/d4-bnet-mitm
 
 go 1.21
 
-toolchain go1.21.6
-
 require (
 	github.com/gookit/color v1.5.4
 	google.golang.org/protobuf v1.32.0

@@ -2,30 +2,15 @@ package exchanges
 
 import (
 	"bytes"
-	"crypto/tls"
 	"encoding/binary"
-	"encoding/hex"
-	"flag"
 	"fmt"
 	"io"
-	"log"
-	"net"
-	"os"
-	"strings"
-	"sync"
-
-	"embed"
 
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol"
-	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/notification/v2/client"
-	"github.com/cjbrigato/d4-bnet-mitm/dynamic"
 	"github.com/cjbrigato/d4-bnet-mitm/services"
 	"github.com/cjbrigato/d4-bnet-mitm/ws"
 	"github.com/gookit/color"
-	"github.com/pterm/pterm"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/reflect/protopath"
-	"google.golang.org/protobuf/reflect/protorange"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
@@ -48,7 +33,7 @@ func HandleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 			n, err := c.Write(LastReadFrame)
 			color.Infoln("Wrote %d bytes representing last frame from remote conn to cli conn", n)
 
-			log_mutex.Lock()
+			Log_Mutex.Lock()
 			bgs_rpc_header_len := binary.BigEndian.Uint16(frame.Payload[0:])
 			bgs_rpc_header_bytes := frame.Payload[2 : bgs_rpc_header_len+2]
 			bgs_rpc_message_len := len(frame.Payload) - int(bgs_rpc_header_len+2)
@@ -58,7 +43,7 @@ func HandleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 			}
 
 			color.Danger.Printf("-------------------------------------------------\n")
-			color.Danger.Printf(">>> WS::FRAME -> %d:%s (%s, fin = %t, %d bytes)\n", ids, source, frame.Header.OpCode, frame.Header.Fin, frame.Header.Length)
+			color.Danger.Printf(">>> WS::FRAME -> %d:%s (%s, fin = %t, %d bytes)\n", Ids, source, frame.Header.OpCode, frame.Header.Fin, frame.Header.Length)
 			color.Danger.Printf("## bgs.protocol.rpc.Header\n")
 
 			bgs_header := &protocol.Header{}
@@ -125,7 +110,7 @@ func HandleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 				}
 			}
 			color.Danger.Printf("<<< EOF\n")
-			log_mutex.Unlock()
+			Log_Mutex.Unlock()
 			continue
 
 		} else {
@@ -147,7 +132,7 @@ func HandleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 				break
 			}
 			if n > 0 {
-				color.Danger.Printf("[conn_id = %d] from = %s (len = %d)\n", ids, source, n)
+				color.Danger.Printf("[conn_id = %d] from = %s (len = %d)\n", Ids, source, n)
 				color.Danger.Printf("  -> Pre-upgrade, Waiting for Handshake\n")
 				if bytes.Contains(data, []byte("v1.rpc.battle.net")) {
 					upgraded = true

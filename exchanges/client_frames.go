@@ -2,32 +2,25 @@ package exchanges
 
 import (
 	"bytes"
-	"crypto/tls"
 	"encoding/binary"
-	"encoding/hex"
-	"flag"
 	"fmt"
 	"io"
-	"log"
-	"net"
-	"os"
-	"strings"
 	"sync"
 
-	"embed"
-
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol"
-	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/notification/v2/client"
-	"github.com/cjbrigato/d4-bnet-mitm/dynamic"
 	"github.com/cjbrigato/d4-bnet-mitm/services"
 	"github.com/cjbrigato/d4-bnet-mitm/ws"
 	"github.com/gookit/color"
-	"github.com/pterm/pterm"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/reflect/protopath"
-	"google.golang.org/protobuf/reflect/protorange"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
+
+var Ids int64 = 0
+var Log_Mutex sync.RWMutex
+
+func init() {
+	init_pending_responses()
+}
 
 func HandleClient(r io.Reader, source string, conn_id int) {
 
@@ -40,7 +33,7 @@ func HandleClient(r io.Reader, source string, conn_id int) {
 				fmt.Printf("unable to read frame: %v", err)
 				break
 			}
-			log_mutex.Lock()
+			Log_Mutex.Lock()
 			bgs_rpc_header_len := binary.BigEndian.Uint16(frame.Payload[0:])
 			bgs_rpc_header_bytes := frame.Payload[2 : bgs_rpc_header_len+2]
 			bgs_rpc_message_len := len(frame.Payload) - int(bgs_rpc_header_len+2)
@@ -50,7 +43,7 @@ func HandleClient(r io.Reader, source string, conn_id int) {
 			}
 
 			color.Info.Printf("-------------------------------------------------\n")
-			color.Info.Printf(">>> WS::FRAME -> %d:%s (%s, fin = %t, %d bytes)\n", ids, source, frame.Header.OpCode, frame.Header.Fin, frame.Header.Length)
+			color.Info.Printf(">>> WS::FRAME -> %d:%s (%s, fin = %t, %d bytes)\n", Ids, source, frame.Header.OpCode, frame.Header.Fin, frame.Header.Length)
 			color.Info.Printf("## bgs.protocol.rpc.Header\n")
 
 			bgs_header := &protocol.Header{}
@@ -117,7 +110,7 @@ func HandleClient(r io.Reader, source string, conn_id int) {
 				}
 			}
 			color.Info.Printf("<<< EOF\n")
-			log_mutex.Unlock()
+			Log_Mutex.Unlock()
 			continue
 
 		} else {
@@ -139,7 +132,7 @@ func HandleClient(r io.Reader, source string, conn_id int) {
 				break
 			}
 			if n > 0 {
-				color.Info.Printf("[conn_id = %d] from = %s (len = %d)\n", ids, source, n)
+				color.Info.Printf("[conn_id = %d] from = %s (len = %d)\n", Ids, source, n)
 				color.Info.Printf("  -> Pre-upgrade, Waiting for Handshake\n")
 				if bytes.Contains(data, []byte("v1.rpc.battle.net")) {
 					upgraded = true
@@ -153,3 +146,31 @@ func HandleClient(r io.Reader, source string, conn_id int) {
 
 	}
 }
+
+type PendingResponse struct {
+	ServiceHash uint32
+	MethodId    uint32
+}
+type TrackingToken uint32
+
+var pending_responses map[TrackingToken]PendingResponse
+
+func init_pending_responses() {
+	pending_responses = make(map[TrackingToken]PendingResponse)
+}
+func add_pending_response(token TrackingToken, pending_spec PendingResponse) {
+	pending_mutex.Lock()
+	pending_responses[TrackingToken(token)] = pending_spec
+	pending_mutex.Unlock()
+}
+func recall_pending_response(token TrackingToken) (PendingResponse, bool) {
+	pending_mutex.Lock()
+	pending, ok := pending_responses[token]
+	if ok {
+		delete(pending_responses, token)
+	}
+	pending_mutex.Unlock()
+	return pending, ok
+}
+
+var pending_mutex sync.RWMutex
