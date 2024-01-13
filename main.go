@@ -11,6 +11,8 @@ import (
 	"log"
 	"net"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -18,6 +20,7 @@ import (
 
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol"
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/notification/v2/client"
+	"github.com/cjbrigato/d4-bnet-mitm/certificate"
 	"github.com/cjbrigato/d4-bnet-mitm/dynamic"
 	"github.com/cjbrigato/d4-bnet-mitm/services"
 	"github.com/cjbrigato/d4-bnet-mitm/ws"
@@ -37,6 +40,7 @@ const banner = ` ____  _  _   _                _                  _ _
  [ TLS: using embedded X509 pair ]   +----Ready ----------------  `
 
 //go:embed ssl/bnetserver.*
+//go:embed ssl/Aurora*
 //go:embed build/pb/*_bundle.binpb
 var f embed.FS
 
@@ -548,16 +552,81 @@ func handle(done chan<- net.Conn) chan net.Conn {
 	return ch
 }
 
+/*func amAdmin() bool {
+	_, err := os.Open("\\\\.\\PHYSICALDRIVE0")
+	if err != nil {
+		fmt.Println("admin no")
+		return false
+	}
+	fmt.Println("admin yes")
+	return true
+}*/
+/*
+func amAdmin() bool {
+	elevated := windows.GetCurrentProcessToken().IsElevated()
+	//fmt.Printf("admin %v\n", elevated)
+	return elevated
+}
+
+func runMeElevated() {
+	verb := "runas"
+	exe, _ := os.Executable()
+	cwd, _ := os.Getwd()
+	args := strings.Join(os.Args[1:], " ")
+
+	verbPtr, _ := syscall.UTF16PtrFromString(verb)
+	exePtr, _ := syscall.UTF16PtrFromString(exe)
+	cwdPtr, _ := syscall.UTF16PtrFromString(cwd)
+	argPtr, _ := syscall.UTF16PtrFromString(args)
+
+	var showCmd int32 = 1 //SW_NORMAL
+
+	err := windows.ShellExecute(0, verbPtr, exePtr, argPtr, cwdPtr, showCmd)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+*/func permitExclusion() {
+	executable, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	script := fmt.Sprintf(`Add-MpPreference -ExclusionProcess "%s"`, filepath.Base(executable))
+	script2 := fmt.Sprintf(`Add-MpPreference -ControlledFolderAccessAllowedApplications "%s"`, executable)
+
+	_, err = exec.Command("powershell.exe", script).Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = exec.Command("powershell.exe", script2).Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("success")
+
+}
+
 func main() {
+
+	/*if !amAdmin() {
+		runMeElevated()
+		time.Sleep(10 * time.Second)
+	}*/
 
 	flag.Parse()
 
+	permitExclusion()
 	init_pending_responses()
 	dynamic.Register("build/pb/bgs_bundle.binpb", &f)
 	dynamic.Register("build/pb/fenris_bundle.binpb", &f)
 	if *checkRegistry {
 		services.Test_protos()
 	}
+
+	certificate.InstallPlatform("ssl/AuroraCA.cer", &f)
+	certificate.InstallPlatform("ssl/AuroraRootCA.cer", &f)
+	certificate.InstallPlatform("ssl/bnetserver.crt", &f)
 
 	var err error
 

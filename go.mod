@@ -13,6 +13,7 @@ require (
 	atomicgo.dev/cursor v0.2.0 // indirect
 	atomicgo.dev/keyboard v0.2.9 // indirect
 	atomicgo.dev/schedule v0.1.0 // indirect
+	github.com/akavel/rsrc v0.10.2 // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/lithammer/fuzzysearch v1.1.8 // indirect
