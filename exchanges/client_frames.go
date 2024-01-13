@@ -22,7 +22,7 @@ func init() {
 	init_pending_responses()
 }
 
-func HandleClient(r io.Reader, source string, conn_id int) {
+func HandleClient(r io.Reader,c io.Writer, source string, conn_id int64) {
 
 	upgraded := false
 	data := make([]byte, 512)
@@ -33,6 +33,11 @@ func HandleClient(r io.Reader, source string, conn_id int) {
 				fmt.Printf("unable to read frame: %v", err)
 				break
 			}
+
+			LastReadFrame := []byte{}
+			LastReadFrame = append(LastReadFrame, frame.Header.Bytes...)
+			LastReadFrame = append(LastReadFrame, frame.Payload...)
+
 			Log_Mutex.Lock()
 			bgs_rpc_header_len := binary.BigEndian.Uint16(frame.Payload[0:])
 			bgs_rpc_header_bytes := frame.Payload[2 : bgs_rpc_header_len+2]

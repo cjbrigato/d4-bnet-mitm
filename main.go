@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"os"
@@ -31,7 +30,7 @@ const banner = ` ____  _  _   _                _                  _ _
 var f embed.FS
 
 var raddr string
-var ids = 0
+var ids int64 = 0
 var Log_Mutex sync.RWMutex
 
 var (
@@ -112,12 +111,9 @@ func logproxy(client net.Conn) {
 	}
 
 	defer remote.Close()
-	go exchanges.HandleServer(remote, client, "BGS::SERVER", ids)
+	go exchanges.HandleServer(remote, client, "BGS::SERVER", exchanges.Ids)
+	go exchanges.HandleClient(client, remote, "BGS::CLIENT", exchanges.Ids)
 
-	rs, ws := io.Pipe()
-	ts := io.MultiWriter(remote, ws)
-	go exchanges.HandleClient(rs, "BGS::CLIENT", ids)
-	io.Copy(ts, client)
 }
 
 func cleanup() chan net.Conn {

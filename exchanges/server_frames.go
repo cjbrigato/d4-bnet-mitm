@@ -14,7 +14,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-func HandleServer(r io.Reader, c io.Writer, source string, conn_id int) {
+func HandleServer(r io.Reader, c io.Writer, source string, conn_id int64) {
 
 	upgraded := false
 	data := make([]byte, 512)
@@ -41,7 +41,6 @@ func HandleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 			if bgs_rpc_message_len > 0 {
 				bgs_rpc_message_bytes = frame.Payload[2+bgs_rpc_header_len:]
 			}
-
 			color.Danger.Printf("-------------------------------------------------\n")
 			color.Danger.Printf(">>> WS::FRAME -> %d:%s (%s, fin = %t, %d bytes)\n", Ids, source, frame.Header.OpCode, frame.Header.Fin, frame.Header.Length)
 			color.Danger.Printf("## bgs.protocol.rpc.Header\n")
