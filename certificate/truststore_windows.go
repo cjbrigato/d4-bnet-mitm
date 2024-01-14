@@ -51,14 +51,15 @@ func CheckPlatform(certpath string, efs *embed.FS) bool {
 	return err == nil
 }
 
-func InstallCertificate(certpath string, efs *embed.FS) {
+func InstallCertificate(certpath string, efs *embed.FS) string {
 	if CheckPlatform(certpath, efs) {
-		log.Printf("Certificate: %s already in TrustedCA(SystemStore)", certpath)
+		return fmt.Sprintf("already in TrustedCA(SystemStore)")
 	} else {
 		if InstallPlatform(certpath, efs) {
-			log.Printf("Certificate: %s now installed in TrustedCA(SystemStore)", certpath)
+			return fmt.Sprintf("installed in TrustedCA(SystemStore)")
 		}
 	}
+	return "Unreachable Code"
 }
 
 func InstallPlatform(certPath string, efs *embed.FS) bool {

@@ -2,9 +2,9 @@ package dynamic
 
 import (
 	"embed"
-	"log"
 	"os"
 
+	"github.com/cjbrigato/d4-bnet-mitm/log"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protodesc"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -17,13 +17,13 @@ func ParseAsMessage(messageType string, message_bytes []byte) (*protoreflect.Pro
 	messageName := protoreflect.FullName(messageType)
 	pbtype, err := protoregistry.GlobalTypes.FindMessageByName(protoreflect.FullName(messageName))
 	if err != nil {
-		log.Println(err)
+		log.Error(nil, "%q", err)
 		return nil, err
 	}
 	msg := pbtype.New().Interface()
 	err = proto.Unmarshal(message_bytes, msg)
 	if err != nil {
-		log.Println(err)
+		log.Error(nil, "%q", err)
 		return nil, err
 	}
 	return (&msg), nil
@@ -33,16 +33,16 @@ func ParseAs(messageType string, message_bytes []byte) (*protoreflect.ProtoMessa
 
 	descriptor, err := protoregistry.GlobalFiles.FindDescriptorByName(protoreflect.FullName(messageType))
 	if err != nil {
-		log.Fatalf("failed to find message type %q in given descriptors: %v\n", messageType, err)
+		log.Error(nil, "failed to find message type %q in given descriptors: %v\n", messageType, err)
 	}
 	messageDescriptor, ok := descriptor.(protoreflect.MessageDescriptor)
 	if !ok {
-		log.Fatalf("element named %q is not a message (%T)\n", messageType, descriptor)
+		log.Fatal(nil, "element named %q is not a message (%T)\n", messageType, descriptor)
 	}
 
 	message := dynamicpb.NewMessage(messageDescriptor)
 	if err := proto.Unmarshal(message_bytes, message); err != nil {
-		log.Fatalf("failed to process input data for message type %q: %v\n", messageType, err)
+		log.Fatal(nil, "failed to process input data for message type %q: %v\n", messageType, err)
 	}
 	msg := message.Interface()
 	return &msg, nil
@@ -60,13 +60,13 @@ func Register(pbfile string, efs *embed.FS) {
 		data, err = os.ReadFile(fileDescriptorSet)
 	}
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(nil, "%q", err)
 	}
 	if err := proto.Unmarshal(data, &files); err != nil {
-		log.Fatalf("failed to process descriptors in %s: %v\n", fileDescriptorSet, err)
+		log.Fatal(nil, "failed to process descriptors in %s: %v\n", fileDescriptorSet, err)
 	}
 
-	log.Printf("Registered at runtimes:  ")
+	registereds := make(map[string]any)
 	for _, file := range files.File {
 		_, err := protoregistry.GlobalFiles.FindFileByPath(file.GetName())
 		if err == nil {
@@ -74,13 +74,12 @@ func Register(pbfile string, efs *embed.FS) {
 		}
 		fileDescriptor, err := protodesc.NewFile(file, protoregistry.GlobalFiles)
 		if err != nil {
-			log.Fatalf("failed to process %q: %v\n", file.GetName(), err)
+			log.Fatal(nil, "failed to process %q: %v\n", file.GetName(), err)
 		}
 		if err := protoregistry.GlobalFiles.RegisterFile(fileDescriptor); err != nil {
-			log.Fatalf("failed to process %q: %v\n", file.GetName(), err)
+			log.Fatal(nil, "failed to process %q: %v\n", file.GetName(), err)
 		}
-		log.Printf("    %q", file.GetName())
-		//fmt.Printf("%q, ", file.GetName())
+		registereds[file.GetName()] = "FileDescriptor"
 	}
-	//fmt.Printf("]\n")
+	log.Info(&registereds, "Registered at runtimes:")
 }

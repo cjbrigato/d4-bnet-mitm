@@ -11,25 +11,19 @@ import (
 	"log"
 	"net"
 	"os"
-	"os/exec"
-	"path/filepath"
 	"strings"
 	"sync"
-	"syscall"
-	"time"
 
 	"embed"
 
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/Fenris/ClientMessage"
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol"
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/notification/v2/client"
-	"github.com/cjbrigato/d4-bnet-mitm/certificate"
 	"github.com/cjbrigato/d4-bnet-mitm/dynamic"
+	log2 "github.com/cjbrigato/d4-bnet-mitm/log"
 	"github.com/cjbrigato/d4-bnet-mitm/services"
 	"github.com/cjbrigato/d4-bnet-mitm/ws"
-	"github.com/gookit/color"
 	"github.com/pterm/pterm"
-	"golang.org/x/sys/windows"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protopath"
 	"google.golang.org/protobuf/reflect/protorange"
@@ -213,7 +207,11 @@ func recall_pending_response(token TrackingToken) (PendingResponse, bool) {
 	return pending, ok
 }
 
-func handleServer(r io.Reader, c io.Writer, source string, conn_id int) {
+func isServerSource(source string) bool {
+	return strings.Contains(source, "BGS::SERVER")
+}
+
+func handleFrame(r io.Reader, c io.Writer, source string, conn_id int) {
 
 	upgraded := false
 	data := make([]byte, 512)
@@ -221,14 +219,15 @@ func handleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 		if upgraded {
 			frame, err := ws.ReadFrame(r)
 			if err != nil {
-				log.Printf("unable to read frame: %v", err)
+				log2.Error(nil, "unable to read frame: %v", err)
 				break
 			}
 
-			LastReadFrame := []byte{}
-			LastReadFrame = append(LastReadFrame, frame.Header.Bytes...)
-			LastReadFrame = append(LastReadFrame, frame.Payload...)
-
+			if isServerSource(source) {
+				LastReadFrame := []byte{}
+				LastReadFrame = append(LastReadFrame, frame.Header.Bytes...)
+				LastReadFrame = append(LastReadFrame, frame.Payload...)
+			}
 			//_, err = c.Write(LastReadFrame)
 			//color.Infoln("Wrote %d bytes representing last frame from remote conn to cli conn", n)
 
@@ -312,27 +311,30 @@ func handleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 			log.Printf("<<< EOF\n")
 			log_mutex.Unlock()
 
-			bgs_rpc_message_len = len(bgs_rpc_message_bytes)
-			header_len := uint16(len(bgs_rpc_header_bytes))
-			header_len_bytes := make([]byte, 2)
-			binary.BigEndian.PutUint16(header_len_bytes, header_len)
+			if isServerSource(source) {
 
-			newframepayload := make([]byte, len(header_len_bytes)+len(bgs_rpc_header_bytes)+len(bgs_rpc_message_bytes))
-			newframepayload = append(header_len_bytes, bgs_rpc_header_bytes...)
-			if bgs_rpc_message_len > 0 {
-				newframepayload = append(newframepayload, bgs_rpc_message_bytes...)
+				bgs_rpc_message_len = len(bgs_rpc_message_bytes)
+				header_len := uint16(len(bgs_rpc_header_bytes))
+				header_len_bytes := make([]byte, 2)
+				binary.BigEndian.PutUint16(header_len_bytes, header_len)
+
+				newframepayload := make([]byte, len(header_len_bytes)+len(bgs_rpc_header_bytes)+len(bgs_rpc_message_bytes))
+				newframepayload = append(header_len_bytes, bgs_rpc_header_bytes...)
+				if bgs_rpc_message_len > 0 {
+					newframepayload = append(newframepayload, bgs_rpc_message_bytes...)
+				}
+
+				newframe := append(frame.Header.Bytes, newframepayload...)
+				//newframe := ws.NewBinaryFrame(newframepayload)
+				//ws.WriteFrame(c, newframe)
+				/*fmt.Printf("------------\n")
+				fmt.Printf("LastReadFrame: \n,%s", hex.Dump(LastReadFrame))
+				fmt.Printf("=================\n")
+				fmt.Printf("newframe: \n,%s", hex.Dump(newframe))*/
+				c.Write(newframe)
+				//newframe :=
+				//_, err = c.Write(LastReadFrame)
 			}
-
-			newframe := append(frame.Header.Bytes, newframepayload...)
-			//newframe := ws.NewBinaryFrame(newframepayload)
-			//ws.WriteFrame(c, newframe)
-			/*fmt.Printf("------------\n")
-			fmt.Printf("LastReadFrame: \n,%s", hex.Dump(LastReadFrame))
-			fmt.Printf("=================\n")
-			fmt.Printf("newframe: \n,%s", hex.Dump(newframe))*/
-			c.Write(newframe)
-			//newframe :=
-			//_, err = c.Write(LastReadFrame)
 			continue
 
 		} else {
@@ -360,134 +362,11 @@ func handleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 					upgraded = true
 					log.Printf("  -> Got Hanshake on %s side!\n", source)
 				}
-				c.Write(data)
+				if isServerSource(source) {
+					c.Write(data)
+				}
 				data = nil
 				//color.Infoln("Wrote %d bytes representing last frame from remote conn to cli conn", n)
-				continue
-			}
-
-		}
-
-	}
-}
-
-func dumpData(r io.Reader, source string, conn_id int) {
-
-	upgraded := false
-	data := make([]byte, 512)
-	for {
-		if upgraded {
-			frame, err := ws.ReadFrame(r)
-			if err != nil {
-				log.Printf("unable to read frame: %v", err)
-				break
-			}
-			log_mutex.Lock()
-			bgs_rpc_header_len := binary.BigEndian.Uint16(frame.Payload[0:])
-			bgs_rpc_header_bytes := frame.Payload[2 : bgs_rpc_header_len+2]
-			bgs_rpc_message_len := len(frame.Payload) - int(bgs_rpc_header_len+2)
-			bgs_rpc_message_bytes := []byte{'0'}
-			if bgs_rpc_message_len > 0 {
-				bgs_rpc_message_bytes = frame.Payload[2+bgs_rpc_header_len:]
-			}
-
-			log.Printf("-------------------------------------------------\n")
-			log.Printf(">>> WS::FRAME -> %d:%s (%s, fin = %t, %d bytes)\n", ids, source, frame.Header.OpCode, frame.Header.Fin, frame.Header.Length)
-			log.Printf("## bgs.protocol.rpc.Header\n")
-
-			bgs_header := &protocol.Header{}
-			if err := proto.Unmarshal(bgs_rpc_header_bytes, bgs_header); err != nil {
-				log.Printf("Failed to parse address Header: %s\n", err)
-			}
-			PrintMessage(bgs_header)
-			svc_hash := uint32(0)
-			method_id := uint32(0)
-			rcp_token := bgs_header.GetToken()
-			rpc_kind := services.RPCCallKind(*bgs_header.ServiceId)
-			log.Printf("* RPCKind: %s (service_id: %d)\n", services.RPCCallKind(*bgs_header.ServiceId), *bgs_header.ServiceId)
-			log.Printf("+ Tracking Token: %d\n", rcp_token)
-			if rpc_kind == "request" {
-				svc_hash = bgs_header.GetServiceHash()
-				method_id = bgs_header.GetMethodId()
-				add_pending_response(TrackingToken(rcp_token), PendingResponse{svc_hash, method_id})
-				log.Printf("  --> Added PendingResponse for Token %d\n", rcp_token)
-			}
-			if rpc_kind == "response" {
-				pending, ok := recall_pending_response(TrackingToken(rcp_token))
-				if ok {
-					log.Printf("  <-- Recalled PendingResponse for Token %d\n", rcp_token)
-					svc_hash = pending.ServiceHash
-					method_id = pending.MethodId
-				} else {
-					log.Printf("  x-- Failed recalling a PendingReponse for Token %d\n", rcp_token)
-					log.Printf("  x-- Will NOT decode message :(\n")
-				}
-			}
-			if svc_hash > 0 {
-				val, ok := services.Get(svc_hash)
-				if ok {
-					log.Printf("+ Service: %s (service_hash: %d)\n", val.Name(), svc_hash)
-					if method_id > 0 {
-						mval, mok := val.Method(uint16(method_id))
-						if mok {
-							log.Printf("+ Method: %s (method_id: %d)\n", mval, method_id)
-							messageName := protoreflect.FullName(services.PbMessageStr(val.Name(), mval, *bgs_header.ServiceId))
-							log.Printf("= MessageType : %s\n", messageName)
-						} else {
-							log.Printf("x Unknown method: %s\n", mval)
-						}
-					}
-				} else {
-					log.Printf("x Unknown Service hash: %04x\n", svc_hash)
-				}
-			}
-			log.Printf("## bgs.protocol.rpc.Message\n")
-			if bgs_rpc_message_len < 1 {
-				color.Info.Printf("[NO CONTENT]\n")
-			} else {
-				val, _ := services.Get(svc_hash)
-				method, _ := val.Method(uint16(method_id))
-				msg, err := services.ServiceMsg(val.Name(), method, *bgs_header.ServiceId, bgs_rpc_message_bytes)
-				if err != nil {
-					fmt.Println(err)
-				} else {
-					PrintMessage(*msg)
-					mtype := protoreflect.FullName(services.PbMessageStr(val.Name(), method, *bgs_header.ServiceId))
-					if fmt.Sprintf("%s", mtype) == "bgs.protocol.notification.v2.client.NotificationReceivedNotification" {
-						ResolveNotificationPayload(&bgs_rpc_message_bytes)
-					}
-				}
-			}
-			color.Info.Printf("<<< EOF\n")
-			log_mutex.Unlock()
-			continue
-
-		} else {
-			data = nil
-			data = make([]byte, 512)
-			n, err := r.Read(data)
-			_n := n
-			_c := cap(data)
-			for _n == _c {
-				next := make([]byte, 512)
-				nn, _ := r.Read(next)
-				_n = nn
-				n += _n
-				data = append(data, next...)
-				next = nil
-			}
-			if err != nil && err != io.EOF {
-				log.Printf("unable to read data %v", err)
-				break
-			}
-			if n > 0 {
-				log.Printf("[conn_id = %d] from = %s (len = %d)\n", ids, source, n)
-				log.Printf("  -> Pre-upgrade, Waiting for Handshake\n")
-				if bytes.Contains(data, []byte("v1.rpc.battle.net")) {
-					upgraded = true
-					log.Printf("  -> Got Hanshake on %s side!\n", source)
-				}
-				data = nil
 				continue
 			}
 
@@ -574,11 +453,11 @@ func logproxy(client net.Conn) {
 	}
 
 	defer remote.Close()
-	go handleServer(remote, client, "BGS::SERVER", ids)
+	go handleFrame(remote, client, "BGS::SERVER", ids)
 
 	rs, ws := io.Pipe()
 	ts := io.MultiWriter(remote, ws)
-	go dumpData(rs, "BGS::CLIENT", ids)
+	go handleFrame(rs, remote, "BGS::CLIENT", ids)
 	io.Copy(ts, client)
 }
 
@@ -605,82 +484,18 @@ func handle(done chan<- net.Conn) chan net.Conn {
 	return ch
 }
 
-/*
-	func amAdmin() bool {
-		_, err := os.Open("\\\\.\\PHYSICALDRIVE0")
-		if err != nil {
-			fmt.Println("admin no")
-			return false
-		}
-		fmt.Println("admin yes")
-		return true
-	}
-*/
-func amAdmin() bool {
-	elevated := windows.GetCurrentProcessToken().IsElevated()
-	//fmt.Printf("admin %v\n", elevated)
-	return elevated
-}
-
-func runMeElevated() {
-	verb := "runas"
-	exe, _ := os.Executable()
-	cwd, _ := os.Getwd()
-	args := strings.Join(os.Args[1:], " ")
-
-	verbPtr, _ := syscall.UTF16PtrFromString(verb)
-	exePtr, _ := syscall.UTF16PtrFromString(exe)
-	cwdPtr, _ := syscall.UTF16PtrFromString(cwd)
-	argPtr, _ := syscall.UTF16PtrFromString(args)
-
-	var showCmd int32 = 1 //SW_NORMAL
-
-	err := windows.ShellExecute(0, verbPtr, exePtr, argPtr, cwdPtr, showCmd)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
-func permitExclusion() {
-	executable, err := os.Executable()
-	if err != nil {
-		log.Fatal(err)
-	}
-	script := fmt.Sprintf(`Add-MpPreference -ExclusionProcess "%s"`, filepath.Base(executable))
-	script2 := fmt.Sprintf(`Add-MpPreference -ControlledFolderAccessAllowedApplications "%s"`, executable)
-
-	_, err = exec.Command("powershell.exe", script).Output()
-	if err != nil {
-		log.Fatal(err)
-	}
-	_, err = exec.Command("powershell.exe", script2).Output()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("success")
-
-}
-
 func main() {
-
-	if !amAdmin() {
-		runMeElevated()
-		time.Sleep(10 * time.Second)
-	}
 
 	flag.Parse()
 
-	permitExclusion()
+	InstallCertificates()
+
 	init_pending_responses()
 	dynamic.Register("build/pb/bgs_bundle.binpb", &f)
 	dynamic.Register("build/pb/fenris_bundle.binpb", &f)
 	if *checkRegistry {
 		services.Test_protos()
 	}
-	certificate.InstallCertificate("ssl/AuroraCA.cer", &f)
-	certificate.InstallCertificate("ssl/AuroraRootCA.cer", &f)
-	certificate.InstallCertificate("ssl/bnetserver.crt", &f)
 
 	var err error
 
