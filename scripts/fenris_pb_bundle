@@ -1,5 +1,6 @@
 #!/bin/bash
 
+REPO_ROOT=$(git rev-parse --show-toplevel)
 cd $REPO_ROOT/build/protos/fenris/
 echo "package Fenris;" > ../fenris.proto
 ls -1 | sed 's,^,import ",g' |sed 's,$,";,' >> ../fenris.proto

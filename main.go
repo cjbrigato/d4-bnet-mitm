@@ -229,14 +229,14 @@ func handleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 			LastReadFrame = append(LastReadFrame, frame.Header.Bytes...)
 			LastReadFrame = append(LastReadFrame, frame.Payload...)
 
-			_, err = c.Write(LastReadFrame)
+			//_, err = c.Write(LastReadFrame)
 			//color.Infoln("Wrote %d bytes representing last frame from remote conn to cli conn", n)
 
 			log_mutex.Lock()
 			bgs_rpc_header_len := binary.BigEndian.Uint16(frame.Payload[0:])
 			bgs_rpc_header_bytes := frame.Payload[2 : bgs_rpc_header_len+2]
 			bgs_rpc_message_len := len(frame.Payload) - int(bgs_rpc_header_len+2)
-			bgs_rpc_message_bytes := []byte{'0'}
+			bgs_rpc_message_bytes := []byte{}
 			if bgs_rpc_message_len > 0 {
 				bgs_rpc_message_bytes = frame.Payload[2+bgs_rpc_header_len:]
 			}
@@ -304,12 +304,35 @@ func handleServer(r io.Reader, c io.Writer, source string, conn_id int) {
 					PrintMessage(*msg)
 					mtype := protoreflect.FullName(services.PbMessageStr(val.Name(), method, *bgs_header.ServiceId))
 					if fmt.Sprintf("%s", mtype) == "bgs.protocol.notification.v2.client.NotificationReceivedNotification" {
-						ResolveNotificationPayload(bgs_rpc_message_bytes)
+						ResolveNotificationPayload(&bgs_rpc_message_bytes)
 					}
 				}
 			}
+
 			log.Printf("<<< EOF\n")
 			log_mutex.Unlock()
+
+			bgs_rpc_message_len = len(bgs_rpc_message_bytes)
+			header_len := uint16(len(bgs_rpc_header_bytes))
+			header_len_bytes := make([]byte, 2)
+			binary.BigEndian.PutUint16(header_len_bytes, header_len)
+
+			newframepayload := make([]byte, len(header_len_bytes)+len(bgs_rpc_header_bytes)+len(bgs_rpc_message_bytes))
+			newframepayload = append(header_len_bytes, bgs_rpc_header_bytes...)
+			if bgs_rpc_message_len > 0 {
+				newframepayload = append(newframepayload, bgs_rpc_message_bytes...)
+			}
+
+			newframe := append(frame.Header.Bytes, newframepayload...)
+			//newframe := ws.NewBinaryFrame(newframepayload)
+			//ws.WriteFrame(c, newframe)
+			/*fmt.Printf("------------\n")
+			fmt.Printf("LastReadFrame: \n,%s", hex.Dump(LastReadFrame))
+			fmt.Printf("=================\n")
+			fmt.Printf("newframe: \n,%s", hex.Dump(newframe))*/
+			c.Write(newframe)
+			//newframe :=
+			//_, err = c.Write(LastReadFrame)
 			continue
 
 		} else {
@@ -431,7 +454,7 @@ func dumpData(r io.Reader, source string, conn_id int) {
 					PrintMessage(*msg)
 					mtype := protoreflect.FullName(services.PbMessageStr(val.Name(), method, *bgs_header.ServiceId))
 					if fmt.Sprintf("%s", mtype) == "bgs.protocol.notification.v2.client.NotificationReceivedNotification" {
-						ResolveNotificationPayload(bgs_rpc_message_bytes)
+						ResolveNotificationPayload(&bgs_rpc_message_bytes)
 					}
 				}
 			}
@@ -473,9 +496,9 @@ func dumpData(r io.Reader, source string, conn_id int) {
 	}
 }
 
-func ResolveNotificationPayload(bgs_rpc_message_bytes []byte) {
+func ResolveNotificationPayload(bgs_rpc_message_bytes *[]byte) {
 	notifmsg := &client.NotificationReceivedNotification{}
-	if err := proto.Unmarshal(bgs_rpc_message_bytes, notifmsg); err != nil {
+	if err := proto.Unmarshal(*bgs_rpc_message_bytes, notifmsg); err != nil {
 		fmt.Printf("Failed to parse Notification: %s\n", err)
 	}
 	notif := notifmsg.GetNotifications()[0].GetAttribute()
@@ -492,9 +515,13 @@ func ResolveNotificationPayload(bgs_rpc_message_bytes []byte) {
 		var err error
 		findUserProxyMsg.ConnectInfo.Address = proto.String("127.0.0.1:61000")
 		findUserProxyMsg.ConnectInfo.Port = proto.Uint32(61000)
-		notif[1].Value.BlobValue, err = proto.Marshal(findUserProxyMsg)
+		notifmsg.GetNotifications()[0].GetAttribute()[1].Value.BlobValue, err = proto.Marshal(findUserProxyMsg)
 		if err != nil {
 			log.Printf("Failed to Marshal crafted FindUserProxyResponse: %s\n", err)
+		}
+		*bgs_rpc_message_bytes, err = proto.Marshal(notifmsg)
+		if err != nil {
+			log.Printf("Failed to Marshal crafted : %s\n", err)
 		}
 		log.Printf("### %s (as FEN.NotificationMessage.Payload)\n", messageid_type)
 		PrintMessage(findUserProxyMsg)
