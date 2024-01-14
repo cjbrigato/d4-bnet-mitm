@@ -3,8 +3,6 @@ package main
 import (
 	"bytes"
 	"crypto/tls"
-	"encoding/binary"
-	"encoding/hex"
 	"flag"
 	"fmt"
 	"io"
@@ -16,9 +14,7 @@ import (
 
 	"embed"
 
-	"github.com/cjbrigato/d4-bnet-mitm/bnet/Fenris/ClientMessage"
-	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol"
-	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/notification/v2/client"
+	"github.com/cjbrigato/d4-bnet-mitm/bgspacket"
 	"github.com/cjbrigato/d4-bnet-mitm/dynamic"
 	log2 "github.com/cjbrigato/d4-bnet-mitm/log"
 	"github.com/cjbrigato/d4-bnet-mitm/services"
@@ -179,34 +175,6 @@ func PrintMessage(m proto.Message) {
 	)
 }
 
-var pending_mutex sync.RWMutex
-
-type PendingResponse struct {
-	ServiceHash uint32
-	MethodId    uint32
-}
-type TrackingToken uint32
-
-var pending_responses map[TrackingToken]PendingResponse
-
-func init_pending_responses() {
-	pending_responses = make(map[TrackingToken]PendingResponse)
-}
-func add_pending_response(token TrackingToken, pending_spec PendingResponse) {
-	pending_mutex.Lock()
-	pending_responses[TrackingToken(token)] = pending_spec
-	pending_mutex.Unlock()
-}
-func recall_pending_response(token TrackingToken) (PendingResponse, bool) {
-	pending_mutex.Lock()
-	pending, ok := pending_responses[token]
-	if ok {
-		delete(pending_responses, token)
-	}
-	pending_mutex.Unlock()
-	return pending, ok
-}
-
 func isServerSource(source string) bool {
 	return strings.Contains(source, "BGS::SERVER")
 }
@@ -223,117 +191,15 @@ func handleFrame(r io.Reader, c io.Writer, source string, conn_id int) {
 				break
 			}
 
-			if isServerSource(source) {
-				LastReadFrame := []byte{}
-				LastReadFrame = append(LastReadFrame, frame.Header.Bytes...)
-				LastReadFrame = append(LastReadFrame, frame.Payload...)
-			}
-			//_, err = c.Write(LastReadFrame)
-			//color.Infoln("Wrote %d bytes representing last frame from remote conn to cli conn", n)
-
 			log_mutex.Lock()
-			bgs_rpc_header_len := binary.BigEndian.Uint16(frame.Payload[0:])
-			bgs_rpc_header_bytes := frame.Payload[2 : bgs_rpc_header_len+2]
-			bgs_rpc_message_len := len(frame.Payload) - int(bgs_rpc_header_len+2)
-			bgs_rpc_message_bytes := []byte{}
-			if bgs_rpc_message_len > 0 {
-				bgs_rpc_message_bytes = frame.Payload[2+bgs_rpc_header_len:]
-			}
-
-			log.Printf("-------------------------------------------------\n")
-			log.Printf(">>> WS::FRAME -> %d:%s (%s, fin = %t, %d bytes)\n", ids, source, frame.Header.OpCode, frame.Header.Fin, frame.Header.Length)
-			log.Printf("## bgs.protocol.rpc.Header\n")
-
-			bgs_header := &protocol.Header{}
-			if err := proto.Unmarshal(bgs_rpc_header_bytes, bgs_header); err != nil {
-				log.Printf("Failed to parse address Header: %s\n", err)
-			}
-			PrintMessage(bgs_header)
-			svc_hash := uint32(0)
-			method_id := uint32(0)
-			rcp_token := bgs_header.GetToken()
-			rpc_kind := services.RPCCallKind(*bgs_header.ServiceId)
-			log.Printf("* RPCKind: %s (service_id: %d)\n", services.RPCCallKind(*bgs_header.ServiceId), *bgs_header.ServiceId)
-			log.Printf("+ Tracking Token: %d\n", rcp_token)
-			if rpc_kind == "request" {
-				svc_hash = bgs_header.GetServiceHash()
-				method_id = bgs_header.GetMethodId()
-				add_pending_response(TrackingToken(rcp_token), PendingResponse{svc_hash, method_id})
-				log.Printf("  --> Added PendingResponse for Token %d\n", rcp_token)
-			}
-			if rpc_kind == "response" {
-				pending, ok := recall_pending_response(TrackingToken(rcp_token))
-				if ok {
-					log.Printf("  <-- Recalled PendingResponse for Token %d\n", rcp_token)
-					svc_hash = pending.ServiceHash
-					method_id = pending.MethodId
-				} else {
-					log.Printf("  x-- Failed recalling a PendingReponse for Token %d\n", rcp_token)
-					log.Printf("  x-- Will NOT decode message :(\n")
-				}
-			}
-			if svc_hash > 0 {
-				val, ok := services.Get(svc_hash)
-				if ok {
-					log.Printf("+ Service: %s (service_hash: %d)\n", val.Name(), svc_hash)
-					if method_id > 0 {
-						mval, mok := val.Method(uint16(method_id))
-						if mok {
-							log.Printf("+ Method: %s (method_id: %d)\n", mval, method_id)
-							messageName := protoreflect.FullName(services.PbMessageStr(val.Name(), mval, *bgs_header.ServiceId))
-							log.Printf("= MessageType : %s\n", messageName)
-						} else {
-							log.Printf("x Unknown method: %s\n", mval)
-						}
-					}
-				} else {
-					log.Printf("x Unknown Service hash: %04x\n", svc_hash)
-				}
-			}
-			log.Printf("## bgs.protocol.rpc.Message\n")
-			if bgs_rpc_message_len < 1 {
-				log.Printf("[NO CONTENT]\n")
-			} else {
-				val, _ := services.Get(svc_hash)
-				method, _ := val.Method(uint16(method_id))
-				msg, err := services.ServiceMsg(val.Name(), method, *bgs_header.ServiceId, bgs_rpc_message_bytes)
-				if err != nil {
-					fmt.Println(err)
-				} else {
-					PrintMessage(*msg)
-					mtype := protoreflect.FullName(services.PbMessageStr(val.Name(), method, *bgs_header.ServiceId))
-					if fmt.Sprintf("%s", mtype) == "bgs.protocol.notification.v2.client.NotificationReceivedNotification" {
-						ResolveNotificationPayload(&bgs_rpc_message_bytes)
-					}
-				}
-			}
-
-			log.Printf("<<< EOF\n")
+			log2.Info(nil, "-------------------------------------------------")
+			log2.Info(nil, ">>> WS::FRAME -> %d:%s (%s, fin = %t, %d bytes)", ids, source, frame.Header.OpCode, frame.Header.Fin, frame.Header.Length)
+			bgs_packet := bgspacket.NewBgsPacketFromFrame(&frame, false)
+			log2.Info(nil, "<<< EOF")
 			log_mutex.Unlock()
 
 			if isServerSource(source) {
-
-				bgs_rpc_message_len = len(bgs_rpc_message_bytes)
-				header_len := uint16(len(bgs_rpc_header_bytes))
-				header_len_bytes := make([]byte, 2)
-				binary.BigEndian.PutUint16(header_len_bytes, header_len)
-
-				newframepayload := make([]byte, len(header_len_bytes)+len(bgs_rpc_header_bytes)+len(bgs_rpc_message_bytes))
-				newframepayload = append(header_len_bytes, bgs_rpc_header_bytes...)
-				if bgs_rpc_message_len > 0 {
-					newframepayload = append(newframepayload, bgs_rpc_message_bytes...)
-				}
-
-				newframe := append(frame.Header.Bytes, newframepayload...)
-				//newframe := ws.NewBinaryFrame(newframepayload)
-				//ws.WriteFrame(c, newframe)
-				/*fmt.Printf("------------\n")
-				fmt.Printf("LastReadFrame: \n,%s", hex.Dump(LastReadFrame))
-				fmt.Printf("=================\n")
-				fmt.Printf("newframe: \n,%s", hex.Dump(newframe))*/
-				c.Write(newframe)
-				//newframe :=
-				//_, err = c.Write(LastReadFrame)
+				c.Write(bgs_packet.WSEncapsulate(frame))
 			}
 			continue
 
@@ -352,7 +218,7 @@ func handleFrame(r io.Reader, c io.Writer, source string, conn_id int) {
 				next = nil
 			}
 			if err != nil && err != io.EOF {
-				log.Printf("unable to read data %v", err)
+				log2.Error(nil, "unable to read data %v", err)
 				break
 			}
 			if n > 0 {
@@ -360,76 +226,17 @@ func handleFrame(r io.Reader, c io.Writer, source string, conn_id int) {
 				log.Printf("  -> Pre-upgrade, Waiting for Handshake\n")
 				if bytes.Contains(data, []byte("v1.rpc.battle.net")) {
 					upgraded = true
-					log.Printf("  -> Got Hanshake on %s side!\n", source)
+					log2.Info(nil, "  -> Got Hanshake on %s side!\n", source)
 				}
 				if isServerSource(source) {
 					c.Write(data)
 				}
 				data = nil
-				//color.Infoln("Wrote %d bytes representing last frame from remote conn to cli conn", n)
 				continue
 			}
 
 		}
 
-	}
-}
-
-func ResolveNotificationPayload(bgs_rpc_message_bytes *[]byte) {
-	notifmsg := &client.NotificationReceivedNotification{}
-	if err := proto.Unmarshal(*bgs_rpc_message_bytes, notifmsg); err != nil {
-		fmt.Printf("Failed to parse Notification: %s\n", err)
-	}
-	notif := notifmsg.GetNotifications()[0].GetAttribute()
-	messageid := notif[0].GetValue().GetIntValue()
-	payload := notif[1].GetValue().GetBlobValue()
-	var messageid_type string
-	switch messageid {
-	case 0:
-		messageid_type = "Fenris.ClientMessage.FindUserProxyResponse"
-		findUserProxyMsg := &ClientMessage.FindUserProxyResponse{}
-		if err := proto.Unmarshal(payload, findUserProxyMsg); err != nil {
-			log.Printf("Failed to parse FindUserProxyResponse: %s\n", err)
-		}
-		var err error
-		findUserProxyMsg.ConnectInfo.Address = proto.String("127.0.0.1:61000")
-		findUserProxyMsg.ConnectInfo.Port = proto.Uint32(61000)
-		notifmsg.GetNotifications()[0].GetAttribute()[1].Value.BlobValue, err = proto.Marshal(findUserProxyMsg)
-		if err != nil {
-			log.Printf("Failed to Marshal crafted FindUserProxyResponse: %s\n", err)
-		}
-		*bgs_rpc_message_bytes, err = proto.Marshal(notifmsg)
-		if err != nil {
-			log.Printf("Failed to Marshal crafted : %s\n", err)
-		}
-		log.Printf("### %s (as FEN.NotificationMessage.Payload)\n", messageid_type)
-		PrintMessage(findUserProxyMsg)
-	case 5:
-		messageid_type = "Fenris.ClientMessage.PingConnectInfoSingleResult"
-		FenrisMessage := &ClientMessage.PingConnectInfoSingleResult{}
-		if err := proto.Unmarshal(payload, FenrisMessage); err != nil {
-			log.Printf("Failed to parse FindUserProxyResponse: %s\n", err)
-		}
-		log.Printf("### %s (as FEN.NotificationMessage.Payload)\n", messageid_type)
-		PrintMessage(FenrisMessage)
-	case 2:
-		messageid_type = "Fenris.ClientMessage.QueueUpdate"
-		FenrisMessage := &ClientMessage.QueueUpdate{}
-		if err := proto.Unmarshal(payload, FenrisMessage); err != nil {
-			log.Printf("Failed to parse FindUserProxyResponse: %s\n", err)
-		}
-		log.Printf("### %s (as FEN.NotificationMessage.Payload)\n", messageid_type)
-		PrintMessage(FenrisMessage)
-	default:
-		messageid_type = "unknown"
-		FenrisMessage, err := dynamic.ParseAs(messageid_type, payload)
-		if err != nil {
-			fmt.Printf("Failed to parse %s: %s\n", messageid_type, err)
-			log.Printf("### %s (as FEN.NotificationMessage.Payload)\n", messageid_type)
-			PrintMessage(*FenrisMessage)
-		} else {
-			fmt.Printf("%s\n", hex.Dump(payload))
-		}
 	}
 }
 
@@ -448,7 +255,7 @@ func logproxy(client net.Conn) {
 		remote, err = net.Dial("tcp", raddr)
 	}
 	if err != nil {
-		log.Println("dial remote:", err)
+		log2.Error(nil, "dial remote: %v", err)
 		return
 	}
 
@@ -476,7 +283,7 @@ func handle(done chan<- net.Conn) chan net.Conn {
 	ch := make(chan net.Conn)
 	go func() {
 		for c := range ch {
-			log.Println("new connection")
+			log2.Info(nil, "new connection")
 			logproxy(c)
 			done <- c
 		}
@@ -489,8 +296,6 @@ func main() {
 	flag.Parse()
 
 	InstallCertificates()
-
-	init_pending_responses()
 	dynamic.Register("build/pb/bgs_bundle.binpb", &f)
 	dynamic.Register("build/pb/fenris_bundle.binpb", &f)
 	if *checkRegistry {
@@ -530,8 +335,8 @@ func main() {
 	}
 
 	fbanner()
-	log.Println("::  Listening on <-", laddr)
-	log.Println(":: with upstream ->", raddr)
+	log2.Info(nil, "::  Listening on <- %s", laddr)
+	log2.Info(nil, ":: with upstream -> %s", raddr)
 
 	done := cleanup()
 	conns := handle(done)
@@ -539,7 +344,7 @@ func main() {
 	for {
 		c, err := ln.Accept()
 		if err != nil {
-			log.Println("accept:", err)
+			log2.Debug(nil, "accept: %q", err)
 			continue
 		}
 		conns <- c

@@ -50,6 +50,21 @@ func ServiceMsg(service string, method_name string, service_id uint32, message_b
 	return (&msg), nil
 }
 
+func DecodeServiceMessageFromType(messageType protoreflect.FullName, message_bytes []byte) (*protoreflect.ProtoMessage, error) {
+	pbtype, err := protoregistry.GlobalTypes.FindMessageByName(messageType)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	msg := pbtype.New().Interface()
+	err = proto.Unmarshal(message_bytes, msg)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return (&msg), nil
+}
+
 func PbMessageint(service string, method_id uint32, service_id uint32) string {
 	methods := svc_pool[service]
 	for _, method := range methods {
