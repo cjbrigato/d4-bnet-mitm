@@ -1,0 +1,59 @@
+package Fenris.Party;
+import "OnlineCommon.proto";
+import "Online.proto";
+import "Hero.proto";
+import "HeroCommon.proto";
+
+message PartyMember {
+	optional uint32 bnet_account_id = 1;
+	optional uint32 game_account_id = 19;
+	optional string hero_id = 2;
+	optional string account_name = 3;
+	optional int32 hero_class = 4;
+	optional uint32 hero_flags = 5;
+	optional uint32 hero_level = 6;
+	optional uint32 season_created = 9;
+	optional bool is_leader = 7;
+	optional string party_id = 8;
+	optional uint32 group_id = 10;
+	optional int32 x_position = 11;
+	optional int32 y_position = 12;
+	optional sfixed32 world_sno = 13;
+	optional sfixed32 levelarea_sno = 14;
+	optional string server_pool = 15;
+	optional .Fenris.Hero.VisualEquipment visual_equipment = 16;
+	optional .Fenris.Hero.AppearanceCustomization appearance = 17;
+	optional .Fenris.Online.PlatformAccount platform_account = 18;
+	optional .Fenris.Hero.CampaignState campaign_state = 21;
+	optional string return_party_id = 23;
+	optional .Fenris.Party.MapPinData map_pin_data = 24;
+	optional bool is_crossplay_enabled = 25;
+	optional int64 disconnected_from_game_time = 26;
+	optional bool is_multiplayer_allowed = 27;
+	optional int32 max_world_tier = 28 [default = 1];
+	optional string hero_name = 29;
+	optional bool can_set_campaign_state = 30;
+	optional sfixed32 town_portal_cosmetic_sno = 31 [default = -1];
+}
+message PartyMemberUpdates {
+	repeated .Fenris.Party.PartyMember update = 1;
+}
+message MapPinData {
+	optional int32 x_position = 1;
+	optional int32 y_position = 2;
+	optional sfixed32 world_sno = 3;
+	optional int32 color_id = 4;
+}
+message PartyInvite {
+	optional uint64 invite_id = 1;
+	optional string inviter_party_id = 2;
+	optional uint32 invitee_game_account_id = 3;
+	optional string inviter_name = 4;
+	optional uint32 inviter_game_account_id = 5;
+}
+message OutstandingPartyInvite {
+	optional uint64 invite_id = 1;
+	optional .Fenris.Party.PartyInvite party_invite = 2;
+	optional uint64 created_time = 3;
+	optional string invitee_party_id = 4;
+}

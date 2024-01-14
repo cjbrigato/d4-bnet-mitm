@@ -1,0 +1,91 @@
+package Fenris.Account;
+import "AttributeSerializer.proto";
+import "Items.proto";
+import "ItemCrafting.proto";
+import "Quest.proto";
+import "HeroCommon.proto";
+
+enum AccountFlags {
+	ALLOW_GAME_SERVER_POOL_OVERRIDE = 0;
+	ALLOW_CAMPAIGN_SKIP = 1;
+}
+message Digest {
+	optional uint32 version = 1;
+	optional bytes last_played_hero_id = 2;
+	optional uint32 flags = 3;
+	optional uint32 season_id = 4;
+	optional sfixed32 emblem = 6 [default = -1];
+	optional uint32 seconds_played = 7;
+}
+message Consumable {
+	optional int64 bnet_consumable_id = 1;
+	optional int32 status_id = 2;
+}
+message VirtualCurrencyCredit {
+	optional string credit_id = 1;
+	optional sfixed32 achievement_sno = 2 [default = -1];
+	optional uint32 amount = 3 [default = 0];
+	optional string description = 4;
+}
+message SeasonFavor {
+	optional uint32 season_id = 1;
+	optional uint32 level = 2;
+	optional uint64 remaining = 3;
+}
+message StashTabSetting {
+	optional uint32 tab_index = 1;
+	optional uint32 icon_index = 2;
+	optional string tab_name = 3;
+}
+message StashSettings {
+	repeated .Fenris.Account.StashTabSetting tab_setting = 1;
+}
+message Rewards {
+	repeated sfixed32 rewards = 1;
+	optional bool duplicate_item_counts_healed = 2;
+}
+message RewardsNormalHardcore {
+	repeated sfixed32 rewards = 1;
+	repeated sfixed32 sno_unlocked_fow = 2;
+	repeated sfixed32 gbid_discovered_cache = 3;
+}
+message AccountPartition {
+	optional int32 partition_id = 1;
+	optional .Fenris.AttributeSerializer.SavedAttributes saved_attributes = 2;
+	optional .Fenris.Items.ItemList items = 3;
+	optional .Fenris.ItemCrafting.CrafterSavedData crafter = 4;
+	optional .Fenris.Items.CurrencySavedData currency = 9;
+	optional .Fenris.Quests.SavedReputation reputation = 10;
+	optional .Fenris.Account.StashSettings stash_settings = 13;
+	optional .Fenris.Account.Rewards rewards = 14;
+}
+message Discoveries {
+	optional .Fenris.ItemCrafting.CrafterTransmogData transmog_data = 2;
+	optional .Fenris.Hero.AssetListDataStore seen_tutorials = 3;
+	optional .Fenris.Hero.MountSavedData mount = 4;
+}
+message CurrencyAndConsumables {
+	repeated .Fenris.Account.VirtualCurrencyCredit virtual_currency_credit = 1;
+	repeated .Fenris.Account.Consumable applied_consumable = 2;
+	repeated .Fenris.Account.SeasonFavor season_favor = 3;
+}
+message SavedDefinition {
+	optional uint32 version = 1;
+	optional .Fenris.Account.Digest digest = 2;
+	optional uint64 last_connected_time = 3;
+	repeated .Fenris.Account.AccountPartition partitions = 4;
+	optional .Fenris.AttributeSerializer.SavedAttributes saved_attributes = 5;
+	optional .Fenris.AttributeSerializer.SavedAttributes saved_attributes_hardcore = 6;
+	optional .Fenris.AttributeSerializer.SavedAttributes saved_attributes_season = 9;
+	optional .Fenris.Account.Discoveries discoveries = 7;
+	optional .Fenris.Account.CurrencyAndConsumables currency_and_consumables = 8;
+	optional .Fenris.Account.RewardsNormalHardcore rewards_normal = 10;
+	optional .Fenris.Account.RewardsNormalHardcore rewards_hardcore = 11;
+}
+message LegalDocument {
+	optional string document_id = 1;
+	optional uint32 version = 2;
+}
+message LegalDocuments {
+	repeated .Fenris.Account.LegalDocument legal_documents = 1;
+}

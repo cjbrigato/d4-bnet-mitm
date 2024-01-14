@@ -1,0 +1,30 @@
+package Fenris.ClientMessage;
+import "OnlineCommon.proto";
+import "Online.proto";
+
+message FindUserProxyResponse {
+	optional .Fenris.Online.ConnectionInfo connect_info = 1;
+	optional uint32 error_code = 2;
+	optional uint64 token = 3;
+	optional .Fenris.Online.QueueEntryKey entry_key = 4;
+	optional .Fenris.Online.Trace trace = 5;
+}
+
+message PingConnectInfoResponse {
+	required uint64 request_id = 1;
+	optional uint32 expected_result_count = 2;
+}
+message PingConnectInfoSingleResult {
+	required uint64 request_id = 1;
+	optional .Fenris.Online.PingConnectionInfo ping_connect_info = 2;
+	optional .Fenris.Online.Trace trace = 3;
+}
+
+message QueueEntryAdded {
+	optional .Fenris.Online.QueueEntryKey entry_key = 1;
+	optional uint32 avg_wait_seconds = 2;
+}
+message QueueUpdate {
+	optional .Fenris.Online.QueueEntryKey entry_key = 1;
+	optional uint32 avg_wait_seconds = 2;
+}option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/Fenris/ClientMessage";

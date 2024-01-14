@@ -1,0 +1,8 @@
+package Fenris.Gift;
+
+message GiftInfo {
+	optional uint64 account_id = 1;
+	optional string gift_id = 2;
+	optional string claim_id = 3;
+	optional uint32 claim_state = 4;
+}

@@ -1,0 +1,8 @@
+package Fenris.Client;
+import "OnlineCommon.proto";
+
+message PlatformInfo {
+	optional .Fenris.Online.PlatformAccount platform_account = 1;
+	repeated fixed32 blocked_account_ids = 2;
+	optional fixed64 membership_hash = 3;
+}

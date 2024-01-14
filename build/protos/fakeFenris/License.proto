@@ -1,0 +1,31 @@
+package Fenris.License;
+
+message Entitlement {
+	optional int32 content_license_id = 1 [default = -1];
+	optional int32 product_sno = 2 [default = -1];
+	optional uint32 tier_skip_quantity = 3;
+}
+message PlayerLicense {
+	optional .Fenris.License.Entitlement entitlement = 1;
+	optional int64 display_expire_time = 2;
+	optional int64 expire_time = 3;
+	optional int64 initial_cache_time = 4;
+}
+message Consumable {
+	optional int32 product_sno = 1 [default = -1];
+	optional string bnet_consumable_id_v2 = 2;
+	optional uint32 tier_skip_quantity = 3;
+	optional int32 status_id = 4;
+}
+message PlayerConsumableLicense {
+	optional .Fenris.License.Consumable consumable = 1;
+	optional int64 activate_time = 2;
+	optional int64 expire_time = 3;
+	optional int64 initial_cache_time = 4;
+	optional int64 create_time = 5;
+}
+message PlayerLicenses {
+	repeated .Fenris.License.PlayerLicense licenses = 1;
+	repeated .Fenris.License.PlayerConsumableLicense consumable_licenses = 2;
+	optional bool licenses_from_cache = 3;
+}

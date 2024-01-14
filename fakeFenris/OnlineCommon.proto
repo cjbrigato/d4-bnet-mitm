@@ -1,0 +1,17 @@
+package Fenris.Online;
+
+message GameHandle {
+	optional uint32 game_instance_id = 1;
+	optional uint64 matchmaker_id = 2;
+	optional uint64 game_server_guid = 3;
+}
+message PlatformAccount {
+	optional uint64 id = 1;
+	optional uint32 platform = 2;
+}
+message PlatformProduct {
+	optional string id = 1;
+	optional uint64 price = 2;
+	optional uint64 original_price = 3;
+	optional string currency_code = 6;
+}

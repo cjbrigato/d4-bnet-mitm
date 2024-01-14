@@ -1,0 +1,204 @@
+package Fenris.Clan;
+import "OnlineCommon.proto";
+import "Items.proto";
+
+enum ClanRank {
+	INVALID = -1;
+	RECRUIT = 4;
+	MEMBER = 0;
+	OFFICER = 1;
+	LEADER = 2;
+}
+enum ClanContentType {
+	INVALID_TYPE = -1;
+	HERALDRY = 0;
+	MOTD = 1;
+	NAME = 2;
+	DESC = 3;
+	TAG = 4;
+	INFO = 5;
+}
+message ClanPermissions {
+	optional .Fenris.Clan.ClanRank management_edit_motd = 1;
+	optional .Fenris.Clan.ClanRank management_edit_self_note = 2;
+	optional .Fenris.Clan.ClanRank membership_manage_applications = 3;
+	optional .Fenris.Clan.ClanRank membership_invite = 4;
+	optional .Fenris.Clan.ClanRank membership_promote = 7;
+	optional .Fenris.Clan.ClanRank membership_demote = 8;
+	optional .Fenris.Clan.ClanRank membership_kick = 9;
+	optional .Fenris.Clan.ClanRank membership_ban = 10;
+	optional .Fenris.Clan.ClanRank voice_mute = 13;
+	optional .Fenris.Clan.ClanRank voice_chat = 14;
+	optional .Fenris.Clan.ClanRank hoard_manage = 15;
+	optional .Fenris.Clan.ClanRank hoard_deposit = 16;
+	optional .Fenris.Clan.ClanRank hoard_withdraw = 17;
+}
+message ClanInfo {
+	optional string clan_id = 6;
+	optional string name = 1;
+	optional uint32 last_edited_name_bnet_account = 22;
+	optional uint32 last_edited_name_game_account = 23;
+	optional string tag = 2;
+	optional uint32 last_edited_tag_bnet_account = 24;
+	optional uint32 last_edited_tag_game_account = 25;
+	optional string description = 3;
+	optional uint32 last_edited_description_bnet_account = 20;
+	optional uint32 last_edited_description_game_account = 21;
+	optional string info = 8;
+	optional uint32 last_edited_info_bnet_account = 17;
+	optional uint32 last_edited_info_game_account = 14;
+	repeated uint32 label = 10;
+	optional string motd = 7;
+	optional uint32 last_edited_motd_bnet_account = 18;
+	optional uint32 last_edited_motd_game_account = 12;
+	optional .Fenris.Clan.ClanPermissions permissions = 15;
+	optional .Fenris.Clan.ClanHeraldry heraldry = 13;
+	optional uint32 last_edited_heraldry_bnet_account = 19;
+	optional uint32 last_edited_heraldry_game_account = 16;
+	optional uint64 created_at = 4;
+	optional uint64 bgs_club_id = 5;
+	optional uint32 bgs_club_region = 26;
+	optional bool is_private = 11;
+}
+message ClanMember {
+	optional uint32 bnet_account_id = 1;
+	optional uint32 game_account_id = 2;
+	optional string clan_id = 4;
+	optional uint64 joined_at = 5;
+	optional .Fenris.Clan.ClanRank rank = 6 [default = INVALID];
+}
+message ClanApplicationInviteData {
+	optional string clan_name = 1;
+	optional uint32 last_edited_name_bnet_account = 2;
+	optional uint32 last_edited_name_game_account = 3;
+	optional string clan_tag = 4;
+	optional uint32 last_edited_tag_bnet_account = 5;
+	optional uint32 last_edited_tag_game_account = 6;
+	optional .Fenris.Clan.ClanHeraldry heraldry = 7;
+	optional uint32 last_edited_heraldry_bnet_account = 8;
+	optional uint32 last_edited_heraldry_game_account = 9;
+}
+message ClanInvite {
+	optional string clan_id = 1;
+	optional uint32 invitee_game_account_id = 2;
+	optional uint32 inviter_game_account_id = 3;
+	optional uint32 invitee_bnet_account_id = 9;
+	optional uint32 inviter_bnet_account_id = 10;
+	optional uint64 created_at = 5;
+	optional uint64 expires_at = 8;
+	optional bool is_from_application = 11;
+	optional .Fenris.Clan.ClanApplicationInviteData application_invite_data = 4;
+}
+message ClanApplication {
+	optional string clan_id = 1;
+	optional uint32 bnet_account_id = 2;
+	optional uint32 game_account_id = 7;
+	optional uint64 created_at = 3;
+	optional uint32 removal_reason = 6;
+	optional .Fenris.Clan.ClanApplicationInviteData application_invite_data = 4;
+}
+message ClanBannedMember {
+	optional uint32 game_account_id = 1;
+	optional uint32 bnet_account_id = 3;
+	optional uint64 ban_time = 2;
+}
+message Clan {
+	optional .Fenris.Clan.ClanInfo info = 1;
+	repeated .Fenris.Clan.ClanMember member = 2;
+	repeated .Fenris.Clan.ClanInvite invite = 3;
+	repeated .Fenris.Clan.ClanApplication pending_application = 4;
+	repeated .Fenris.Clan.ClanBannedMember ban = 5;
+}
+message ClanProfile {
+	message Member {
+		optional uint32 game_account_id = 1;
+		optional uint32 bnet_account_id = 2;
+		optional .Fenris.Online.PlatformAccount platform_account = 3;
+	}
+	optional string clan_id = 1;
+	optional string name = 2;
+	optional uint32 last_edited_name_bnet_account = 15;
+	optional uint32 last_edited_name_game_account = 16;
+	optional string tag = 3;
+	optional uint32 last_edited_tag_bnet_account = 17;
+	optional uint32 last_edited_tag_game_account = 18;
+	optional string description = 4;
+	optional uint32 last_edited_description_bnet_account = 13;
+	optional uint32 last_edited_description_game_account = 14;
+	optional uint64 created_at = 5;
+	optional .Fenris.Clan.ClanProfile.Member leader = 6;
+	optional uint32 member_count = 7;
+	repeated uint32 label = 8;
+	optional .Fenris.Clan.ClanHeraldry heraldry = 10;
+	optional uint32 last_edited_heraldry_bnet_account = 11;
+	optional uint32 last_edited_heraldry_game_account = 12;
+}
+message ClanBankTab {
+	optional uint32 index = 1;
+	optional .Fenris.Clan.ClanRank required_rank = 2 [default = MEMBER];
+	optional uint32 icon_index = 3;
+	optional string name = 4;
+}
+message ClanBankTabs {
+	repeated .Fenris.Clan.ClanBankTab tab = 1;
+}
+message ClanBank {
+	optional .Fenris.Clan.ClanBankTabs bank_tabs = 1;
+	repeated .Fenris.Items.SavedItem item = 2;
+}
+message HeraldryIcon {
+	optional uint32 index = 5;
+	optional uint32 name = 1;
+	optional float size = 2;
+	optional float angle = 3;
+	optional bool flipped = 4;
+}
+message ClanHeraldry {
+	optional uint32 base_banner_shape_name = 1;
+	optional uint32 base_textile_pattern_name = 2;
+	optional uint32 base_textile_texture_name = 3;
+	optional uint32 base_embroidery_name = 4;
+	optional uint32 base_trim_name = 5;
+	optional uint32 dye_textile_primary_name = 6;
+	optional uint32 dye_textile_secondary_name = 7;
+	optional uint32 dye_textile_tertiary_name = 8;
+	optional uint32 dye_trim_name = 9;
+	optional uint32 dye_iconography_name = 10;
+	optional uint32 dye_embroidery_name = 11;
+	optional uint32 icon_layout_index = 20;
+	repeated .Fenris.Clan.HeraldryIcon heraldry_icons = 21;
+}
+message ClanAchievementNewsData {
+	optional sfixed32 achievement_sno = 1;
+}
+message ClanRankNewsData {
+	optional uint32 new_rank = 1;
+}
+message ClanMotdNewsData {
+	optional string new_motd = 1;
+}
+message ClanNewsItem {
+	optional string id = 1;
+	optional uint32 db_slot = 11;
+	optional uint32 type = 2;
+	optional uint32 target_game_account_id = 3;
+	optional uint32 target_bnet_account_id = 9;
+	optional uint32 originator_game_account_id = 4;
+	optional uint32 originator_bnet_account_id = 10;
+	optional uint64 creation_time = 5;
+	optional .Fenris.Clan.ClanAchievementNewsData acv_data = 6;
+	optional .Fenris.Clan.ClanRankNewsData rank_data = 7;
+	optional .Fenris.Clan.ClanMotdNewsData motd_data = 8;
+}
+message ClanNewsList {
+	repeated .Fenris.Clan.ClanNewsItem news = 1;
+}
+message ClanBanUpdate {
+	optional string clan_id = 1;
+	repeated .Fenris.Clan.ClanBannedMember added_ban = 2;
+	repeated uint32 removed_ban = 3;
+}
+message ClanOfflineRemovalNotification {
+	optional uint32 reason = 1;
+	optional uint64 removal_time = 2;
+}

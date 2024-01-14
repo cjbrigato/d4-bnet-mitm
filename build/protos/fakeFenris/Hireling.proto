@@ -1,0 +1,15 @@
+package Fenris.Hireling;
+
+message Info {
+	optional sint32 hireling_class = 1;
+	optional sfixed32 gbid_name = 2 [default = -1];
+	optional sint32 level_deprecated = 3;
+	optional uint32 attribute_experience_next_deprecated = 4;
+	repeated sint32 power_key_params = 5;
+	optional bool dead = 6;
+}
+message SavedData {
+	repeated .Fenris.Hireling.Info hirelings = 1;
+	optional sint32 active_hireling = 2 [default = -1];
+	optional uint32 available_hirelings_bitfield = 3;
+}

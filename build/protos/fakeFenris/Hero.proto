@@ -1,0 +1,253 @@
+package Fenris.Hero;
+import "AttributeSerializer.proto";
+import "Hireling.proto";
+import "Items.proto";
+import "HeroCommon.proto";
+import "Quest.proto";
+import "DemonSummoning.proto";
+import "Trade.proto";
+import "Profile.proto";
+import "OnlineCommon.proto";
+
+message AppearanceCustomization {
+	optional sfixed32 sno_face = 14 [default = -1];
+	optional sfixed32 sno_hair_color = 13 [default = -1];
+	optional sfixed32 sno_hair_style = 15 [default = -1];
+	optional sfixed32 sno_facial_hair = 16 [default = -1];
+	optional sfixed32 sno_eye_color = 5 [default = -1];
+	optional int32 skin_color_index = 6;
+	optional sfixed32 sno_marking_shape = 7 [default = -1];
+	optional sfixed32 sno_marking_color = 12 [default = -1];
+	optional sfixed32 sno_jewelry = 9 [default = -1];
+	optional sfixed32 sno_makeup = 11 [default = -1];
+}
+message SavedDigestPlace {
+	optional sfixed32 sno_subzone = 1 [default = -1];
+}
+message Digest {
+	optional uint32 version = 1;
+	optional bytes hero_id = 2;
+	optional string hero_name = 3;
+	optional sfixed32 sno_class = 4 [default = -1];
+	optional sint32 level = 5;
+	optional uint32 player_flags = 6;
+	optional .Fenris.Hero.VisualEquipment visual_equipment = 7;
+	optional sfixed32 last_played_quest = 13;
+	optional sint32 last_played_quest_step = 14;
+	optional uint32 time_played = 15;
+	optional uint64 create_time = 17;
+	optional uint64 last_played_time = 18;
+	optional uint64 delete_time = 19;
+	optional .Fenris.Hero.AppearanceCustomization appearance_customization = 20;
+	optional .Fenris.Hero.SavedDigestPlace last_place = 21;
+	optional uint32 season_created = 22;
+	optional int32 last_world_tier = 23;
+	optional int32 max_world_tier = 24 [default = 1];
+	optional bool hero_name_force_renamed = 25;
+	optional string reported_hero_name = 26;
+}
+message Vector {
+	optional float x = 1 [default = 0];
+	optional float y = 2 [default = 0];
+	optional float z = 3 [default = 0];
+}
+message SavedWorldPlace {
+	optional sfixed32 sno_world = 1 [default = -1];
+	optional .Fenris.Hero.Vector pos = 2;
+	optional uint32 entrance_guid = 3;
+	optional sfixed32 drlg_seed = 4;
+}
+message SavedSkillExtraAndArsenal {
+	optional sfixed32 sno_power = 1 [default = -1];
+	optional int32 slot = 3 [default = -1];
+}
+message SavedSkillTreeNode {
+	optional uint32 node_id = 1 [default = 4294967295];
+	optional uint32 rank = 2;
+}
+message SavedTransferItem {
+	optional .Fenris.Hero.SavedWorldPlace world_place = 1;
+	optional string item_id = 2;
+	optional .Fenris.Items.Generator item = 3;
+}
+message SavedTownPortalReturnDest {
+	optional .Fenris.Hero.SavedWorldPlace world_place = 1;
+	optional sfixed32 sno_level_area = 2 [default = -1];
+	optional uint64 expire_timestamp = 3;
+	repeated .Fenris.Hero.SavedTransferItem nearby_item = 4;
+}
+message SavedDroppedItemData {
+	repeated .Fenris.Hero.SavedTransferItem dropped_items = 1;
+}
+message SpawnTrackingKeyValue {
+	optional int32 key_marker_sno = 1;
+	optional int32 key_index = 2;
+	optional sint64 value_transferred_timestamp = 3;
+	optional sfixed32 value_bounty_sno = 5 [default = -1];
+	optional bool value_is_soft = 6;
+	optional sfixed32 value_gbid_type = 7;
+	optional sfixed32 value_sno_population = 8;
+	optional sfixed32 value_sno_levelarea = 9;
+	optional bool value_is_local_event_spawner = 10;
+}
+message CompletedRepeatableQuest {
+	optional sfixed32 sno_quest = 1 [default = -1];
+	optional int32 last_occurrence = 3;
+}
+message SavedTransmogs {
+	repeated .Fenris.Hero.TransmogSlot transmogs = 1;
+	optional bool unlocked = 2;
+}
+message TimeBasedSpawnTrackingData {
+	optional int64 tracked_timestamp = 1;
+	optional uint32 gizmo_hash = 2;
+	optional uint32 gizmo_cooldown = 3;
+	optional uint32 occurrence_expiration = 4;
+}
+message Customization {
+	optional sfixed32 sno_potion_button = 1 [default = -1];
+	optional .Fenris.Hero.SocialWheelConfiguration social_wheel_configuration = 2;
+	repeated .Fenris.Hero.TransmogSlot transmog_slot = 3;
+	repeated .Fenris.Hero.SavedTransmogs saved_transmog = 4;
+	optional .Fenris.Hero.PlayerTitle player_title = 5;
+}
+message Vendor {
+	optional int32 seed_interval = 1;
+	optional int32 seed_level = 2;
+	repeated uint32 seed = 3;
+	repeated uint64 sold_item = 4;
+}
+message Quests {
+	repeated .Fenris.Quests.QuestSavedState saved_quest = 1;
+	repeated sfixed32 sno_completed_quest = 2;
+	repeated .Fenris.Hero.CompletedRepeatableQuest completed_repeatable_quest = 3;
+	optional .Fenris.Quests.SavedReputation reputation = 6;
+	repeated .Fenris.Quests.QuestSavedState saved_bounty = 7;
+	repeated .Fenris.Hero.CompletedRepeatableQuest completed_bounty = 8;
+	optional .Fenris.DemonSummoning.EquippedScroll demon_scroll = 11;
+	optional sint32 max_nightmare_dungeon_completed = 12;
+	optional int32 subzone_modifier_occurrence = 13;
+	repeated sfixed32 sno_tracked_achievements = 15;
+}
+message Discoveries {
+	optional bool unlocked_town_portal = 1;
+	optional .Fenris.Hero.LearnedLore learned_lore = 2;
+	optional .Fenris.Hero.SavedConversations saved_conversations = 3;
+	repeated sfixed32 activated_waypoint = 5;
+	repeated sfixed32 sno_unlocked_fow_legacy = 6;
+	repeated sfixed32 gbid_discovered_cache_legacy = 7;
+	optional .Fenris.Hero.AssetListDataStore camps_discovered = 8;
+}
+message Skills {
+	repeated .Fenris.Hero.Skill active_skills = 1;
+	optional uint32 skill_version = 2;
+	optional uint32 skill_kit_version = 3;
+	repeated .Fenris.Hero.SavedSkillTreeNode purchased_skill_tree_node = 6;
+	optional uint32 last_purchased_skill_tree_node = 7 [default = 4294967295];
+	repeated .Fenris.Hero.Skill enchant_skill = 8;
+	optional .Fenris.Hero.ParagonBoardSavedData paragon_board = 10;
+	optional .Fenris.Hero.ParagonGlyphSavedData paragon_glyph = 11;
+	repeated .Fenris.Hero.SavedSkillExtraAndArsenal skill_extra_arsenals = 13;
+	repeated .Fenris.Hero.Skill class_passive_skill = 14;
+	optional .Fenris.Hero.BloodSealSavedData blood_seal = 15;
+}
+message SpawnTracking {
+	repeated .Fenris.Hero.TimeBasedSpawnTrackingData time_based_spawn_tracking = 1;
+	repeated .Fenris.Hero.SpawnTrackingKeyValue spawn_tracking_map_data = 2;
+}
+message Rewards {
+	message ZoneProgress {
+		optional uint32 reward_claimed_flags = 1;
+	}
+	repeated .Fenris.Hero.Rewards.ZoneProgress zone_progress = 1;
+}
+message SavedData {
+	optional uint32 time_played = 1;
+	optional .Fenris.Hireling.SavedData hireling_saved_data = 3;
+	optional uint32 last_level_time = 4;
+	optional .Fenris.Hero.SavedWorldPlace last_world_place = 5;
+	optional sfixed32 hero_death_world_sno = 13 [default = -1];
+	optional .Fenris.Hero.Vector hero_death_location = 14;
+	optional .Fenris.Hero.AssetListExDesignerVariableDataStore designer_variables = 16;
+	optional int32 max_world_tier = 17;
+	repeated uint32 bounty_points = 18;
+	optional int32 necro_skeleton_warrior_count = 19;
+	optional int32 necro_skeleton_mage_count = 20;
+}
+message SavedDefinition {
+	optional uint32 version = 1;
+	optional .Fenris.Hero.Digest digest = 2;
+	optional .Fenris.AttributeSerializer.SavedAttributes saved_attributes = 3;
+	optional .Fenris.Hero.SavedData saved_data = 4;
+	optional .Fenris.Items.ItemList items = 5;
+	optional .Fenris.Hero.Customization customization = 6;
+	optional .Fenris.Hero.Vendor vendor = 7;
+	optional .Fenris.Hero.Quests quests = 8;
+	optional .Fenris.Hero.Discoveries discoveries = 9;
+	optional .Fenris.Hero.Skills skills = 10;
+	optional .Fenris.Hero.SpawnTracking spawn_tracking = 11;
+	optional .Fenris.Trade.SavedData trade_saved_data = 12;
+	optional .Fenris.Hero.Rewards rewards = 13;
+}
+message FallenHero {
+	optional .Fenris.Profile.HeroProfile profile = 2;
+	optional string hero_name = 3;
+	optional .Fenris.Hero.AppearanceCustomization appearance_customization = 4;
+	optional uint32 time_played = 5;
+	optional uint64 create_time = 6;
+}
+message DesignerVariable {
+	optional sfixed32 gbidDesignerVariable = 1;
+	optional int32 payload_value = 2;
+	optional int32 reset_value = 3;
+}
+message ZoneProgress {
+	optional uint32 reward_claimed_flags = 1;
+}
+message HeroStateDataDef {
+	optional uint32 player_flags = 1;
+	optional .Fenris.Hero.AppearanceCustomization customization_data = 2;
+	optional .Fenris.Hero.SavedDefinition saved_data = 3;
+	optional .Fenris.Hero.SavedTownPortalReturnDest town_portal_return_dest = 4;
+	repeated sfixed32 completed_quest_snos = 5;
+	repeated .Fenris.Hero.CompletedRepeatableQuest completed_repeatable_quests = 7;
+	repeated .Fenris.Hero.CompletedRepeatableQuest completed_bounties = 8;
+	repeated sfixed32 camps_discovered_snos = 9;
+	repeated .Fenris.Hero.DesignerVariable designer_variables = 10;
+	repeated .Fenris.Hero.ZoneProgress zone_progress_data = 12;
+	repeated sfixed32 tracked_achievement_snos = 13;
+}
+message HeroStateDataMessage {
+	optional uint32 game_account_id = 1;
+	optional .Fenris.Hero.HeroStateDataDef hero_state_data = 2;
+}
+message NewPlayerMessage {
+	optional string hero_id = 1;
+	optional string party_id = 2;
+	optional uint32 account_id = 3;
+	optional uint32 game_account_id = 4;
+	optional .Fenris.Online.PlatformAccount platform_account = 5;
+	optional string hero_name = 6;
+	optional sint32 team = 7;
+	optional sint32 playerclass = 8;
+	optional sfixed32 actor_portrait_sno = 9;
+	optional sint32 current_level = 10;
+	optional .Fenris.Hero.HeroStateDataDef hero_state_data = 11;
+	optional bool just_joined = 12;
+	optional sfixed32 ann = 13;
+	optional string account_name = 14;
+	optional sint32 shapeshift_form = 15;
+	optional string session_id = 16;
+	optional bool private_profile = 17;
+	optional uint32 season_created = 18;
+	optional bool has_seasonal_stash_items = 19;
+}
+message HeroStateWaypointsMessage {
+	optional uint32 game_account_id = 1;
+	repeated uint32 waypoints_activated = 2;
+	repeated sfixed32 fog_of_war_snos = 3;
+}
+message HeroStateHiddenCachesMessage {
+	optional uint32 game_account_id = 1;
+	repeated sfixed32 found_hidden_cache_gbids = 2;
+}

@@ -1,0 +1,19 @@
+package Fenris.Router;
+import "Online.proto";
+
+message Connect {
+	optional uint32 game_account_id = 1;
+	optional uint64 token = 2;
+	repeated string content_license_names = 3;
+	optional .Fenris.Online.Trace trace = 4;
+}
+message ConnectLocal {
+	optional uint32 game_account_id = 1;
+	optional bool is_reconnect = 2;
+	optional string username = 3;
+}
+message Connected {
+	optional uint32 bnet_account_id = 1;
+	optional uint32 game_account_id = 2;
+	optional string session_id = 3;
+}

@@ -13,6 +13,22 @@ import (
 	"google.golang.org/protobuf/types/dynamicpb"
 )
 
+func ParseAsMessage(messageType string, message_bytes []byte) (*protoreflect.ProtoMessage, error) {
+	messageName := protoreflect.FullName(messageType)
+	pbtype, err := protoregistry.GlobalTypes.FindMessageByName(protoreflect.FullName(messageName))
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	msg := pbtype.New().Interface()
+	err = proto.Unmarshal(message_bytes, msg)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return (&msg), nil
+}
+
 func ParseAs(messageType string, message_bytes []byte) (*protoreflect.ProtoMessage, error) {
 
 	descriptor, err := protoregistry.GlobalFiles.FindDescriptorByName(protoreflect.FullName(messageType))

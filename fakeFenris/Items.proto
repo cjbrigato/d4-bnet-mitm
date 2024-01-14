@@ -1,0 +1,128 @@
+package Fenris.Items;
+
+message DungeonKeyParams {
+	optional sfixed32 sno_world = 1 [default = -1];
+	optional sint32 keyed_dungeon_tier = 3 [default = -1];
+	repeated sfixed32 sno_dungeon_affixes = 4;
+	optional uint32 gbid_type = 5;
+}
+message ImbuedAffixParams {
+	optional sfixed32 affix = 1;
+	optional uint32 seed = 2;
+	optional uint32 carry = 3;
+	optional sfixed32 replaced_affix = 4 [default = -1];
+	optional int32 essence_item_power = 5;
+	optional bool from_definition = 6;
+}
+message EnchantedAffixParams {
+	optional uint32 enchant_count = 1;
+	optional sfixed32 enchanted_replaced_affix = 2 [default = -1];
+	optional sfixed32 enchanted_affix = 3 [default = -1];
+	optional uint32 enchanted_affix_seed = 4;
+}
+message RareItemName {
+	required bool item_name_is_prefix = 1 [default = false];
+	required sfixed32 sno_affix_string_list = 2 [default = -1];
+	optional uint32 affix_string_list_label = 5 [default = 0];
+	optional uint32 item_string_list_label = 6 [default = 0];
+}
+message PvPDeathInfo {
+	optional int32 player_class = 1;
+	optional int32 level = 2;
+	optional int32 level_area = 3;
+	optional uint32 bnet_account_id = 6;
+	optional uint32 game_account_id = 4;
+	optional bool player_is_male = 5;
+}
+message Generator {
+	required uint32 seed = 1 [default = 0];
+	optional sfixed32 sno_item = 2 [default = -1];
+	repeated sfixed32 base_affixes = 3;
+	optional .Fenris.Items.RareItemName rare_item_name = 4;
+	required uint32 flags = 5 [default = 0];
+	required uint64 stack_size = 6;
+	optional sfixed32 sno_dye = 7 [default = -1];
+	optional sint32 item_quality_level = 8 [default = 1];
+	optional sint32 item_binding_level = 9 [default = 0];
+	repeated .Fenris.Items.EmbeddedGenerator contents = 10;
+	optional uint32 season_created = 13;
+	optional sint32 item_power = 16 [default = 0];
+	optional uint32 socket_count = 18 [default = 0];
+	optional .Fenris.Items.DungeonKeyParams dungeon_key_params = 19;
+	optional .Fenris.Items.ImbuedAffixParams imbued_affix_params = 20;
+	optional float durability_percent = 21 [default = 1];
+	optional .Fenris.Items.PvPDeathInfo death_info = 22;
+	optional uint32 required_level = 23;
+	optional sint32 item_quality_modifier = 24;
+	optional sint32 world_tier = 25 [default = -1];
+	optional sint32 dungeon_level = 26 [default = -1];
+	repeated sfixed32 inherent_rolled_affixes = 27;
+	optional .Fenris.Items.EnchantedAffixParams enchanted_affix_params = 28;
+	optional sint32 item_upgrades_used = 29 [default = 0];
+	optional uint32 malignant_orb_level = 30;
+	repeated .Fenris.Items.ArmorPactCount armor_pacts = 31;
+}
+message GeneratorList {
+	repeated .Fenris.Items.Generator generators = 1;
+}
+message EmbeddedGenerator {
+	required bytes id = 1;
+	required .Fenris.Items.Generator generator = 2;
+}
+message SavedItem {
+	required bytes id = 1;
+	optional bytes owner_hero_id = 2;
+	optional bytes socket_id = 3;
+	required sint32 hireling_class = 4 [default = -1];
+	required sint32 item_slot = 5;
+	required sint32 square_index = 6;
+	required uint32 used_socket_count = 7 [default = 0];
+	optional .Fenris.Items.Generator generator = 8;
+	optional uint32 db_slot = 9;
+	optional uint32 season_id = 10;
+}
+message ItemList {
+	repeated .Fenris.Items.SavedItem items = 1;
+}
+message TradeItem {
+	optional uint64 acd_network_name = 1;
+	optional .Fenris.Items.SavedItem saved_item = 2;
+	optional .Fenris.Items.Generator generator = 3;
+	optional uint64 quantity = 4;
+}
+message MailAttachments {
+	optional .Fenris.Items.ItemList items = 1;
+}
+message Mail {
+	required uint32 game_account_to = 1;
+	required uint32 game_account_from = 2;
+	required bytes mail_id = 3;
+	optional string title = 4;
+	optional string body = 5;
+	optional uint32 status = 6;
+	optional uint64 send_time = 7;
+	optional .Fenris.Items.MailAttachments attachments = 8;
+	optional uint32 partition_id = 9;
+	optional uint64 expire_at = 11;
+	optional bytes hero_id = 12;
+}
+message Mails {
+	repeated .Fenris.Items.Mail mails = 1;
+}
+message CurrencyData {
+	required int32 currency_type = 1;
+	required uint64 count = 2 [default = 0];
+}
+message CurrencySavedData {
+	repeated .Fenris.Items.CurrencyData currency = 1;
+}
+message ShopBuyResults {
+	required bool buyback = 1 [default = false];
+	required bool gambled = 2 [default = false];
+	required .Fenris.Items.Generator item = 3;
+	optional uint64 acd_network_name = 4;
+}
+message ArmorPactCount {
+	optional int32 gbid_armor_pact = 1;
+	optional int32 armor_pact_count = 2;
+}

@@ -20,6 +20,7 @@ import (
 
 	"embed"
 
+	"github.com/cjbrigato/d4-bnet-mitm/bnet/Fenris/ClientMessage"
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol"
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/notification/v2/client"
 	"github.com/cjbrigato/d4-bnet-mitm/certificate"
@@ -484,23 +485,45 @@ func ResolveNotificationPayload(bgs_rpc_message_bytes []byte) {
 	switch messageid {
 	case 0:
 		messageid_type = "Fenris.ClientMessage.FindUserProxyResponse"
+		findUserProxyMsg := &ClientMessage.FindUserProxyResponse{}
+		if err := proto.Unmarshal(payload, findUserProxyMsg); err != nil {
+			log.Printf("Failed to parse FindUserProxyResponse: %s\n", err)
+		}
+		var err error
+		findUserProxyMsg.ConnectInfo.Address = proto.String("127.0.0.1:61000")
+		findUserProxyMsg.ConnectInfo.Port = proto.Uint32(61000)
+		notif[1].Value.BlobValue, err = proto.Marshal(findUserProxyMsg)
+		if err != nil {
+			log.Printf("Failed to Marshal crafted FindUserProxyResponse: %s\n", err)
+		}
+		log.Printf("### %s (as FEN.NotificationMessage.Payload)\n", messageid_type)
+		PrintMessage(findUserProxyMsg)
 	case 5:
 		messageid_type = "Fenris.ClientMessage.PingConnectInfoSingleResult"
+		FenrisMessage := &ClientMessage.PingConnectInfoSingleResult{}
+		if err := proto.Unmarshal(payload, FenrisMessage); err != nil {
+			log.Printf("Failed to parse FindUserProxyResponse: %s\n", err)
+		}
+		log.Printf("### %s (as FEN.NotificationMessage.Payload)\n", messageid_type)
+		PrintMessage(FenrisMessage)
 	case 2:
 		messageid_type = "Fenris.ClientMessage.QueueUpdate"
+		FenrisMessage := &ClientMessage.QueueUpdate{}
+		if err := proto.Unmarshal(payload, FenrisMessage); err != nil {
+			log.Printf("Failed to parse FindUserProxyResponse: %s\n", err)
+		}
+		log.Printf("### %s (as FEN.NotificationMessage.Payload)\n", messageid_type)
+		PrintMessage(FenrisMessage)
 	default:
 		messageid_type = "unknown"
-	}
-	fmt.Printf("### %s (as FEN.NotificationMessage.Payload)\n", messageid_type)
-	if messageid_type != "unknown" {
 		FenrisMessage, err := dynamic.ParseAs(messageid_type, payload)
 		if err != nil {
 			fmt.Printf("Failed to parse %s: %s\n", messageid_type, err)
-		} else {
+			log.Printf("### %s (as FEN.NotificationMessage.Payload)\n", messageid_type)
 			PrintMessage(*FenrisMessage)
+		} else {
+			fmt.Printf("%s\n", hex.Dump(payload))
 		}
-	} else {
-		fmt.Printf("%s\n", hex.Dump(payload))
 	}
 }
 

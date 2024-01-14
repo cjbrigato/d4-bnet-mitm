@@ -1,0 +1,227 @@
+package Fenris.Client;
+
+message ActionBinding {
+	optional int32 key_1 = 1 [default = -1];
+	optional uint32 key_modifier_flags_1 = 2 [default = 0];
+	optional int32 key_2 = 3 [default = -1];
+	optional uint32 key_modifier_flags_2 = 4 [default = 0];
+}
+message ControllerActionBinding {
+	optional int32 button = 1 [default = -1];
+}
+message ControllerActionBindings {
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_equippables = 1;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_map = 2;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_primary = 4;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_secondary = 5;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_skill_1 = 6;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_skill_2 = 7;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_skill_3 = 8;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_skill_4 = 9;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_use_item = 10;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_target_lock = 11;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_show_item_labels = 12;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_quick_response = 13;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_wheel = 14;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_push_to_talk = 15;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_evade = 16;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_interact = 17;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_wheel_page_backward = 18;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_wheel_page_forward = 19;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_combined_interact = 20;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_cycle_target_lock = 21;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_town_portal = 22;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_join_speech_to_text_chat = 23;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_tts_skip_current_utterance = 24;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_tts_cancel_all_utterances = 25;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_mount = 26;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_mount_spur = 27;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_mount_dismount = 28;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_mount_combat_dismount = 29;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_toggle_zoom = 30;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_screen_reader_skip_line = 31;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_auto_move = 32;
+	optional .Fenris.Client.ControllerActionBinding controller_action_binding_streamer_mode = 33;
+}
+message SocialWheelBinding {
+	optional int32 slot = 1;
+	optional .Fenris.Client.ActionBinding binding = 2;
+}
+message FontColorOverride {
+	optional uint32 font_color_hash = 1;
+	optional sfixed32 ui_color = 2;
+}
+message GameAccountSettings {
+	enum Flags {
+		CAMPAIGN_SKIP_TUTORIAL_SEEN = 1;
+		STORE_REFRESHED_INTRO_SEEN = 2;
+	}
+	repeated bytes hero_list_order = 1;
+	repeated .Fenris.Client.FontColorOverride font_color_overrides = 2;
+	optional uint64 clan_new_invites_applications_timestamp = 5;
+	repeated string seen_news = 6;
+	optional uint32 flags = 7;
+	repeated uint64 seen_product_ids = 8;
+	repeated int32 seen_recent_purchase_ids = 9;
+	repeated int32 seen_battle_pass_celebrations = 10;
+	repeated int32 unseen_player_titles = 11;
+	optional uint32 last_seen_frontend_survey_version = 12;
+}
+message Preferences {
+	enum Flags {
+		SHOW_PLAYER_HP_BARS = 2;
+		AUTO_EQUIP_ITEMS = 4;
+		SHOW_TUTORIALS = 5;
+		NOTIFY_FRIEND_ONLINE = 7;
+		NOTIFY_FRIEND_OFFLINE = 8;
+		NOTIFY_FRIEND_REQUEST = 9;
+		NOTIFY_FRIEND_ACHIEVEMENT = 10;
+		NOTIFY_DISPLAY_WINDOW = 11;
+		MATURE_LANGUAGE_FILTER = 12;
+		ALLOW_QUICK_JOIN = 13;
+		ECHO_QUEST_DIALOG_TO_CHAT = 14;
+		DISABLE_SCREEN_SHAKE = 15;
+		USE_LEFT_HUD_CONFIG = 16;
+		DISABLE_CONTROLLER_VIBRATION = 17;
+		NOTIFY_CLAN_MEMBER_ONLINE = 18;
+		CROSSPLAY_ENABLED = 19;
+		CROSSCOMMS_ENABLED = 20;
+		DISABLE_COMBAT_HIT_FLASH = 21;
+		SQUELCH_CLAN_NEWS_NOTIFICATIONS = 22;
+		REDUCE_STROBING = 23;
+		PLAY_SOUND_ON_WHISPER_RECEIVED = 24;
+		JOIN_LOCAL_CHAT_CHANNEL = 26;
+		JOIN_TRADE_CHAT_CHANNEL = 27;
+		SHOW_LOCAL_CHAT_BALLOONS = 28;
+		SHOW_PARTY_CHAT_BALLOONS = 29;
+		SHOW_CLAN_CHAT_BALLOONS = 30;
+		SHOW_TRADE_CHAT_BALLOONS = 31;
+	}
+	enum Flags2 {
+		DISABLE_CUTSCENES = 3;
+		SHOW_LOCALPLAYERS = 5;
+		NOTIFY_GUILD_MEMBER_ONLINE_DISABLED = 6;
+		ADVANCED_COMPARE = 7;
+		ADVANCED_TOOLTIP_INFO = 8;
+		DISABLE_COMBINED_INTERACT = 9;
+		HOLD_TO_LOCK_TARGET = 10;
+		AUTO_PROGRESSING_DIALOG = 11;
+		SHOW_MINION_HP_BARS = 12;
+		FIRST_TIME_OPTION_SETTING_COMPLETED = 13;
+		FIRST_CHARACTER_FLOW_COMPLETED = 14;
+		PERSIST_TARGET_LOCK = 16;
+		SWAP_CONTROLLER_STICKS = 17;
+		OCCLUSION_HIGHLIGHTING = 18;
+		PLAYER_HIGHLIGHTING = 19;
+		COMBINE_PRIMARY_ACTIONS = 20;
+		MOUSE_WHEEL_ZOOM = 21;
+		HIDE_MULTI_CLASS_REWARDS_MODAL = 22;
+	}
+	optional int32 version = 1;
+	optional uint32 flags = 2 [default = 0];
+	optional uint32 deprecated_items_on_ground_setting = 3 [default = 0];
+	optional .Fenris.Client.ActionBinding action_binding_hireling = 5;
+	optional .Fenris.Client.ActionBinding action_binding_skills = 6;
+	optional .Fenris.Client.ActionBinding action_binding_accept_party_invite_request = 7;
+	optional .Fenris.Client.ActionBinding action_binding_lore = 8;
+	optional .Fenris.Client.ActionBinding action_binding_social = 9;
+	optional .Fenris.Client.ActionBinding action_binding_help = 11;
+	optional .Fenris.Client.ActionBinding action_binding_recentplayers = 12;
+	optional .Fenris.Client.ActionBinding action_binding_chatlobby = 13;
+	optional .Fenris.Client.ActionBinding action_binding_achievements = 14;
+	optional .Fenris.Client.ActionBinding action_binding_profile = 15;
+	optional .Fenris.Client.ActionBinding action_binding_equippables = 16;
+	optional .Fenris.Client.ActionBinding action_binding_console = 18;
+	optional .Fenris.Client.ActionBinding action_binding_map = 19;
+	optional .Fenris.Client.ActionBinding action_binding_skill_tree = 20;
+	optional .Fenris.Client.ActionBinding action_binding_toggleplayerhpbars = 22;
+	optional .Fenris.Client.ActionBinding action_binding_toggledamagenumbers = 23;
+	optional .Fenris.Client.ActionBinding action_binding_toggleitemsonground = 24;
+	optional .Fenris.Client.ActionBinding action_binding_rewhisper = 25;
+	optional .Fenris.Client.ActionBinding action_binding_whisperreply = 26;
+	optional .Fenris.Client.ActionBinding action_binding_voiceptt = 27;
+	optional .Fenris.Client.ActionBinding action_binding_socialwheel = 28;
+	optional .Fenris.Client.ActionBinding action_binding_fastquesttrack = 29;
+	optional .Fenris.Client.ActionBinding action_binding_toggle_lfd_companions = 30;
+	optional .Fenris.Client.ActionBinding action_binding_collections = 31;
+	repeated .Fenris.Client.SocialWheelBinding action_binding_socialwheel_left = 32;
+	repeated .Fenris.Client.SocialWheelBinding action_binding_socialwheel_middle = 33;
+	repeated .Fenris.Client.SocialWheelBinding action_binding_socialwheel_right = 34;
+	optional .Fenris.Client.ActionBinding action_binding_socialwheel_page_backward = 35;
+	optional .Fenris.Client.ActionBinding action_binding_socialwheel_page_forward = 36;
+	optional .Fenris.Client.ActionBinding action_binding_abilities = 37;
+	optional .Fenris.Client.ActionBinding action_binding_report_bug = 38;
+	optional .Fenris.Client.ActionBinding action_binding_report_content = 39;
+	optional .Fenris.Client.ActionBinding action_binding_join_speech_to_text_chat = 40;
+	optional .Fenris.Client.ActionBinding action_binding_tts_skip_current_utterance = 41;
+	optional .Fenris.Client.ActionBinding action_binding_tts_cancel_all_utterances = 42;
+	optional .Fenris.Client.ActionBinding action_binding_screen_reader_skip_line = 43;
+	optional .Fenris.Client.ActionBinding action_binding_store = 44;
+	optional .Fenris.Client.ActionBinding action_binding_mount_spur = 45;
+	optional .Fenris.Client.ActionBinding action_binding_mount_dismount = 46;
+	optional .Fenris.Client.ActionBinding action_binding_mount_combat_dismount = 47;
+	optional .Fenris.Client.ActionBinding action_binding_toggle_zoom = 48;
+	optional .Fenris.Client.ActionBinding action_binding_season = 49;
+	optional .Fenris.Client.ActionBinding action_binding_streamer_mode = 50;
+	optional .Fenris.Client.ActionBinding action_binding_holdposition = 53;
+	optional .Fenris.Client.ActionBinding action_binding_systemmastervolumeup = 54;
+	optional .Fenris.Client.ActionBinding action_binding_systemmastervolumedown = 55;
+	optional .Fenris.Client.ActionBinding action_binding_systemtogglemusic = 56;
+	optional .Fenris.Client.ActionBinding action_binding_systemtogglesound = 57;
+	optional .Fenris.Client.ActionBinding action_binding_systemscreenshot = 58;
+	optional .Fenris.Client.ActionBinding action_binding_systemtogglefps = 64;
+	optional .Fenris.Client.ActionBinding action_binding_chatpageup = 65;
+	optional .Fenris.Client.ActionBinding action_binding_chatpagedown = 66;
+	optional .Fenris.Client.ActionBinding action_binding_groups = 67;
+	optional .Fenris.Client.ActionBinding action_binding_clan = 68;
+	optional .Fenris.Client.ActionBinding action_binding_chat_next_view = 70;
+	optional .Fenris.Client.ActionBinding action_binding_chat_previous_view = 71;
+	optional .Fenris.Client.ActionBinding action_binding_leaderboards = 72;
+	optional .Fenris.Client.ActionBinding action_binding_chat_reset_fade = 73;
+	optional .Fenris.Client.ActionBinding action_binding_quests = 74;
+	optional .Fenris.Client.ActionBinding action_binding_quests_toggle = 75;
+	optional .Fenris.Client.ActionBinding action_binding_auto_move = 77;
+	optional .Fenris.Client.ActionBinding action_binding_move_and_interact = 78;
+	optional .Fenris.Client.ActionBinding action_binding_run = 79;
+	optional .Fenris.Client.ActionBinding action_binding_interact = 80;
+	optional .Fenris.Client.ActionBinding action_binding_primary = 81;
+	optional .Fenris.Client.ActionBinding action_binding_secondary = 82;
+	optional .Fenris.Client.ActionBinding action_binding_skill_1 = 83;
+	optional .Fenris.Client.ActionBinding action_binding_skill_2 = 84;
+	optional .Fenris.Client.ActionBinding action_binding_skill_3 = 85;
+	optional .Fenris.Client.ActionBinding action_binding_skill_4 = 86;
+	optional .Fenris.Client.ActionBinding action_binding_mount = 87;
+	optional .Fenris.Client.ActionBinding action_binding_evade = 88;
+	optional .Fenris.Client.ActionBinding action_binding_use_item = 89;
+	optional .Fenris.Client.ActionBinding action_binding_center_camera = 90;
+	optional .Fenris.Client.ActionBinding action_binding_debug_camera = 91;
+	optional .Fenris.Client.ActionBinding action_binding_social_interact = 93;
+	optional .Fenris.Client.ActionBinding action_binding_accept_party_invite = 94;
+	optional .Fenris.Client.ActionBinding action_binding_lock_target = 95;
+	optional .Fenris.Client.ActionBinding action_binding_town_portal = 96;
+	optional .Fenris.Client.ActionBinding action_binding_force_move = 97;
+	optional .Fenris.Client.ActionBinding action_binding_class_screen = 98;
+	optional .Fenris.Client.ActionBinding action_binding_cycle_lock_target = 99;
+	optional uint32 notify_duration = 100 [default = 0];
+	optional uint32 keybinding_version = 101 [default = 0];
+	optional uint32 flags2 = 200 [default = 0];
+	optional sfixed32 control_scheme = 205 [default = -1];
+	optional uint32 controller_button_binding_version = 206 [default = 0];
+	optional .Fenris.Client.ControllerActionBindings controller_bindings_xinput = 207;
+	optional .Fenris.Client.ControllerActionBindings controller_bindings_ps4 = 208;
+	optional .Fenris.Client.ControllerActionBindings controller_bindings_nx64 = 209;
+	optional uint32 chat_background_opacity_when_active = 210;
+	optional uint32 chat_timestamp_format = 211;
+	optional uint32 item_label_on_drop_duration = 212 [default = 0];
+	optional uint32 item_label_display_mode = 213 [default = 0];
+	optional float controller_cursor_sensitivity = 214 [default = 0.4];
+	optional float controller_inner_dead_zone = 215 [default = 0.5];
+	optional float controller_outer_dead_zone = 216 [default = 0];
+	optional uint32 power_toggle_mode = 217 [default = 0];
+	optional uint32 social_wheel_activation_style = 218 [default = 0];
+	optional uint32 monster_health_bar_mode = 219 [default = 0];
+	optional uint32 hold_position_input_mode = 220 [default = 0];
+	optional .Fenris.Client.ControllerActionBindings controller_bindings_ps5 = 221;
+	optional uint32 combat_text_display_mode = 222 [default = 0];
+	optional uint32 last_season_autoclaim_modal_shown = 224 [default = 0];
+}

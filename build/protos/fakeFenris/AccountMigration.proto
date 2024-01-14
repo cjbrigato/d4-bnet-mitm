@@ -1,0 +1,17 @@
+package Fenris.AccountMigration;
+import "Account.proto";
+import "Profile.proto";
+
+message ReadDataV1 {
+	optional uint32 version = 1;
+	optional .Fenris.Account.SavedDefinition read_saved_definition = 2;
+	optional .Fenris.Profile.AccountProfile read_account_profile = 3;
+}
+message WriteDataV2 {
+	optional .Fenris.Account.SavedDefinition write_saved_definition = 1;
+	optional .Fenris.Profile.AccountProfile write_account_profile = 2;
+}
+message MigrationData {
+	optional uint32 version = 1;
+	optional .Fenris.AccountMigration.WriteDataV2 write_data_V2 = 2;
+}

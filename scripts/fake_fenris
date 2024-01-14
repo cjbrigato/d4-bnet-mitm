@@ -1,0 +1,19 @@
+#!/bin/bash
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+export MODNAME=$(cat ${REPO_ROOT}/go.mod|grep module|cut -d' ' -f2)
+
+cd $REPO_ROOT
+FILE_LIST="ClientMessage.proto Online.proto OnlineCommon.proto HeroCommon.proto"
+mkdir -p $REPO_ROOT/fakeFenris/pb
+cp -r $REPO_ROOT/fakeFenris build/protos/
+
+for I in $FILE_LIST;do
+	        ${REPO_ROOT}/scripts/fix_bnet_packages $REPO_ROOT/build/protos/fakeFenris/$I;
+done
+
+for I in $FILE_LIST; do
+	protoc -I${REPO_ROOT}/build/protos/fakeFenris --go_out=$REPO_ROOT/build/pb/ $REPO_ROOT/build/protos/fakeFenris/$I
+done
+
+cp -r $REPO_ROOT/build/pb/fakeFenris/

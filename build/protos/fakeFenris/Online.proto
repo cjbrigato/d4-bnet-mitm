@@ -1,0 +1,82 @@
+package Fenris.Online;
+import "HeroCommon.proto";
+import "OnlineCommon.proto";
+
+message QueueId {
+        optional uint32 queue_type = 1;
+        optional string id = 2;
+        optional string serverpool = 3;
+}
+message QueueEntryKey {
+        optional .Fenris.Online.QueueId queue_id = 1;
+        optional string entry_id = 2;
+}
+message QueueEntry {
+        optional string entry_id = 1;
+        optional bytes payload = 2;
+        optional uint32 acquisition_token = 3;
+}
+
+message GameCreateParams {
+	required sint32 game_type = 1;
+	required uint32 creation_flags = 2 [default = 0];
+	optional uint32 platform = 11;
+	optional sint32 sno_subzone = 3 [default = -1];
+	optional sint32 sno_world = 4 [default = -1];
+	optional uint32 itempower_bracket = 5;
+	optional string name = 6;
+	optional uint32 partition_type = 7;
+	optional string server_pool = 8;
+	optional .Fenris.Hero.CampaignState campaign_state = 9;
+	optional uint32 pvp_bucket = 10;
+}
+message PresharedKey {
+	optional bytes modulus = 1;
+	optional bytes exponent = 2;
+}
+
+message PingConnectionInfo {
+	optional string address = 1;
+	optional uint32 port = 2;
+	optional .Fenris.Online.ConnectionEncryptionInfo encryption_info = 3;
+	optional string server_pool = 4;
+	optional uint32 max_sample_interval = 5;
+	optional uint32 capture_duration = 6;
+	optional uint32 min_samples = 7;
+	optional uint32 max_samples = 8;
+}
+
+message ConnectionEncryptionInfo {
+	optional .Fenris.Online.PresharedKey preshared_key = 1;
+	optional uint64 token = 2;
+	optional string deprecated_common_name = 6;
+}
+message ConnectionInfo {
+	message Player {
+		optional uint32 bnet_account_id = 1;
+		optional uint32 game_account_id = 2;
+		optional fixed64 auth_token = 3;
+		optional .Fenris.Online.ConnectionEncryptionInfo encryption_info = 4;
+		optional uint32 team_id = 5;
+	}
+	optional .Fenris.Online.GameHandle game_handle = 1;
+	optional fixed32 game_id = 2;
+	optional .Fenris.Online.GameCreateParams game_params = 3;
+	optional string address = 4;
+	optional uint32 port = 5;
+	optional string service_message_queue = 8;
+	repeated .Fenris.Online.ConnectionInfo.Player player = 9;
+	optional .Fenris.Online.Trace trace = 10;
+}
+
+message Trace {
+	optional string id = 1;
+	optional string span_id = 2;
+	optional uint32 game_account_id = 3;
+	optional string name = 4;
+	optional bool is_tracked = 5 [default = false];
+}
+message TraceMessage {
+	optional .Fenris.Online.Trace trace = 1;
+}
+option go_package = "github.com/cjbrigato/d4-bnet-mitm/bnet/Fenris/Online";

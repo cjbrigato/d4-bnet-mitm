@@ -1,0 +1,22 @@
+package ToolChannelMsg;
+
+enum Platform {
+	PLATFORM_PC_CLIENT = 0;
+	PLATFORM_MAC_CLIENT = 1;
+	PLATFORM_EMBEDDED = 2;
+	PLATFORM_PS4 = 3;
+	PLATFORM_XBOX_ONE = 4;
+	PLATFORM_PC_SERVER = 5;
+	PLATFORM_LINUX_SERVER = 6;
+	PLATFORM_PS5 = 7;
+	PLATFORM_SCARLETT = 8;
+	PLATFORM_NX64 = 9;
+}
+message Handshake {
+	required .ToolChannelMsg.Platform platform = 1;
+	optional uint32 id = 2;
+}
+message NewMessageType {
+	required string name = 1;
+	required uint32 id = 2;
+}
