@@ -7,23 +7,32 @@ import (
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/Fenris/ClientMessage"
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol"
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/notification/v2/client"
-	"github.com/cjbrigato/d4-bnet-mitm/dynamic"
 	"github.com/cjbrigato/d4-bnet-mitm/log"
 	"github.com/cjbrigato/d4-bnet-mitm/services"
 	"github.com/cjbrigato/d4-bnet-mitm/ws"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protopath"
+	"google.golang.org/protobuf/reflect/protorange"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 type BgsHeader struct {
-	Bytes        []byte
-	Len          uint16
-	proto_header *protocol.Header
+	Bytes       []byte
+	Len         uint16
+	ProtoHeader *protocol.Header
+}
+
+func (h BgsHeader) PrintMessage() {
+	PrintMessage(h.ProtoHeader)
 }
 
 type BgsMessage struct {
-	Bytes         []byte
-	proto_message proto.Message
+	Bytes        []byte
+	ProtoMessage proto.Message
+}
+
+func (m BgsMessage) PrintMessage() {
+	PrintMessage(m.ProtoMessage)
 }
 
 type BgsPacket struct {
@@ -71,19 +80,19 @@ func NewBgsPacketFromFrame(frame *ws.Frame, shouldCraftResponse bool) *BgsPacket
 	if bgs_rpc_message_len > 0 {
 		bgs_packet.BGSMessage.Bytes = frame.Payload[2+bgs_packet.BGSHeader.Len:]
 	}
-	bgs_packet.BGSHeader.proto_header = &protocol.Header{}
-	if err := proto.Unmarshal(bgs_packet.BGSHeader.Bytes, bgs_packet.BGSHeader.proto_header); err != nil {
+	bgs_packet.BGSHeader.ProtoHeader = &protocol.Header{}
+	if err := proto.Unmarshal(bgs_packet.BGSHeader.Bytes, bgs_packet.BGSHeader.ProtoHeader); err != nil {
 		log.Error(nil, "Failed to parse BgsPacket Header: %s", err)
 	}
 	bgs_packet.ServiceHash = 0
 	bgs_packet.MethodID = 0
-	bgs_packet.ServiceID = bgs_packet.BGSHeader.proto_header.GetServiceId()
-	bgs_packet.RpcToken = bgs_packet.BGSHeader.proto_header.GetToken()
+	bgs_packet.ServiceID = bgs_packet.BGSHeader.ProtoHeader.GetServiceId()
+	bgs_packet.RpcToken = bgs_packet.BGSHeader.ProtoHeader.GetToken()
 	bgs_packet.rpc_kind = services.RPCCallKind(bgs_packet.ServiceID)
 	switch bgs_packet.rpc_kind {
 	case "request":
-		bgs_packet.ServiceHash = bgs_packet.BGSHeader.proto_header.GetServiceHash()
-		bgs_packet.MethodID = bgs_packet.BGSHeader.proto_header.GetMethodId()
+		bgs_packet.ServiceHash = bgs_packet.BGSHeader.ProtoHeader.GetServiceHash()
+		bgs_packet.MethodID = bgs_packet.BGSHeader.ProtoHeader.GetMethodId()
 		add_pending_response(TrackingToken(bgs_packet.RpcToken), PendingResponse{bgs_packet.ServiceHash, bgs_packet.MethodID})
 	case "response":
 		pending, ok := recall_pending_response(TrackingToken(bgs_packet.RpcToken))
@@ -125,7 +134,7 @@ func NewBgsPacketFromFrame(frame *ws.Frame, shouldCraftResponse bool) *BgsPacket
 		if err != nil {
 			log.Error(nil, fmt.Sprintf("%v", err))
 		} else {
-			bgs_packet.BGSMessage.proto_message = *msg
+			bgs_packet.BGSMessage.ProtoMessage = *msg
 			if fmt.Sprintf("%s", bgs_packet.MessageType) == "bgs.protocol.notification.v2.client.NotificationReceivedNotification" {
 				bgs_packet.resolveNotificationPayload(shouldCraftResponse)
 			}
@@ -148,7 +157,6 @@ func (p *BgsPacket) resolveNotificationPayload(shouldCraftResponse bool) {
 	notif := p.FenNotification.ProtoMessage.GetNotifications()[0].GetAttribute()
 	p.FenNotification.MessageID = notif[0].GetValue().GetIntValue()
 	p.FenNotification.MessagePayloadBytes = notif[1].GetValue().GetBlobValue()
-	var messageid_type string
 	switch p.FenNotification.MessageID {
 	case 0:
 		p.FenNotification.MessagePayloadProtoMessageType = "Fenris.ClientMessage.FindUserProxyResponse"
@@ -157,9 +165,11 @@ func (p *BgsPacket) resolveNotificationPayload(shouldCraftResponse bool) {
 			log.Error(nil, "Failed to parse FindUserProxyResponse: %s", err)
 		}
 		if shouldCraftResponse {
+			log.Info(nil, "Crafting a response for %s", p.FenNotification.MessagePayloadProtoMessageType)
 			var err error
 			p.FenNotification.MessagePayloadProtoMessage.(*ClientMessage.FindUserProxyResponse).ConnectInfo.Address = proto.String("127.0.0.1:61000")
 			p.FenNotification.MessagePayloadProtoMessage.(*ClientMessage.FindUserProxyResponse).ConnectInfo.Port = proto.Uint32(61000)
+			p.FenNotification.MessagePayloadProtoMessage.(*ClientMessage.FindUserProxyResponse).ConnectInfo.Player[0].EncryptionInfo.PresharedKey.Modulus = []byte{'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'}
 			p.FenNotification.ProtoMessage.GetNotifications()[0].GetAttribute()[1].Value.BlobValue, err = proto.Marshal(p.FenNotification.MessagePayloadProtoMessage.(*ClientMessage.FindUserProxyResponse))
 			if err != nil {
 				log.Error(nil, "Failed to Marshal crafted FindUserProxyResponse: %s", err)
@@ -168,6 +178,8 @@ func (p *BgsPacket) resolveNotificationPayload(shouldCraftResponse bool) {
 			if err != nil {
 				log.Error(nil, "Failed to Marshal crafted : %s", err)
 			}
+			*p.BGSHeader.ProtoHeader.Size = uint32(len(p.BGSMessage.Bytes))
+			p.BGSHeader.Bytes, err = proto.Marshal(p.BGSHeader.ProtoHeader)
 		}
 	case 5:
 		p.FenNotification.MessagePayloadProtoMessageType = "Fenris.ClientMessage.PingConnectInfoSingleResult"
@@ -182,14 +194,101 @@ func (p *BgsPacket) resolveNotificationPayload(shouldCraftResponse bool) {
 			log.Error(nil, "Failed to parse FindUserProxyResponse: %s", err)
 		}
 	default:
-		var err error
+		//var err error
 		p.FenNotification.MessagePayloadProtoMessageType = "unknown"
-		pbMessage := &p.FenNotification.MessagePayloadProtoMessage
+		/*pbMessage := &p.FenNotification.MessagePayloadProtoMessage
 		pbMessage, err = dynamic.ParseAs(fmt.Sprintf("%s", p.FenNotification.MessagePayloadProtoMessageType), p.FenNotification.MessagePayloadBytes)
 		if err != nil {
 			log.Error(nil, "Failed to parse %s: %s", messageid_type, err)
 		} else {
 			p.FenNotification.MessagePayloadProtoMessage = *pbMessage
-		}
+		}*/
 	}
+}
+
+func PrintMessage(m proto.Message) {
+	var indent []byte
+	protorange.Options{
+		Stable: true,
+	}.Range(m.ProtoReflect(),
+		func(p protopath.Values) error {
+			// Print the key.
+			var fd protoreflect.FieldDescriptor
+			last := p.Index(-1)
+			beforeLast := p.Index(-2)
+			switch last.Step.Kind() {
+			case protopath.FieldAccessStep:
+				fd = last.Step.FieldDescriptor()
+				fmt.Printf("%s%s: ", indent, fd.Name())
+			case protopath.ListIndexStep:
+				fd = beforeLast.Step.FieldDescriptor() // lists always appear in the context of a repeated field
+				fmt.Printf("%s%d: ", indent, last.Step.ListIndex())
+			case protopath.MapIndexStep:
+				fd = beforeLast.Step.FieldDescriptor() // maps always appear in the context of a repeated field
+				fmt.Printf("%s%v: ", indent, last.Step.MapIndex().Interface())
+			case protopath.AnyExpandStep:
+				fmt.Printf("%s[%v]: ", indent, last.Value.Message().Descriptor().FullName())
+			case protopath.UnknownAccessStep:
+				fmt.Printf("%s?: ", indent)
+			}
+
+			// Starting printing the value.
+			switch v := last.Value.Interface().(type) {
+			case protoreflect.Message:
+				fmt.Printf("{\n")
+				indent = append(indent, ' ', ' ')
+			case protoreflect.List:
+				fmt.Printf("[\n")
+				indent = append(indent, ' ', ' ')
+			case protoreflect.Map:
+				fmt.Printf("{\n")
+				indent = append(indent, ' ', ' ')
+			case protoreflect.EnumNumber:
+				var ev protoreflect.EnumValueDescriptor
+				if fd != nil {
+					ev = fd.Enum().Values().ByNumber(v)
+				}
+				if ev != nil {
+					fmt.Printf("%v\n", ev.Name())
+				} else {
+					fmt.Printf("%v\n", v)
+				}
+			case string, []byte:
+				fmt.Printf("%q\n", v)
+			default:
+				fmt.Printf("%v\n", v)
+			}
+			return nil
+		},
+		func(p protopath.Values) error {
+			last := p.Index(-1)
+			switch last.Value.Interface().(type) {
+			case protoreflect.Message:
+				indent = indent[:len(indent)-2]
+				fmt.Printf("%s}\n", indent)
+			case protoreflect.List:
+				indent = indent[:len(indent)-2]
+				fmt.Printf("%s]\n", indent)
+			case protoreflect.Map:
+				indent = indent[:len(indent)-2]
+				fmt.Printf("%s}\n", indent)
+			}
+			return nil
+		},
+	)
+}
+
+func truncate(str string, length int) (truncated string, was_truncated bool) {
+	was_truncated = false
+	if length <= 0 {
+		return
+	}
+	for i, char := range str {
+		if i >= length {
+			was_truncated = true
+			break
+		}
+		truncated += string(char)
+	}
+	return
 }

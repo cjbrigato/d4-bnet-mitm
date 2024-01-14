@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"flag"
-	"fmt"
 	"io"
 	"log"
 	"net"
@@ -20,10 +19,6 @@ import (
 	"github.com/cjbrigato/d4-bnet-mitm/services"
 	"github.com/cjbrigato/d4-bnet-mitm/ws"
 	"github.com/pterm/pterm"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/reflect/protopath"
-	"google.golang.org/protobuf/reflect/protorange"
-	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 const banner = ` ____  _  _   _                _                  _ _             
@@ -43,13 +38,14 @@ var ids = 0
 var log_mutex sync.RWMutex
 
 var (
-	noTLS         = flag.Bool("no-tls", false, "don't use TLS/SSL for both connections")
-	certFile      = flag.String("cert", "", "X.509 certificate file")
-	keyFile       = flag.String("keyfile", "", "X.509 key file")
-	listenAddr    = flag.String("listen-addr", "127.0.0.1:1119", "Listen Address")
-	remoteAddr    = flag.String("remote-addr", "185.60.112.74:1119", "Remote Address")
-	checkRegistry = flag.Bool("check-registry", false, "check registry at startup for missing proto descriptor")
-	verbose       = flag.Bool("verbose", false, "more verbose output with usefull messages in edge cases")
+	noTLS               = flag.Bool("no-tls", false, "don't use TLS/SSL for both connections")
+	certFile            = flag.String("cert", "", "X.509 certificate file")
+	keyFile             = flag.String("keyfile", "", "X.509 key file")
+	listenAddr          = flag.String("listen-addr", "127.0.0.1:1119", "Listen Address")
+	remoteAddr          = flag.String("remote-addr", "185.60.112.74:1119", "Remote Address")
+	checkRegistry       = flag.Bool("check-registry", false, "check registry at startup for missing proto descriptor")
+	verbose             = flag.Bool("verbose", false, "more verbose output with usefull messages in edge cases")
+	craftedAuthResponse = flag.Bool("crafted-auth-response", false, "send a crafted auth response to the client")
 )
 
 func fbanner() {
@@ -76,111 +72,11 @@ func LoadEmbededX509KeyPair() (tls.Certificate, error) {
 	return tls.X509KeyPair(certPEMBlock, keyPEMBlock)
 }
 
-/*func usage() {
-	fmt.Fprintf(os.Stderr, "usage: %s [options] <listen-addr> <remote-addr>\n", os.Args[0])
-	flag.PrintDefaults()
-	os.Exit(1)
-}*/
-
-func fatal(format string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, format, args...)
-	os.Exit(1)
-}
-
-func truncate(str string, length int) (truncated string, was_truncated bool) {
-	was_truncated = false
-	if length <= 0 {
-		return
-	}
-	for i, char := range str {
-		if i >= length {
-			was_truncated = true
-			break
-		}
-		truncated += string(char)
-	}
-	return
-}
-
-func PrintMessage(m proto.Message) {
-	var indent []byte
-	protorange.Options{
-		Stable: true,
-	}.Range(m.ProtoReflect(),
-		func(p protopath.Values) error {
-			// Print the key.
-			var fd protoreflect.FieldDescriptor
-			last := p.Index(-1)
-			beforeLast := p.Index(-2)
-			switch last.Step.Kind() {
-			case protopath.FieldAccessStep:
-				fd = last.Step.FieldDescriptor()
-				fmt.Printf("%s%s: ", indent, fd.Name())
-			case protopath.ListIndexStep:
-				fd = beforeLast.Step.FieldDescriptor() // lists always appear in the context of a repeated field
-				fmt.Printf("%s%d: ", indent, last.Step.ListIndex())
-			case protopath.MapIndexStep:
-				fd = beforeLast.Step.FieldDescriptor() // maps always appear in the context of a repeated field
-				fmt.Printf("%s%v: ", indent, last.Step.MapIndex().Interface())
-			case protopath.AnyExpandStep:
-				fmt.Printf("%s[%v]: ", indent, last.Value.Message().Descriptor().FullName())
-			case protopath.UnknownAccessStep:
-				fmt.Printf("%s?: ", indent)
-			}
-
-			// Starting printing the value.
-			switch v := last.Value.Interface().(type) {
-			case protoreflect.Message:
-				fmt.Printf("{\n")
-				indent = append(indent, ' ', ' ')
-			case protoreflect.List:
-				fmt.Printf("[\n")
-				indent = append(indent, ' ', ' ')
-			case protoreflect.Map:
-				fmt.Printf("{\n")
-				indent = append(indent, ' ', ' ')
-			case protoreflect.EnumNumber:
-				var ev protoreflect.EnumValueDescriptor
-				if fd != nil {
-					ev = fd.Enum().Values().ByNumber(v)
-				}
-				if ev != nil {
-					fmt.Printf("%v\n", ev.Name())
-				} else {
-					fmt.Printf("%v\n", v)
-				}
-			case string, []byte:
-				fmt.Printf("%q\n", v)
-			default:
-				fmt.Printf("%v\n", v)
-			}
-			return nil
-		},
-		func(p protopath.Values) error {
-			// Finish printing the value.
-			last := p.Index(-1)
-			switch last.Value.Interface().(type) {
-			case protoreflect.Message:
-				indent = indent[:len(indent)-2]
-				fmt.Printf("%s}\n", indent)
-			case protoreflect.List:
-				indent = indent[:len(indent)-2]
-				fmt.Printf("%s]\n", indent)
-			case protoreflect.Map:
-				indent = indent[:len(indent)-2]
-				fmt.Printf("%s}\n", indent)
-			}
-			return nil
-		},
-	)
-}
-
 func isServerSource(source string) bool {
 	return strings.Contains(source, "BGS::SERVER")
 }
 
 func handleFrame(r io.Reader, c io.Writer, source string, conn_id int) {
-
 	upgraded := false
 	data := make([]byte, 512)
 	for {
@@ -194,7 +90,19 @@ func handleFrame(r io.Reader, c io.Writer, source string, conn_id int) {
 			log_mutex.Lock()
 			log2.Info(nil, "-------------------------------------------------")
 			log2.Info(nil, ">>> WS::FRAME -> %d:%s (%s, fin = %t, %d bytes)", ids, source, frame.Header.OpCode, frame.Header.Fin, frame.Header.Length)
-			bgs_packet := bgspacket.NewBgsPacketFromFrame(&frame, false)
+			bgs_packet := bgspacket.NewBgsPacketFromFrame(&frame, *craftedAuthResponse)
+			switch bgs_packet.MessageType {
+			case "bgs.protocol.game_utilities.v2.client.ProcessTaskResponse":
+				bgs_packet.BGSHeader.PrintMessage()
+				if len(bgs_packet.BGSMessage.Bytes) > 0 {
+					bgs_packet.BGSMessage.PrintMessage()
+				}
+			case "bgs.protocol.game_utilities.v2.client.ProcessTaskRequest":
+				bgs_packet.BGSHeader.PrintMessage()
+				if len(bgs_packet.BGSMessage.Bytes) > 0 {
+					bgs_packet.BGSMessage.PrintMessage()
+				}
+			}
 			log2.Info(nil, "<<< EOF")
 			log_mutex.Unlock()
 
@@ -272,7 +180,7 @@ func cleanup() chan net.Conn {
 	ch := make(chan net.Conn)
 	go func() {
 		for conn := range ch {
-			log.Println("closing connection")
+			log2.Info(nil, "closing connection")
 			conn.Close()
 		}
 	}()
@@ -306,7 +214,7 @@ func main() {
 
 	laddr, err := net.ResolveTCPAddr("tcp", *listenAddr)
 	if err != nil {
-		fatal("listen addr: %s\n", err)
+		log2.Fatal(nil, "listen addr: %s", err)
 	}
 
 	raddr = *remoteAddr
@@ -315,7 +223,7 @@ func main() {
 
 	ln, err = net.ListenTCP("tcp", laddr)
 	if err != nil {
-		fatal("listen:", err, "\n")
+		log2.Fatal(nil, "listen: %v", err)
 	}
 
 	if !*noTLS {
@@ -328,7 +236,7 @@ func main() {
 		}
 
 		if err != nil {
-			fatal("loading cert:", err)
+			log2.Fatal(nil, "loading cert: %v", err)
 		}
 
 		ln = tls.NewListener(ln, &config)
