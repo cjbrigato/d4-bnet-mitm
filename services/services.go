@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 
+	"github.com/cjbrigato/d4-bnet-mitm/log"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
@@ -38,13 +39,13 @@ func ServiceMsg(service string, method_name string, service_id uint32, message_b
 	messageName := protoreflect.FullName(PbMessageStr(service, method_name, service_id))
 	pbtype, err := protoregistry.GlobalTypes.FindMessageByName(protoreflect.FullName(messageName))
 	if err != nil {
-		fmt.Println(err)
+		log.Error(nil, "Error while decoding message: %s", err)
 		return nil, err
 	}
 	msg := pbtype.New().Interface()
 	err = proto.Unmarshal(message_bytes, msg)
 	if err != nil {
-		fmt.Println(err)
+		log.Error(nil, "Error while decoding message: %s", err)
 		return nil, err
 	}
 	return (&msg), nil
@@ -53,13 +54,13 @@ func ServiceMsg(service string, method_name string, service_id uint32, message_b
 func DecodeServiceMessageFromType(messageType protoreflect.FullName, message_bytes []byte) (*protoreflect.ProtoMessage, error) {
 	pbtype, err := protoregistry.GlobalTypes.FindMessageByName(messageType)
 	if err != nil {
-		fmt.Println(err)
+		log.Error(nil, "Error while decoding message: %s", err)
 		return nil, err
 	}
 	msg := pbtype.New().Interface()
 	err = proto.Unmarshal(message_bytes, msg)
 	if err != nil {
-		fmt.Println(err)
+		log.Error(nil, "Error while decoding message: %s", err)
 		return nil, err
 	}
 	return (&msg), nil
@@ -103,7 +104,7 @@ func Test_protos() {
 
 			_, err := protoregistry.GlobalTypes.FindMessageByName(protoreflect.FullName(l.request_msg))
 			if err != nil {
-				fmt.Printf("%s proto not found !\n", l.request_msg)
+				log.Error(nil, "%s proto not found !\n", l.request_msg)
 			}
 		}
 	}

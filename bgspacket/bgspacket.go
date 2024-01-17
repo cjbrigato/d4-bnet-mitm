@@ -1,12 +1,14 @@
 package bgspacket
 
 import (
+	"embed"
 	"encoding/binary"
 	"fmt"
 
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/Fenris/ClientMessage"
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol"
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/notification/v2/client"
+	"github.com/cjbrigato/d4-bnet-mitm/dynamic"
 	"github.com/cjbrigato/d4-bnet-mitm/log"
 	"github.com/cjbrigato/d4-bnet-mitm/services"
 	"github.com/cjbrigato/d4-bnet-mitm/ws"
@@ -15,6 +17,14 @@ import (
 	"google.golang.org/protobuf/reflect/protorange"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
+
+func ProtocolInit(checkRegistry bool, f *embed.FS) {
+	dynamic.Register("build/pb/bgs_bundle.binpb", f)
+	dynamic.Register("build/pb/fenris_bundle.binpb", f)
+	if checkRegistry {
+		services.Test_protos()
+	}
+}
 
 type BgsHeader struct {
 	Bytes       []byte
@@ -70,7 +80,24 @@ type FenNotification struct {
 	MessagePayloadProtoMessageType protoreflect.FullName
 }
 
-func NewBgsPacketFromFrame(frame *ws.Frame, shouldCraftResponse bool) *BgsPacket {
+type PacketSource int64
+
+//go:generate stringer -type=PacketSource
+const (
+	SRC_CLIENT PacketSource = iota
+	SRC_SERVER
+	SRC_UNKNOWN
+)
+
+type PacketEntry struct {
+	Source PacketSource
+	Packet *BgsPacket
+}
+
+var PacketHistory = make(map[int64]PacketEntry)
+var PacketHistoryCounter int64
+
+func NewBgsPacketFromFrame(frame *ws.Frame, Source PacketSource, shouldCraftResponse bool) *BgsPacket {
 	bgs_packet := &BgsPacket{Frame: frame}
 	bgs_packet.BGSHeader = &BgsHeader{}
 	bgs_packet.BGSMessage = &BgsMessage{}
@@ -141,6 +168,8 @@ func NewBgsPacketFromFrame(frame *ws.Frame, shouldCraftResponse bool) *BgsPacket
 		}
 
 	}
+	PacketHistory[PacketHistoryCounter] = PacketEntry{Source: Source, Packet: bgs_packet}
+	PacketHistoryCounter++
 	return bgs_packet
 }
 func (p *BgsPacket) resolveNotificationPayload(shouldCraftResponse bool) {
