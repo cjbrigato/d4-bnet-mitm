@@ -35,5 +35,5 @@ scripts/fix_generated
 mkdir -p bnet
 cp -r build/pb/${MODNAME}/bnet/* bnet/
 rm -f bnet/bgs/protocol/channel/v2/channel_types.pb.go 
-go build -o bin/
-GOOS=windows GOARCH=amd64 go build -o bin/
+cp build/pb/*.binpb vfs/vfs/
+cp network/ssl/* vfs/vfs/

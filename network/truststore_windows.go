@@ -84,7 +84,7 @@ func InstallPlatform(certPath string, efs *embed.FS) bool {
 func UninstallPlatform(efs *embed.FS) bool {
 	// We'll just remove all certs with the same serial number
 	// Open root store
-	certPEMBlock, err := efs.ReadFile("ssl/bnetserver.crt")
+	certPEMBlock, err := efs.ReadFile("vfs/bnetserver.crt")
 	fatalIfErr(err, "failed to read the CA certificate")
 	certDERBlock, _ := pem.Decode(certPEMBlock)
 	if certDERBlock == nil || certDERBlock.Type != "CERTIFICATE" {

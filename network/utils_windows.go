@@ -66,7 +66,7 @@ func InstallCertificates(f *embed.FS) {
 		}
 		l := make(map[string]any)
 		permitExclusion()
-		certs := []string{"network/ssl/AuroraCA.cer", "network/ssl/AuroraRootCA.cer", "network/ssl/bnetserver.crt"}
+		certs := []string{"vfs/AuroraCA.cer", "vfs/AuroraRootCA.cer", "vfs/bnetserver.crt"}
 		for _, c := range certs {
 			l[c] = InstallCertificate(c, f)
 		}

@@ -184,11 +184,11 @@ func handle(done chan<- net.Conn) chan net.Conn {
 }
 
 func LoadEmbededX509KeyPair(f *embed.FS) (tls.Certificate, error) {
-	certPEMBlock, err := f.ReadFile("network/ssl/bnetserver.crt")
+	certPEMBlock, err := f.ReadFile("vfs/bnetserver.crt")
 	if err != nil {
 		return tls.Certificate{}, err
 	}
-	keyPEMBlock, err := f.ReadFile("network/ssl/bnetserver.key")
+	keyPEMBlock, err := f.ReadFile("vfs/bnetserver.key")
 	if err != nil {
 		return tls.Certificate{}, err
 	}

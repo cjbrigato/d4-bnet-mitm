@@ -19,8 +19,8 @@ import (
 )
 
 func ProtocolInit(checkRegistry bool, f *embed.FS) {
-	dynamic.Register("build/pb/bgs_bundle.binpb", f)
-	dynamic.Register("build/pb/fenris_bundle.binpb", f)
+	dynamic.Register("vfs/bgs_bundle.binpb", f)
+	dynamic.Register("vfs/fenris_bundle.binpb", f)
 	if checkRegistry {
 		services.Test_protos()
 	}

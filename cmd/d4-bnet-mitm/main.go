@@ -3,18 +3,12 @@ package main
 import (
 	"flag"
 
-	"embed"
-
 	"github.com/cjbrigato/d4-bnet-mitm/bgspacket"
 	"github.com/cjbrigato/d4-bnet-mitm/config"
 	"github.com/cjbrigato/d4-bnet-mitm/network"
 	"github.com/cjbrigato/d4-bnet-mitm/ui"
+	"github.com/cjbrigato/d4-bnet-mitm/vfs"
 )
-
-//go:embed network/ssl/bnetserver.*
-//go:embed network/ssl/Aurora*
-//go:embed build/pb/*_bundle.binpb
-var f embed.FS
 
 var (
 	noTLS               = flag.Bool("no-tls", false, "don't use TLS/SSL for both connections")
@@ -43,8 +37,8 @@ func main() {
 
 	ui.Preamble()
 
-	bgspacket.ProtocolInit(*checkRegistry, &f)
-	network.NetworkInit(&f)
+	bgspacket.ProtocolInit(*checkRegistry, &vfs.VFS)
+	network.NetworkInit(&vfs.VFS)
 
 	ui.PreStart()
 	ui.StartUi()
