@@ -71,12 +71,19 @@ func handleFrame(r io.Reader, c io.Writer, source string, conn_id int) {
 		}
 		jids[ids]++
 		ui.App.QueueUpdateDraw(func() {
-			src_color := "[green]CLIENT[blue] --> [white]"
+			src_color := "[green]CLIENT[blue] -->[white]"
 			if isServerSource(source) {
-				src_color = "[orange] <-- [darkcyan]SERVER[white]"
+				src_color = "[orange]<-- [darkcyan]SERVER[white]"
 			}
+			token := bgs_packet.RpcToken
+			sname, _ := strings.CutPrefix(fmt.Sprintf("%s", bgs_packet.ServiceName), "bgs.protocol.")
 			btype, _ := strings.CutPrefix(fmt.Sprintf("%s", bgs_packet.MessageType), "bgs.protocol.")
-			ui.PacketList.AddItem(fmt.Sprintf("[grey]%4d.[white] [blue]%8.3f[white] %s%s[white] %s  s  s", jids[ids], float32(time.Since(started_at).Milliseconds())/1000.0, src_color, source, btype), "", 0, nil)
+			lastbtype := btype[strings.LastIndex(btype, ".")+1:]
+			kind := bgs_packet.RpcKind
+			if kind == "request" {
+				kind = "request "
+			}
+			ui.PacketList.AddItem(fmt.Sprintf("[grey]%4d.[white] [blue]%8.3f[white]  %s [white] %3d %s  %s  %s", jids[ids], float32(time.Since(started_at).Milliseconds())/1000.0, src_color, token, kind, ui.PaddedMessageTypeString(lastbtype), sname), "", 0, nil)
 		})
 		/*switch bgs_packet.MessageType {
 		case "bgs.protocol.game_utilities.v2.client.ProcessTaskResponse":

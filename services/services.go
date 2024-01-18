@@ -246,7 +246,25 @@ func init() {
 		}
 		names[val.id] = Service[uint32]{key, val.methods, val.methods16}
 	}
+	LonguestMethodName = Longest_method_name()
 }
+
+func Longest_method_name() (val int) {
+	method := ""
+	for _, v := range names {
+		for _, m := range v.methods {
+			if len(m) > val {
+				val = len(m)
+				method = m
+			}
+		}
+	}
+	method = fmt.Sprintf("%sResponse", method)
+	val = len(method)
+	return
+}
+
+var LonguestMethodName = 0
 
 var names = map[string]Service[uint32]{}
 var hashes = map[uint32]Service[string]{

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/cjbrigato/d4-bnet-mitm/log"
+	"github.com/cjbrigato/d4-bnet-mitm/services"
 	"github.com/cjbrigato/d4-bnet-mitm/ui/tview"
 	"github.com/gdamore/tcell/v2"
 	"github.com/pterm/pterm"
@@ -70,6 +71,13 @@ func PreStart() {
 	time.Sleep(3 * time.Second)
 }
 
+func PaddedMessageTypeString(content string) string {
+	messageTypeHeader := content
+	messageTypeHeaderLen := len(messageTypeHeader)
+	paddedMessageTypeHeader := fmt.Sprintf("%s%s", messageTypeHeader, strings.Repeat(" ", services.LonguestMethodName-messageTypeHeaderLen))
+	return paddedMessageTypeHeader
+}
+
 func StartUi() {
 	//go UpdateLogList()
 
@@ -99,7 +107,7 @@ func StartUi() {
 			Pages.SwitchToPage(added[0])
 		})
 
-	fmt.Fprintf(packetheader, `      [darkcyan]No.[white]   [darkcyan]Time[white] [darkcyan]Source[white]        [darkcyan](bgs.protocol.)MessageType[white]                            [darkcyan]Service[white]  [darkcyan]Method[white]`)
+	fmt.Fprintf(packetheader, `      [darkcyan]No.[white]     [darkcyan]Time[white]      [darkcyan]Source[white]  [darkcyan]RID[white] [darkcyan]Kind[white]      [darkcyan]%s[white]  [darkcyan]bgs.protocol.[cyan]ServiceName[white]`, PaddedMessageTypeString("MessageType"))
 
 	Pages.AddPage("Logs", TreeLogList, true, true)
 	fmt.Fprintf(info, `%d ["%d"][darkcyan]%s[white][""]  `, 1, 0, "Logs")

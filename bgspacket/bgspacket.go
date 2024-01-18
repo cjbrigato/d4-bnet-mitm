@@ -50,10 +50,11 @@ type BgsPacket struct {
 	BGSHeader       *BgsHeader
 	BGSMessage      *BgsMessage
 	ServiceHash     uint32
+	ServiceName     string
 	MethodID        uint32
 	RpcToken        uint32
 	ServiceID       uint32
-	rpc_kind        string
+	RpcKind         string
 	MessageType     protoreflect.FullName
 	FenNotification *FenNotification
 }
@@ -115,8 +116,8 @@ func NewBgsPacketFromFrame(frame *ws.Frame, Source PacketSource, shouldCraftResp
 	bgs_packet.MethodID = 0
 	bgs_packet.ServiceID = bgs_packet.BGSHeader.ProtoHeader.GetServiceId()
 	bgs_packet.RpcToken = bgs_packet.BGSHeader.ProtoHeader.GetToken()
-	bgs_packet.rpc_kind = services.RPCCallKind(bgs_packet.ServiceID)
-	switch bgs_packet.rpc_kind {
+	bgs_packet.RpcKind = services.RPCCallKind(bgs_packet.ServiceID)
+	switch bgs_packet.RpcKind {
 	case "request":
 		bgs_packet.ServiceHash = bgs_packet.BGSHeader.ProtoHeader.GetServiceHash()
 		bgs_packet.MethodID = bgs_packet.BGSHeader.ProtoHeader.GetMethodId()
@@ -137,6 +138,7 @@ func NewBgsPacketFromFrame(frame *ws.Frame, Source PacketSource, shouldCraftResp
 			traceMap := make(map[string]any)
 			traceMap["service_hash"] = bgs_packet.ServiceHash
 			traceMap["service_name"] = val.Name()
+			bgs_packet.ServiceName = val.Name()
 			traceMap["method_id"] = bgs_packet.MethodID
 			if bgs_packet.MethodID > 0 {
 				mval, mok := val.Method(uint16(bgs_packet.MethodID))
