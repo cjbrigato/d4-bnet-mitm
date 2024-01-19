@@ -83,7 +83,6 @@ func handleFrame(r io.Reader, c io.Writer, source string, conn_id int) {
 				btype, _ = strings.CutPrefix(fmt.Sprintf("%s", bgs_packet.MessageType), "bgs.protocol.")
 				lastbtype = btype[strings.LastIndex(btype, ".")+1:]
 			} else {
-				//btype = bgs_packet.ErrorString
 				btype = "Error: see packet details"
 				lastbtype = btype
 				isError = true
@@ -100,20 +99,9 @@ func handleFrame(r io.Reader, c io.Writer, source string, conn_id int) {
 				PaddedMessageTypeString = fmt.Sprintf("[red]%s[white]", PaddedMessageTypeString)
 			}
 
-			selectable := int64(jids[ids] - 1)
 			ui.PacketList.AddItem(fmt.Sprintf("[grey]%4d.[white] [blue]%8.3f[white]  %s [white] %3d %s  %s  %s", jids[ids], float32(time.Since(started_at).Milliseconds())/1000.0, src_color, token, kind, PaddedMessageTypeString, sname), "", 0,
 				func() {
-					if ui.SelectedPacket == selectable {
-						ui.SelectedPacket = -1
-					} else {
-						ui.SelectedPacket = selectable
-					}
-					//ui.Info.SetText(fmt.Sprintf("SelectedPacket: %d", ui.SelectedPacket))
-					if ui.SelectedPacket != -1 {
-						ui.PacketInfo.SetText(bgspacket.PacketHistory[ui.SelectedPacket].Packet.String)
-					} else {
-						ui.PacketInfo.SetText("")
-					}
+					ui.App.SetFocus(ui.PacketInfo)
 				})
 		})
 		/*switch bgs_packet.MessageType {

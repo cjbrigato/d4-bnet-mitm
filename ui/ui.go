@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cjbrigato/d4-bnet-mitm/bgspacket"
 	"github.com/cjbrigato/d4-bnet-mitm/log"
 	"github.com/cjbrigato/d4-bnet-mitm/services"
 	"github.com/cjbrigato/d4-bnet-mitm/ui/tview"
@@ -52,12 +53,9 @@ const banner = ` ____  _  _   _                _                  _ _
 
 func init() {
 	Pages = tview.NewPages()
-	PacketList = PacketList.AddItem("Switch to Log list", "Press to switch to log list", 'l', func() {
-		Pages.SwitchToPage("Logs")
-	}).
-		AddItem("Quit", "Press to exit", 'q', func() {
-			App.Stop()
-		})
+	PacketList = PacketList.SetChangedFunc(func(index int, mainText string, secondaryText string, shortcut rune) {
+		UpdatePacketInfo(int64(index))
+	})
 	LogList = tview.NewList().AddItem("Switch to packet list", "Press to switch to packet list", 'p', func() {
 		Pages.SwitchToPage("Packets")
 	}).
@@ -67,10 +65,26 @@ func init() {
 	TreeLogList = tview.NewTreeView().SetRoot(TreeRoot).SetCurrentNode(TreeRoot).SetGraphics(false).SetTopLevel(1).SetPrefixes([]string{"[red]* ", "[darkcyan]- ", "[darkmagenta]- "})
 	TvPackets = []*tview.TextView{}
 	Info = tview.NewTextView()
-	PacketInfo = tview.NewTextView()
+	PacketInfo = tview.NewTextView().SetDynamicColors(true).SetDoneFunc(func(key tcell.Key) {
+		App.SetFocus(PacketList)
+	})
 }
 
 var SelectedPacket int64 = -1
+
+func UpdatePacketInfo(selectable int64) {
+	if SelectedPacket == selectable {
+		SelectedPacket = -1
+	} else {
+		SelectedPacket = selectable
+		//App.SetFocus(PacketInfo)
+	}
+	if SelectedPacket != -1 {
+		PacketInfo.SetText(bgspacket.PacketHistory[SelectedPacket].Packet.String)
+	} else {
+		PacketInfo.SetText("")
+	}
+}
 
 func Preamble() {
 	pterm.DefaultCenter.WithCenterEachLineSeparately().Println("Starting up...")
