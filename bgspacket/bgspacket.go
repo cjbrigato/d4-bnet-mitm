@@ -187,17 +187,17 @@ func NewBgsPacketFromFrame(frame *ws.Frame, Source PacketSource, shouldCraftResp
 	}
 
 	// Make PacketString
-	packetHeader := fmt.Sprintf("[:darkcyan:b]### bgs.rpc.Header[:white:B]\n%s", PrintMessage(bgs_packet.BGSHeader.ProtoHeader))
+	packetHeader := fmt.Sprintf("[darkcyan::b]### bgs.rpc.Header[white::B]\n%s", PrintMessage(bgs_packet.BGSHeader.ProtoHeader))
 	packetMessage := ""
 	packetNotification := ""
 	if len(bgs_packet.BGSMessage.Bytes) > 0 {
 		if bgs_packet.BGSMessage.ProtoMessage != nil {
-			packetMessage = fmt.Sprintf("[:green:b]### bgs.rpc.Message[:white:B]\n%s", PrintMessage(bgs_packet.BGSMessage.ProtoMessage))
+			packetMessage = fmt.Sprintf("[green::b]### bgs.rpc.Message[white::B]\n%s", PrintMessage(bgs_packet.BGSMessage.ProtoMessage))
 			if bgs_packet.FenNotification != nil {
-				packetNotification = fmt.Sprintf("[:orange:b]### %s[:white:B]\n%s", bgs_packet.FenNotification.MessagePayloadProtoMessageType, PrintMessage(bgs_packet.FenNotification.MessagePayloadProtoMessage))
+				packetNotification = fmt.Sprintf("[orange::b]### %s[white::B]\n%s", bgs_packet.FenNotification.MessagePayloadProtoMessageType, PrintMessage(bgs_packet.FenNotification.MessagePayloadProtoMessage))
 			}
 		} else {
-			packetMessage = fmt.Sprintf("[:red:b]ERROR:[:white:B] Nil ProtoMessage despite MessageLen > 0 !\n[:red:b]Details:[:white:B] %s\n", bgs_packet.ErrorString)
+			packetMessage = fmt.Sprintf("[red::b]ERROR:[white::B] Nil ProtoMessage despite MessageLen > 0 !\n[red::b]Details:[white::B] %s\n", bgs_packet.ErrorString)
 
 		}
 	}

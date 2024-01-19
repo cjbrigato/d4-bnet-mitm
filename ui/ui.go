@@ -146,7 +146,7 @@ func StartUi() {
 			Pages.SwitchToPage(added[0])
 		})
 
-	fmt.Fprintf(packetheader, `      [darkcyan]No.[white]     [darkcyan]Time[white]      [darkcyan]Source[white]  [darkcyan]RID[white] [darkcyan]Kind[white]      [darkcyan]%s[white]  [darkcyan]bgs.protocol.[cyan]ServiceName[white]`, PaddedMessageTypeString("MessageType"))
+	fmt.Fprintf(packetheader, `  [darkcyan]No.[white]     [darkcyan]Time[white]      [darkcyan]Source[white]  [darkcyan]RID[white] [darkcyan]Kind[white]      [darkcyan]%s[white]  [darkcyan]bgs.protocol.[cyan]ServiceName[white]`, PaddedMessageTypeString("MessageType"))
 
 	Pages.AddPage("Logs", TreeLogList, true, true)
 	fmt.Fprintf(Info, `%d ["%d"][darkcyan]%s[white][""]  `, 1, 0, "Logs")
