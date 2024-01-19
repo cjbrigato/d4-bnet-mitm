@@ -1,12 +1,16 @@
 package bgspacket
 
 import (
+	"bytes"
+	"embed"
 	"encoding/binary"
 	"fmt"
+	"sync"
 
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/Fenris/ClientMessage"
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol"
 	"github.com/cjbrigato/d4-bnet-mitm/bnet/bgs/protocol/notification/v2/client"
+	"github.com/cjbrigato/d4-bnet-mitm/dynamic"
 	"github.com/cjbrigato/d4-bnet-mitm/log"
 	"github.com/cjbrigato/d4-bnet-mitm/services"
 	"github.com/cjbrigato/d4-bnet-mitm/ws"
@@ -15,6 +19,14 @@ import (
 	"google.golang.org/protobuf/reflect/protorange"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
+
+func ProtocolInit(checkRegistry bool, f *embed.FS) {
+	dynamic.Register("vfs/bgs_bundle.binpb", f)
+	dynamic.Register("vfs/fenris_bundle.binpb", f)
+	if checkRegistry {
+		services.Test_protos()
+	}
+}
 
 type BgsHeader struct {
 	Bytes       []byte
@@ -40,12 +52,15 @@ type BgsPacket struct {
 	BGSHeader       *BgsHeader
 	BGSMessage      *BgsMessage
 	ServiceHash     uint32
+	ServiceName     string
 	MethodID        uint32
 	RpcToken        uint32
 	ServiceID       uint32
-	rpc_kind        string
+	RpcKind         string
 	MessageType     protoreflect.FullName
 	FenNotification *FenNotification
+	String          string
+	ErrorString     string
 }
 
 func (p *BgsPacket) WSEncapsulate(frame ws.Frame) []byte {
@@ -70,7 +85,28 @@ type FenNotification struct {
 	MessagePayloadProtoMessageType protoreflect.FullName
 }
 
-func NewBgsPacketFromFrame(frame *ws.Frame, shouldCraftResponse bool) *BgsPacket {
+type PacketSource int64
+
+//go:generate stringer -type=PacketSource
+const (
+	SRC_CLIENT PacketSource = iota
+	SRC_SERVER
+	SRC_UNKNOWN
+)
+
+type PacketEntry struct {
+	Source PacketSource
+	Packet *BgsPacket
+}
+
+var PacketHistory = make(map[int64]PacketEntry)
+var PacketHistoryCounter int64
+
+var frame_mutex sync.Mutex
+
+func NewBgsPacketFromFrame(frame *ws.Frame, Source PacketSource, shouldCraftResponse bool) *BgsPacket {
+	defer frame_mutex.Unlock()
+	frame_mutex.Lock()
 	bgs_packet := &BgsPacket{Frame: frame}
 	bgs_packet.BGSHeader = &BgsHeader{}
 	bgs_packet.BGSMessage = &BgsMessage{}
@@ -84,12 +120,13 @@ func NewBgsPacketFromFrame(frame *ws.Frame, shouldCraftResponse bool) *BgsPacket
 	if err := proto.Unmarshal(bgs_packet.BGSHeader.Bytes, bgs_packet.BGSHeader.ProtoHeader); err != nil {
 		log.Error(nil, "Failed to parse BgsPacket Header: %s", err)
 	}
+	bgs_packet.ErrorString = ""
 	bgs_packet.ServiceHash = 0
 	bgs_packet.MethodID = 0
 	bgs_packet.ServiceID = bgs_packet.BGSHeader.ProtoHeader.GetServiceId()
 	bgs_packet.RpcToken = bgs_packet.BGSHeader.ProtoHeader.GetToken()
-	bgs_packet.rpc_kind = services.RPCCallKind(bgs_packet.ServiceID)
-	switch bgs_packet.rpc_kind {
+	bgs_packet.RpcKind = services.RPCCallKind(bgs_packet.ServiceID)
+	switch bgs_packet.RpcKind {
 	case "request":
 		bgs_packet.ServiceHash = bgs_packet.BGSHeader.ProtoHeader.GetServiceHash()
 		bgs_packet.MethodID = bgs_packet.BGSHeader.ProtoHeader.GetMethodId()
@@ -100,6 +137,7 @@ func NewBgsPacketFromFrame(frame *ws.Frame, shouldCraftResponse bool) *BgsPacket
 			bgs_packet.ServiceHash = pending.ServiceHash
 			bgs_packet.MethodID = pending.MethodId
 		} else {
+			bgs_packet.ErrorString = fmt.Sprintf("Token %d has no pending response candidate", TrackingToken(bgs_packet.RpcToken))
 			log.Warn(&map[string]any{"NODECODE": "Cannot decode message Service or method"}, "Failure recalling a PendingResponse for Token %d", bgs_packet.RpcToken)
 		}
 	}
@@ -110,6 +148,7 @@ func NewBgsPacketFromFrame(frame *ws.Frame, shouldCraftResponse bool) *BgsPacket
 			traceMap := make(map[string]any)
 			traceMap["service_hash"] = bgs_packet.ServiceHash
 			traceMap["service_name"] = val.Name()
+			bgs_packet.ServiceName = val.Name()
 			traceMap["method_id"] = bgs_packet.MethodID
 			if bgs_packet.MethodID > 0 {
 				mval, mok := val.Method(uint16(bgs_packet.MethodID))
@@ -117,16 +156,21 @@ func NewBgsPacketFromFrame(frame *ws.Frame, shouldCraftResponse bool) *BgsPacket
 					traceMap["method_name"] = mval
 					messageName := protoreflect.FullName(services.PbMessageStr(val.Name(), mval, bgs_packet.ServiceID))
 					bgs_packet.MessageType = messageName
+					if services.PbMessageStr(val.Name(), mval, bgs_packet.ServiceID) == "" {
+						bgs_packet.ErrorString = fmt.Sprintf("Unknown method: %s", mval)
+					}
 					traceMap["method_name"] = messageName
 				} else {
 					errorMap["method_name"] = fmt.Sprintf("Unknown method: %s", mval)
 					log.Error(&errorMap, "Dynamic Protobuf MessageType computation FAILURE")
+					bgs_packet.ErrorString = fmt.Sprintf("Unknown method: %s", mval)
 				}
 			}
 			log.Trace(&traceMap, "Dynamic Protobuf MessageType computation infos:")
 		} else {
 			errorMap["service_hash"] = fmt.Sprintf("Unknown Service hash: %d", bgs_packet.ServiceHash)
 			log.Error(&errorMap, "Dynamic Protobuf MessageType computation FAILURE")
+			bgs_packet.ErrorString = fmt.Sprintf("Unknown Service hash: %d", bgs_packet.ServiceHash)
 		}
 	}
 	if len(bgs_packet.BGSMessage.Bytes) > 0 {
@@ -141,6 +185,27 @@ func NewBgsPacketFromFrame(frame *ws.Frame, shouldCraftResponse bool) *BgsPacket
 		}
 
 	}
+
+	// Make PacketString
+	packetHeader := fmt.Sprintf("[darkcyan::b]### bgs.rpc.Header[white::B]\n%s", PrintMessage(bgs_packet.BGSHeader.ProtoHeader))
+	packetMessage := ""
+	packetNotification := ""
+	if len(bgs_packet.BGSMessage.Bytes) > 0 {
+		if bgs_packet.BGSMessage.ProtoMessage != nil {
+			packetMessage = fmt.Sprintf("[green::b]### bgs.rpc.Message[white::B]\n%s", PrintMessage(bgs_packet.BGSMessage.ProtoMessage))
+			if bgs_packet.FenNotification != nil {
+				packetNotification = fmt.Sprintf("[orange::b]### %s[white::B]\n%s", bgs_packet.FenNotification.MessagePayloadProtoMessageType, PrintMessage(bgs_packet.FenNotification.MessagePayloadProtoMessage))
+			}
+		} else {
+			packetMessage = fmt.Sprintf("[red::b]ERROR:[white::B] Nil ProtoMessage despite MessageLen > 0 !\n[red::b]Details:[white::B] %s\n", bgs_packet.ErrorString)
+
+		}
+	}
+	bgs_packet.String = packetHeader + packetMessage + packetNotification
+	///////////////
+
+	PacketHistory[PacketHistoryCounter] = PacketEntry{Source: Source, Packet: bgs_packet}
+	PacketHistoryCounter++
 	return bgs_packet
 }
 func (p *BgsPacket) resolveNotificationPayload(shouldCraftResponse bool) {
@@ -206,7 +271,10 @@ func (p *BgsPacket) resolveNotificationPayload(shouldCraftResponse bool) {
 	}
 }
 
-func PrintMessage(m proto.Message) {
+func PrintMessage(m proto.Message) string {
+	var output string
+	buf := bytes.NewBufferString(output)
+
 	var indent []byte
 	protorange.Options{
 		Stable: true,
@@ -219,29 +287,29 @@ func PrintMessage(m proto.Message) {
 			switch last.Step.Kind() {
 			case protopath.FieldAccessStep:
 				fd = last.Step.FieldDescriptor()
-				fmt.Printf("%s%s: ", indent, fd.Name())
+				fmt.Fprintf(buf, "%s%s: ", indent, fd.Name())
 			case protopath.ListIndexStep:
 				fd = beforeLast.Step.FieldDescriptor() // lists always appear in the context of a repeated field
-				fmt.Printf("%s%d: ", indent, last.Step.ListIndex())
+				fmt.Fprintf(buf, "%s%d: ", indent, last.Step.ListIndex())
 			case protopath.MapIndexStep:
 				fd = beforeLast.Step.FieldDescriptor() // maps always appear in the context of a repeated field
-				fmt.Printf("%s%v: ", indent, last.Step.MapIndex().Interface())
+				fmt.Fprintf(buf, "%s%v: ", indent, last.Step.MapIndex().Interface())
 			case protopath.AnyExpandStep:
-				fmt.Printf("%s[%v]: ", indent, last.Value.Message().Descriptor().FullName())
+				fmt.Fprintf(buf, "%s[%v]: ", indent, last.Value.Message().Descriptor().FullName())
 			case protopath.UnknownAccessStep:
-				fmt.Printf("%s?: ", indent)
+				fmt.Fprintf(buf, "%s?: ", indent)
 			}
 
 			// Starting printing the value.
 			switch v := last.Value.Interface().(type) {
 			case protoreflect.Message:
-				fmt.Printf("{\n")
+				fmt.Fprintf(buf, "{\n")
 				indent = append(indent, ' ', ' ')
 			case protoreflect.List:
-				fmt.Printf("[\n")
+				fmt.Fprintf(buf, "[\n")
 				indent = append(indent, ' ', ' ')
 			case protoreflect.Map:
-				fmt.Printf("{\n")
+				fmt.Fprintf(buf, "{\n")
 				indent = append(indent, ' ', ' ')
 			case protoreflect.EnumNumber:
 				var ev protoreflect.EnumValueDescriptor
@@ -249,14 +317,14 @@ func PrintMessage(m proto.Message) {
 					ev = fd.Enum().Values().ByNumber(v)
 				}
 				if ev != nil {
-					fmt.Printf("%v\n", ev.Name())
+					fmt.Fprintf(buf, "%v\n", ev.Name())
 				} else {
-					fmt.Printf("%v\n", v)
+					fmt.Fprintf(buf, "%v\n", v)
 				}
 			case string, []byte:
-				fmt.Printf("%q\n", v)
+				fmt.Fprintf(buf, "%q\n", v)
 			default:
-				fmt.Printf("%v\n", v)
+				fmt.Fprintf(buf, "%v\n", v)
 			}
 			return nil
 		},
@@ -265,17 +333,18 @@ func PrintMessage(m proto.Message) {
 			switch last.Value.Interface().(type) {
 			case protoreflect.Message:
 				indent = indent[:len(indent)-2]
-				fmt.Printf("%s}\n", indent)
+				fmt.Fprintf(buf, "%s}\n", indent)
 			case protoreflect.List:
 				indent = indent[:len(indent)-2]
-				fmt.Printf("%s]\n", indent)
+				fmt.Fprintf(buf, "%s]\n", indent)
 			case protoreflect.Map:
 				indent = indent[:len(indent)-2]
-				fmt.Printf("%s}\n", indent)
+				fmt.Fprintf(buf, "%s}\n", indent)
 			}
 			return nil
 		},
 	)
+	return buf.String()
 }
 
 func truncate(str string, length int) (truncated string, was_truncated bool) {

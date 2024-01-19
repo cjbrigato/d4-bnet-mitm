@@ -2,8 +2,6 @@ module github.com/cjbrigato/d4-bnet-mitm
 
 go 1.21
 
-toolchain go1.21.6
-
 require (
 	github.com/gookit/color v1.5.4
 	google.golang.org/protobuf v1.32.0
@@ -15,8 +13,11 @@ require (
 	atomicgo.dev/schedule v0.1.0 // indirect
 	github.com/akavel/rsrc v0.10.2 // indirect
 	github.com/containerd/console v1.0.3 // indirect
+	github.com/gdamore/encoding v1.0.0 // indirect
+	github.com/gdamore/tcell/v2 v2.6.1-0.20231203215052-2917c3801e73 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/lithammer/fuzzysearch v1.1.8 // indirect
+	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/pterm/pterm v0.12.74 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
