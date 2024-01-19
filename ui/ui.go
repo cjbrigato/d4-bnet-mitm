@@ -31,14 +31,24 @@ var (
 	TreeLogList = tview.NewTreeView()
 	TreeRoot    = tview.NewTreeNode("root")
 	TvPackets   = []*tview.TextView{}
+	Info        = tview.NewTextView()
+	PacketInfo  = tview.NewTextView()
 )
 
-const banner = ` ____  _  _   _                _                  _ _             
-|  _ \| || | | |__  _ __   ___| |_      _ __ ___ (_) |_ _ __ ___  
-| | | | || |_| '_ \| '_ \ / _ \ __|____| '_ ` + "`" + ` _ \| | __| '_ ` + "`" + ` _ \ 
+/*
+const banner = ` ____  _  _   _                _                  _ _
+|  _ \| || | | |__  _ __   ___| |_      _ __ ___ (_) |_ _ __ ___
+| | | | || |_| '_ \| '_ \ / _ \ __|____| '_ ` + "`" + ` _ \| | __| '_ ` + "`" + ` _ \
 | |_| |__   _| |_) | | | |  __/ ||_____| | | | | | | |_| | | | | |
 |____/   |_| |_.__/|_| |_|\___|\__|    |_| |_| |_|_|\__|_| |_| |_|
  [ TLS: using embedded X509 pair ]   +----Ready ----------------  `
+*/
+
+const banner = ` ____  _  _   _                _                  _ _             
+ |  _ \| || | | |__  _ __   ___| |_      _ __ ___ (_) |_ _ __ ___  
+ | | | | || |_| '_ \| '_ \ / _ \ __|____| '_ ` + "`" + ` _ \| | __| '_ ` + "`" + ` _ \ 
+ | |_| |__   _| |_) | | | |  __/ ||_____| | | | | | | |_| | | | | |
+ |____/   |_| |_.__/|_| |_|\___|\__|    |_| |_| |_|_|\__|_| |_| |_|`
 
 func init() {
 	Pages = tview.NewPages()
@@ -56,8 +66,11 @@ func init() {
 		})
 	TreeLogList = tview.NewTreeView().SetRoot(TreeRoot).SetCurrentNode(TreeRoot).SetGraphics(false).SetTopLevel(1).SetPrefixes([]string{"[red]* ", "[darkcyan]- ", "[darkmagenta]- "})
 	TvPackets = []*tview.TextView{}
-
+	Info = tview.NewTextView()
+	PacketInfo = tview.NewTextView()
 }
+
+var SelectedPacket int64 = -1
 
 func Preamble() {
 	pterm.DefaultCenter.WithCenterEachLineSeparately().Println("Starting up...")
@@ -91,13 +104,25 @@ func StartUi() {
 		}
 	}()
 
-	info := tview.NewTextView().
+	Info = tview.NewTextView().
 		SetDynamicColors(true).
 		SetRegions(true).
 		SetWrap(false).
+		SetChangedFunc(func() {
+			App.Draw()
+		}).
 		SetHighlightedFunc(func(added, removed, remaining []string) {
 			Pages.SwitchToPage(added[0])
 		})
+
+	bannerSeparator := tview.NewTextView().
+		SetDynamicColors(true).
+		SetRegions(false).
+		SetWrap(false).SetSize(1, 0)
+	//SetBackgroundColor(tcell.ColorWhite)
+	//_, _, width, _ := bannerSeparator.Box.GetRect()
+	separatorChar := strings.Repeat("_", 500)
+	fmt.Fprintf(bannerSeparator, separatorChar)
 
 	packetheader := tview.NewTextView().
 		SetDynamicColors(true).
@@ -110,17 +135,20 @@ func StartUi() {
 	fmt.Fprintf(packetheader, `      [darkcyan]No.[white]     [darkcyan]Time[white]      [darkcyan]Source[white]  [darkcyan]RID[white] [darkcyan]Kind[white]      [darkcyan]%s[white]  [darkcyan]bgs.protocol.[cyan]ServiceName[white]`, PaddedMessageTypeString("MessageType"))
 
 	Pages.AddPage("Logs", TreeLogList, true, true)
-	fmt.Fprintf(info, `%d ["%d"][darkcyan]%s[white][""]  `, 1, 0, "Logs")
+	fmt.Fprintf(Info, `%d ["%d"][darkcyan]%s[white][""]  `, 1, 0, "Logs")
 
 	Pages.AddPage("Packets", PacketList, true, true)
-	fmt.Fprintf(info, `%d ["%d"][darkcyan]%s[white][""]  `, 2, 1, "Packets")
+	fmt.Fprintf(Info, `%d ["%d"][darkcyan]%s[white][""]  `, 2, 1, "Packets")
 
 	layout := tview.NewFlex().
 		SetDirection(tview.FlexRow).
-		AddItem(logoBox, 7, 1, false).
+		AddItem(logoBox, 5, 1, false).
+		AddItem(bannerSeparator, 1, 1, false).
 		AddItem(packetheader, 1, 1, false).
 		AddItem(Pages, 0, 1, true).
-		AddItem(info, 1, 1, false)
+		AddItem(bannerSeparator, 1, 1, false).
+		AddItem(PacketInfo, 0, 1, false).
+		AddItem(Info, 1, 1, false)
 
 	if err := App.SetRoot(layout, true).Run(); err != nil {
 		panic(err)

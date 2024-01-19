@@ -150,6 +150,10 @@ func (a *Application) SetInputCapture(capture func(event *tcell.EventKey) *tcell
 	return a
 }
 
+func (a *Application) GetScreen() *tcell.Screen {
+	return &a.screen
+}
+
 // GetInputCapture returns the function installed with SetInputCapture() or nil
 // if no such function has been installed.
 func (a *Application) GetInputCapture() func(event *tcell.EventKey) *tcell.EventKey {

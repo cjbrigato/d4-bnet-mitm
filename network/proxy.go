@@ -62,8 +62,6 @@ func handleFrame(r io.Reader, c io.Writer, source string, conn_id int) {
 		}
 
 		log2.Wmutex.Lock()
-		//log2.Info(nil, "-------------------------------------------------")
-		//log2.Info(nil, ">>> WS::FRAME -> %d:%s (%s, fin = %t, %d bytes)", ids, source, frame.Header.OpCode, frame.Header.Fin, frame.Header.Length)
 		bgs_packet := bgspacket.NewBgsPacketFromFrame(&frame, SourceFromString(source), config.GlobalCfg.CraftedAuthResponse)
 		if !had_first_byte {
 			started_at = time.Now()
@@ -75,15 +73,48 @@ func handleFrame(r io.Reader, c io.Writer, source string, conn_id int) {
 			if isServerSource(source) {
 				src_color = "[orange]<-- [darkcyan]SERVER[white]"
 			}
+			var btype string
+			var lastbtype string
+			var PaddedMessageTypeString string
+			var isError bool
 			token := bgs_packet.RpcToken
 			sname, _ := strings.CutPrefix(fmt.Sprintf("%s", bgs_packet.ServiceName), "bgs.protocol.")
-			btype, _ := strings.CutPrefix(fmt.Sprintf("%s", bgs_packet.MessageType), "bgs.protocol.")
-			lastbtype := btype[strings.LastIndex(btype, ".")+1:]
+			if bgs_packet.ErrorString == "" {
+				btype, _ = strings.CutPrefix(fmt.Sprintf("%s", bgs_packet.MessageType), "bgs.protocol.")
+				lastbtype = btype[strings.LastIndex(btype, ".")+1:]
+			} else {
+				//btype = bgs_packet.ErrorString
+				btype = "Error: see packet details"
+				lastbtype = btype
+				isError = true
+			}
+			PaddedMessageTypeString = ui.PaddedMessageTypeString(lastbtype)
 			kind := bgs_packet.RpcKind
 			if kind == "request" {
 				kind = "request "
 			}
-			ui.PacketList.AddItem(fmt.Sprintf("[grey]%4d.[white] [blue]%8.3f[white]  %s [white] %3d %s  %s  %s", jids[ids], float32(time.Since(started_at).Milliseconds())/1000.0, src_color, token, kind, ui.PaddedMessageTypeString(lastbtype), sname), "", 0, nil)
+
+			if !isError {
+				PaddedMessageTypeString = fmt.Sprintf("[green]%s[white]", PaddedMessageTypeString)
+			} else {
+				PaddedMessageTypeString = fmt.Sprintf("[red]%s[white]", PaddedMessageTypeString)
+			}
+
+			selectable := int64(jids[ids] - 1)
+			ui.PacketList.AddItem(fmt.Sprintf("[grey]%4d.[white] [blue]%8.3f[white]  %s [white] %3d %s  %s  %s", jids[ids], float32(time.Since(started_at).Milliseconds())/1000.0, src_color, token, kind, PaddedMessageTypeString, sname), "", 0,
+				func() {
+					if ui.SelectedPacket == selectable {
+						ui.SelectedPacket = -1
+					} else {
+						ui.SelectedPacket = selectable
+					}
+					//ui.Info.SetText(fmt.Sprintf("SelectedPacket: %d", ui.SelectedPacket))
+					if ui.SelectedPacket != -1 {
+						ui.PacketInfo.SetText(bgspacket.PacketHistory[ui.SelectedPacket].Packet.String)
+					} else {
+						ui.PacketInfo.SetText("")
+					}
+				})
 		})
 		/*switch bgs_packet.MessageType {
 		case "bgs.protocol.game_utilities.v2.client.ProcessTaskResponse":
